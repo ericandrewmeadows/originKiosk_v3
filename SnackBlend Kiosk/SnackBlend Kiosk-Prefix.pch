@@ -1,0 +1,19 @@
+//
+//  SnackBlend Kiosk-Prefix.pch
+//  SnackBlend Kiosk
+//
+//  Created by Eric Meadows on 3/8/17.
+//  Copyright © 2017 Calmlee. All rights reserved.
+//
+
+#ifdef __cplusplus
+//#import <opencv2/opencv.hpp>
+#endif
+
+#ifndef SnackBlend_Kiosk_Prefix_pch
+#define SnackBlend_Kiosk_Prefix_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#endif /* SnackBlend_Kiosk_Prefix_pch */

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12118" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="ipad9_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12086"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Setup View Controller-->
+        <scene sceneID="kKP-HU-Tj8">
+            <objects>
+                <viewController id="KUn-YD-jTl" customClass="setupViewController" customModule="SnackBlend_Kiosk" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="gwD-Xv-g8E"/>
+                        <viewControllerLayoutGuide type="bottom" id="9tJ-rc-lP4"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="AYE-A7-CAX">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="show" identifier="gotoMain" id="Cel-Ke-c1A"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="oec-hE-vgG" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="95" y="-802"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="SnackBlend_Kiosk" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    </view>
+                    <connections>
+                        <outlet property="view" destination="8bC-Xf-vdC" id="oUS-MM-WUv"/>
+                        <segue destination="CiN-nl-oAl" kind="show" id="j0e-xG-zjR"/>
+                        <segue destination="I0X-i9-nOj" kind="show" identifier="goto_videoTracking" id="O3e-UK-lw0"/>
+                        <segue destination="KUn-YD-jTl" kind="show" identifier="gotoSetup" id="Eib-Gp-XZ8"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+        <!--Demo Day-->
+        <scene sceneID="W82-2P-byD">
+            <objects>
+                <viewController id="Lqi-Nv-7ni" customClass="DemoDay" customModule="SnackBlend_Kiosk" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Rc7-HG-QiD"/>
+                        <viewControllerLayoutGuide type="bottom" id="NTC-9V-lf3"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="94j-Y6-xFX">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="TZb-8L-rmw" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-731" y="750"/>
+        </scene>
+        <!--Video User Tracker-->
+        <scene sceneID="fnv-M5-Qew">
+            <objects>
+                <viewController id="I0X-i9-nOj" customClass="VideoUserTracker" customModule="SnackBlend_Kiosk" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="b73-pj-Ci6"/>
+                        <viewControllerLayoutGuide type="bottom" id="vpk-Fd-eeb"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ZOl-yw-QWw">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fVn-Qp-ISV">
+                                <rect key="frame" x="16" y="28" width="343" height="619"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="vpk-Fd-eeb" firstAttribute="top" secondItem="fVn-Qp-ISV" secondAttribute="bottom" constant="20" id="DMd-il-PQS"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="fVn-Qp-ISV" secondAttribute="trailing" id="OKn-ra-4vh"/>
+                            <constraint firstItem="fVn-Qp-ISV" firstAttribute="centerY" secondItem="ZOl-yw-QWw" secondAttribute="centerY" id="SP8-Sw-k1R"/>
+                            <constraint firstItem="fVn-Qp-ISV" firstAttribute="centerX" secondItem="ZOl-yw-QWw" secondAttribute="centerX" id="rbF-pA-LHS"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="fVn-Qp-ISV" id="Gh0-HJ-DP9"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="54r-Ij-Cdq" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="32.799999999999997" y="820.83958020989508"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="U2X-P7-cgI">
+            <objects>
+                <viewController id="CiN-nl-oAl" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Y51-kl-SCE"/>
+                        <viewControllerLayoutGuide type="bottom" id="i5s-bO-J6h"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="HSd-Bg-w6k">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    </view>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="show" id="amT-Yn-T5G"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FJg-Fw-RgN" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="890" y="112"/>
+        </scene>
+        <!--Bluetooth Test-->
+        <scene sceneID="cS2-VV-xP6">
+            <objects>
+                <viewController id="ZF2-nf-x86" customClass="BluetoothTest" customModule="SnackBlend_Kiosk" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Qsq-Yl-Ors"/>
+                        <viewControllerLayoutGuide type="bottom" id="Sx5-lJ-ypK"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="na3-Dm-JTP">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="OiV-TY-B2l" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="890" y="820"/>
+        </scene>
+    </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="Cel-Ke-c1A"/>
+    </inferredMetricsTieBreakers>
+</document>

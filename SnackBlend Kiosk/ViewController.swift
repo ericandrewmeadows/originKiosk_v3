@@ -83,6 +83,9 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
     var pinString_validate: [Character] = ["-", "-", "-", "-"]
     var pinString_str = ""
     
+    // Subscription Info
+    var subscription = 0
+    
     // Epona
     // Credit Card Swipe Info
     let version_url = "&version=1.1"
@@ -207,6 +210,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
 //            self.subscribeDetails.isHidden = true
             self.buttonVideo.setTitle("Cancel", for: .normal)
 //            self.payButton.setTitle("Pay Now", for: .normal)
+            self.subscribeButton.isHidden = true
             self.cardToken = ""
             
             UIView.animate(withDuration: self.successTransition,
@@ -305,6 +309,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
             self.checkMark.isHidden = true
             self.paymentSuccessfulLabel.isHidden = true
             self.priceLabel.isHidden = false
+            self.subscribeButton.isHidden = false
             self.resetPhoneNumber()
             self.enablePaymentButtons()
             self.paymentSuccessfulLabel.text = "Payment Successful"
@@ -639,7 +644,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
         //                                 width: self.screenSize.width / 4,
         //                                 height: self.screenSize.height / 8)
         priceLabel.frame = CGRect(x: self.screenSize.width / 16,
-                                  y: r1y - self.screenSize.height / 16,//(imageView.frame.maxY + (r2y + r3y) / 2) / 2 - self.screenSize.height / 5,
+                                  y: r1y - self.screenSize.height / 10,//(imageView.frame.maxY + (r2y + r3y) / 2) / 2 - self.screenSize.height / 5,
             width: self.screenSize.width * 3 / 8,
             height: self.screenSize.height / 5)
 //        priceLabel.text = "$5.99"
@@ -650,15 +655,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
 //        text = "$5.99"
 //        price_formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:price_attrs_stk))
         
-        let string = "$2.99($5.99 normally)"
-        var attributedString = NSMutableAttributedString(string: string as String)
-        let secondAttributes = [NSStrikethroughStyleAttributeName: 2, NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
-        attributedString.addAttributes(secondAttributes, range: NSMakeRange(0, 5))
-        attributedString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.black, range: NSMakeRange(0, attributedString.length))
-//        attributeString.add
-
-//        attributedString.append(NSAttributedString(string: "$2.99"))
-        priceLabel.attributedText = attributedString
+        originalPriceLabel()
         
 //        priceLabel.font = UIFont.boldSystemFont(ofSize: priceLabel.frame.height / 2)
         priceLabel.textAlignment = .center
@@ -712,11 +709,22 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
         payButton.addTarget(self, action: #selector(payUsing_worldSelector), for: .touchUpInside)
 //        view.addSubview(self.payButton)
         
-        subscribeButton.frame = CGRect(x: payButton.frame.minX,
-                                       y: r4y - self.screenSize.height / 32,
-                                       width: payButton.frame.width,
+        subscribeButton.frame = CGRect(x: self.screenSize.width / 12 * 3.5,
+                                       y: r2y - self.screenSize.height / 32,
+                                       width: self.screenSize.width / 3 / 3,
                                        height: payButton.frame.height)
-        subscribeButton.setTitle("Subscribe", for: .normal)
+        subscribeButton.setTitle("Join and get it for: $3.99", for: .normal)
+        
+        // NOW
+        let subscribeString = "Join"
+        let title = NSMutableAttributedString(string: subscribeString as String)
+        
+        let sub_zeroAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Regular", size: self.screenSize.height*(9/170))!] as [String : Any]
+        let sub_oneAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(8/170))!] as [String : Any]
+        title.addAttributes(sub_oneAttributes, range: NSMakeRange(0,title.length))
+        subscribeButton.setAttributedTitle(title, for: .normal)
+        // NOW
+        
         subscribeButton.setTitleColor(.black, for: .normal)
         subscribeButton.setTitleColor(UIColor(red: 75/255.0,
                                               green: 181/255.0,
@@ -726,10 +734,10 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
         subscribeButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: payButton.frame.height / 2)
         subscribeButton.backgroundColor = UIColor.white
         subscribeButton.layer.borderColor = UIColor.black.cgColor
-        subscribeButton.layer.borderWidth = 6
+        subscribeButton.layer.borderWidth = 3
         subscribeButton.layer.cornerRadius = payButton.frame.height / 4//0.5 * button1.bounds.size.width
         subscribeButton.clipsToBounds = true
-        subscribeButton.isHidden = true
+        subscribeButton.isHidden = false
         subscribeButton.addTarget(self, action: #selector(processSubscription), for: .touchUpInside)
         view.addSubview(self.subscribeButton)
         
@@ -1203,6 +1211,8 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
     
     func paymentReset () {
         DispatchQueue.main.async {
+            self.subscription = 0
+            self.originalPriceLabel()
             self.resetKeurigLabel()
             self.keypadVersion = "phoneNumber"
             self.localRegistration = false;
@@ -1227,14 +1237,54 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
             self.pinPadImage_view.isHidden = false
             self.keurigLabel.isHidden = false
             self.priceLabel.isHidden = false
+            self.subscribeButton.isHidden = false
         }
         phoneNumberDisplay.text = ""
         self.view.setNeedsDisplay()
 //        self.viewDidLoad()
     }
     
+    func originalPriceLabel() {
+        let string = "$5.99 | $3.99\n\t\t\t\t\t\t\tMembers Only" //\n(subscription opens tomorrow)"
+        var attributedString = NSMutableAttributedString(string: string as String)
+        let zeroAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
+        let firstAttributes = [NSStrikethroughStyleAttributeName: 2, NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
+        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(6/170))!] as [String : Any]
+        attributedString.addAttributes(zeroAttributes, range: NSMakeRange(0,13))
+        attributedString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.black, range: NSMakeRange(0, attributedString.length))
+        
+        priceLabel.attributedText = attributedString
+        priceLabel.numberOfLines = 0
+    }
+    
+    func subscriptionPriceLabel() {
+        let string = "\n\n$12 / Month\n$3.99 / Smoothie" //\n(subscription opens tomorrow)"
+        var attributedString = NSMutableAttributedString(string: string as String)
+        let zeroAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(9/170))!] as [String : Any]
+//        let firstAttributes = [NSStrikethroughStyleAttributeName: 2, NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
+//        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(6/170))!] as [String : Any]
+        let initOff = 2
+        attributedString.addAttributes(zeroAttributes,
+                                       range: NSMakeRange(initOff,
+                                                          attributedString.length-initOff))
+        attributedString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.black, range: NSMakeRange(0, attributedString.length))
+        
+        priceLabel.attributedText = attributedString
+        priceLabel.numberOfLines = 0
+        self.view.setNeedsDisplay()
+    }
+    
     func processSubscription() {
         print("Process subscription")
+        
+        subscriptionPriceLabel()
+        subscription = 1
+        
+        self.swipeImage_view.isHidden = false
+        self.pinPadImage_view.isHidden = false
+        self.keurigLabel.isHidden = false
+        self.priceLabel.isHidden = false
+        self.subscribeButton.isHidden = true
     }
     
     func phoneNumberPayment() {
@@ -1266,20 +1316,23 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
             let ccInfoString = "?ccInfo=" + bluetoothRx_array
             let chargeUser_now = "&chargeNow=" + String(ccInfo_chargeUser)
             let companyString = "&companyName=" + defaults.string(forKey: "company")!
-            urlWithParams = paymentAddress + ccInfoString + companyString + versionString + chargeUser_now
+            let subscribeString = "&subscribe=" + String(self.subscription)
+            urlWithParams = paymentAddress + ccInfoString + companyString + versionString + chargeUser_now + subscribeString
         }
         else if (method == "PIN") { // Yields to "Needs Registration"
             let phoneString = "?phoneNumber=" + String(phoneNumString_exact)
             let pinString_url = "&PIN=" + String(pinString)
             let companyString = "&companyName=" + defaults.string(forKey: "company")!
-            urlWithParams = paymentAddress + phoneString + companyString + versionString + pinString_url
+            let subscribeString = "&subscribe=" + String(self.subscription)
+            urlWithParams = paymentAddress + phoneString + companyString + versionString + pinString_url + subscribeString
         }
         else if (method == "phoneThenSwipeRegister") {
             let phoneString = "?phoneNumber=" + String(phoneNumString_exact)
             let pinString_url = "&PIN=" + String(pinString)
             let companyString = "&companyName=" + defaults.string(forKey: "company")!
             let tokenString_url = "&stripeToken=" + String(pinString)
-            urlWithParams = paymentAddress + phoneString + companyString + versionString + pinString_url + tokenString_url
+            let subscribeString = "&subscribe=" + String(self.subscription)
+            urlWithParams = paymentAddress + phoneString + companyString + versionString + pinString_url + tokenString_url + subscribeString
         }
         
         // Create NSURL Object

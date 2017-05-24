@@ -1126,6 +1126,10 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         
         let data: Data = rscMgr.getDataFromBytesAvailable()   // note: may also process text using rscMgr.getStringFromBytesAvailable()
         let dataString = String(data: data, encoding: String.Encoding.utf8)!
+        
+        // Need to implement same checking for CCINFO
+        
+        
         //        priceLabel.text = dataString
         
         //        receivedTextView.text = receivedTextView.text + (dataString + "\n")

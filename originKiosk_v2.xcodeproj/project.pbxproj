@@ -77,17 +77,17 @@
 		535FB51F1E7112E500D28095 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		535FB5211E7112EA00D28095 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		535FB5231E71136C00D28095 /* SnackBlend Kiosk-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SnackBlend Kiosk-Prefix.pch"; sourceTree = "<group>"; };
-		539C27FA1E67DC3300B0F9F6 /* originKiosk_v1_2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = originKiosk_v1_2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		539C27FA1E67DC3300B0F9F6 /* originKiosk_v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = originKiosk_v2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		539C27FD1E67DC3300B0F9F6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		539C27FF1E67DC3300B0F9F6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		539C28021E67DC3300B0F9F6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		539C28041E67DC3300B0F9F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		539C28071E67DC3300B0F9F6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		539C28091E67DC3300B0F9F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		539C280E1E67DC3300B0F9F6 /* originKiosk_v1_2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = originKiosk_v1_2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		539C280E1E67DC3300B0F9F6 /* originKiosk_v2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = originKiosk_v2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		539C28121E67DC3300B0F9F6 /* SnackBlend_KioskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnackBlend_KioskTests.swift; sourceTree = "<group>"; };
 		539C28141E67DC3300B0F9F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		539C28191E67DC3300B0F9F6 /* originKiosk_v1_2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = originKiosk_v1_2UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		539C28191E67DC3300B0F9F6 /* originKiosk_v2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = originKiosk_v2UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		539C281D1E67DC3300B0F9F6 /* SnackBlend_KioskUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnackBlend_KioskUITests.swift; sourceTree = "<group>"; };
 		539C281F1E67DC3300B0F9F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		539C282B1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "GrandHotel-Regular.ttf"; path = "Resources/GrandHotel-Regular.ttf"; sourceTree = "<group>"; };
@@ -206,9 +206,9 @@
 		539C27FB1E67DC3300B0F9F6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				539C27FA1E67DC3300B0F9F6 /* originKiosk_v1_2.app */,
-				539C280E1E67DC3300B0F9F6 /* originKiosk_v1_2Tests.xctest */,
-				539C28191E67DC3300B0F9F6 /* originKiosk_v1_2UITests.xctest */,
+				539C27FA1E67DC3300B0F9F6 /* originKiosk_v2.app */,
+				539C280E1E67DC3300B0F9F6 /* originKiosk_v2Tests.xctest */,
+				539C28191E67DC3300B0F9F6 /* originKiosk_v2UITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -271,9 +271,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		539C27F91E67DC3300B0F9F6 /* originKiosk_v1_2 */ = {
+		539C27F91E67DC3300B0F9F6 /* originKiosk_v2 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 539C28221E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v1_2" */;
+			buildConfigurationList = 539C28221E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v2" */;
 			buildPhases = (
 				539C27F61E67DC3300B0F9F6 /* Sources */,
 				539C27F71E67DC3300B0F9F6 /* Frameworks */,
@@ -283,14 +283,14 @@
 			);
 			dependencies = (
 			);
-			name = originKiosk_v1_2;
+			name = originKiosk_v2;
 			productName = "SnackBlend Kiosk";
-			productReference = 539C27FA1E67DC3300B0F9F6 /* originKiosk_v1_2.app */;
+			productReference = 539C27FA1E67DC3300B0F9F6 /* originKiosk_v2.app */;
 			productType = "com.apple.product-type.application";
 		};
-		539C280D1E67DC3300B0F9F6 /* originKiosk_v1_2Tests */ = {
+		539C280D1E67DC3300B0F9F6 /* originKiosk_v2Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 539C28251E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v1_2Tests" */;
+			buildConfigurationList = 539C28251E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v2Tests" */;
 			buildPhases = (
 				539C280A1E67DC3300B0F9F6 /* Sources */,
 				539C280B1E67DC3300B0F9F6 /* Frameworks */,
@@ -301,14 +301,14 @@
 			dependencies = (
 				539C28101E67DC3300B0F9F6 /* PBXTargetDependency */,
 			);
-			name = originKiosk_v1_2Tests;
+			name = originKiosk_v2Tests;
 			productName = "SnackBlend KioskTests";
-			productReference = 539C280E1E67DC3300B0F9F6 /* originKiosk_v1_2Tests.xctest */;
+			productReference = 539C280E1E67DC3300B0F9F6 /* originKiosk_v2Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		539C28181E67DC3300B0F9F6 /* originKiosk_v1_2UITests */ = {
+		539C28181E67DC3300B0F9F6 /* originKiosk_v2UITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 539C28281E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v1_2UITests" */;
+			buildConfigurationList = 539C28281E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v2UITests" */;
 			buildPhases = (
 				539C28151E67DC3300B0F9F6 /* Sources */,
 				539C28161E67DC3300B0F9F6 /* Frameworks */,
@@ -319,9 +319,9 @@
 			dependencies = (
 				539C281B1E67DC3300B0F9F6 /* PBXTargetDependency */,
 			);
-			name = originKiosk_v1_2UITests;
+			name = originKiosk_v2UITests;
 			productName = "SnackBlend KioskUITests";
-			productReference = 539C28191E67DC3300B0F9F6 /* originKiosk_v1_2UITests.xctest */;
+			productReference = 539C28191E67DC3300B0F9F6 /* originKiosk_v2UITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -352,7 +352,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 539C27F51E67DC3300B0F9F6 /* Build configuration list for PBXProject "originKiosk_v1_2" */;
+			buildConfigurationList = 539C27F51E67DC3300B0F9F6 /* Build configuration list for PBXProject "originKiosk_v2" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -365,9 +365,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				539C27F91E67DC3300B0F9F6 /* originKiosk_v1_2 */,
-				539C280D1E67DC3300B0F9F6 /* originKiosk_v1_2Tests */,
-				539C28181E67DC3300B0F9F6 /* originKiosk_v1_2UITests */,
+				539C27F91E67DC3300B0F9F6 /* originKiosk_v2 */,
+				539C280D1E67DC3300B0F9F6 /* originKiosk_v2Tests */,
+				539C28181E67DC3300B0F9F6 /* originKiosk_v2UITests */,
 			);
 		};
 /* End PBXProject section */
@@ -439,12 +439,12 @@
 /* Begin PBXTargetDependency section */
 		539C28101E67DC3300B0F9F6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 539C27F91E67DC3300B0F9F6 /* originKiosk_v1_2 */;
+			target = 539C27F91E67DC3300B0F9F6 /* originKiosk_v2 */;
 			targetProxy = 539C280F1E67DC3300B0F9F6 /* PBXContainerItemProxy */;
 		};
 		539C281B1E67DC3300B0F9F6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 539C27F91E67DC3300B0F9F6 /* originKiosk_v1_2 */;
+			target = 539C27F91E67DC3300B0F9F6 /* originKiosk_v2 */;
 			targetProxy = 539C281A1E67DC3300B0F9F6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -635,7 +635,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "CLApp.SnackBlend-KioskTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/originKiosk_v1_2.app/originKiosk_v1_2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/originKiosk_v2.app/originKiosk_v2";
 			};
 			name = Debug;
 		};
@@ -649,7 +649,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "CLApp.SnackBlend-KioskTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/originKiosk_v1_2.app/originKiosk_v1_2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/originKiosk_v2.app/originKiosk_v2";
 			};
 			name = Release;
 		};
@@ -682,7 +682,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		539C27F51E67DC3300B0F9F6 /* Build configuration list for PBXProject "originKiosk_v1_2" */ = {
+		539C27F51E67DC3300B0F9F6 /* Build configuration list for PBXProject "originKiosk_v2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				539C28201E67DC3300B0F9F6 /* Debug */,
@@ -691,7 +691,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		539C28221E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v1_2" */ = {
+		539C28221E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				539C28231E67DC3300B0F9F6 /* Debug */,
@@ -700,7 +700,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		539C28251E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v1_2Tests" */ = {
+		539C28251E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v2Tests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				539C28261E67DC3300B0F9F6 /* Debug */,
@@ -709,7 +709,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		539C28281E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v1_2UITests" */ = {
+		539C28281E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v2UITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				539C28291E67DC3300B0F9F6 /* Debug */,

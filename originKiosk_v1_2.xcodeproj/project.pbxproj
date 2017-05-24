@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		533CB17C1E71032F00DEBDB2 /* FrameExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533CB17B1E71032F00DEBDB2 /* FrameExtractor.swift */; };
 		533EA9611E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */; };
+		5355D9B41ED51B76008640BE /* libRscMgrUniv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5355D9B31ED51B76008640BE /* libRscMgrUniv.a */; };
+		5355D9B91ED51BD7008640BE /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5355D9B81ED51BD7008640BE /* ExternalAccessory.framework */; };
 		535C5A7B1E9403E400A902A6 /* setupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535C5A7A1E9403E400A902A6 /* setupViewController.swift */; };
 		535FB50C1E71115C00D28095 /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 535FB50B1E71115C00D28095 /* OpenCVWrapper.mm */; };
 		535FB5101E71129E00D28095 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535FB50F1E71129E00D28095 /* Accelerate.framework */; };
@@ -55,8 +57,12 @@
 /* Begin PBXFileReference section */
 		533CB17B1E71032F00DEBDB2 /* FrameExtractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FrameExtractor.swift; sourceTree = "<group>"; };
 		533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Avenir-Next-LT-Pro-Bold_5182.ttf"; path = "../../Avenir-Next-LT-Pro-Bold_5182.ttf"; sourceTree = "<group>"; };
+		5355D9B31ED51B76008640BE /* libRscMgrUniv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRscMgrUniv.a; sourceTree = "<group>"; };
+		5355D9B51ED51B89008640BE /* redparkSerial.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = redparkSerial.h; sourceTree = "<group>"; };
+		5355D9B61ED51B89008640BE /* RscMgr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RscMgr.h; sourceTree = "<group>"; };
+		5355D9B71ED51B89008640BE /* SwiftDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwiftDemo-Bridging-Header.h"; sourceTree = "<group>"; };
+		5355D9B81ED51BD7008640BE /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
 		535C5A7A1E9403E400A902A6 /* setupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = setupViewController.swift; sourceTree = "<group>"; };
-		535FB5051E710E3300D28095 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = "SnackBlend Kiosk/opencv2.framework"; sourceTree = "<group>"; };
 		535FB50A1E71115C00D28095 /* OpenCVWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenCVWrapper.h; sourceTree = "<group>"; };
 		535FB50B1E71115C00D28095 /* OpenCVWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVWrapper.mm; sourceTree = "<group>"; };
 		535FB50D1E71118500D28095 /* SnackBlend Kiosk-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; path = "SnackBlend Kiosk-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -96,10 +102,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5355D9B91ED51BD7008640BE /* ExternalAccessory.framework in Frameworks */,
 				535FB5221E7112EA00D28095 /* Foundation.framework in Frameworks */,
 				535FB5201E7112E500D28095 /* UIKit.framework in Frameworks */,
 				535FB51E1E7112DD00D28095 /* QuartzCore.framework in Frameworks */,
 				535FB51C1E7112D600D28095 /* CoreVideo.framework in Frameworks */,
+				5355D9B41ED51B76008640BE /* libRscMgrUniv.a in Frameworks */,
 				535FB51A1E7112CD00D28095 /* CoreMedia.framework in Frameworks */,
 				535FB5181E7112C900D28095 /* CoreImage.framework in Frameworks */,
 				535FB5161E7112B500D28095 /* CoreGraphics.framework in Frameworks */,
@@ -139,9 +147,28 @@
 			name = "Video Processing";
 			sourceTree = "<group>";
 		};
+		5355D9B11ED51B51008640BE /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				5355D9B51ED51B89008640BE /* redparkSerial.h */,
+				5355D9B61ED51B89008640BE /* RscMgr.h */,
+				5355D9B71ED51B89008640BE /* SwiftDemo-Bridging-Header.h */,
+			);
+			name = lib;
+			sourceTree = "<group>";
+		};
+		5355D9B21ED51B58008640BE /* inc */ = {
+			isa = PBXGroup;
+			children = (
+				5355D9B31ED51B76008640BE /* libRscMgrUniv.a */,
+			);
+			name = inc;
+			sourceTree = "<group>";
+		};
 		535FB50E1E71129E00D28095 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5355D9B81ED51BD7008640BE /* ExternalAccessory.framework */,
 				535FB5211E7112EA00D28095 /* Foundation.framework */,
 				535FB51F1E7112E500D28095 /* UIKit.framework */,
 				535FB51D1E7112DD00D28095 /* QuartzCore.framework */,
@@ -225,8 +252,9 @@
 		539C282D1E67E32200B0F9F6 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				535FB5051E710E3300D28095 /* opencv2.framework */,
 				539C282B1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf */,
+				5355D9B21ED51B58008640BE /* inc */,
+				5355D9B11ED51B51008640BE /* lib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -552,9 +580,13 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "SnackBlend Kiosk/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.calmlee.originKiosk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "SnackBlend Kiosk/SnackBlend Kiosk-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "SwiftDemo-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -580,9 +612,13 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "SnackBlend Kiosk/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.calmlee.originKiosk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "SnackBlend Kiosk/SnackBlend Kiosk-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "SwiftDemo-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "/usr/include/OpenCV_PATH $(inherited)";

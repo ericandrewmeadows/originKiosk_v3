@@ -16,7 +16,12 @@ let pinCheckAddress = "https://io.calmlee.com/hashCheck.php"
 let registerNewUserAddress = "https://io.calmlee.com/paymentPosting_GET.php"
 //let paymentAddress = "https://io.calmlee.com/userExists_stripeTestMode.php"
 
-class ViewController: UIViewController, BluetoothSerialDelegate {
+let baudRate: Int32 = 9600      // baud rate
+
+class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate {
+    
+    // RscMgr
+    var rscMgr:  RscMgr!     // RscMgr handles the serial communication
     
     let defaults = UserDefaults.standard
     
@@ -534,6 +539,12 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // rscMgr
+        rscMgr = RscMgr()
+        rscMgr.setDelegate(self)
+        rscMgr.enableExternalLogging(true)
+        rscMgr.enableTxRxExternalLogging(true)
         
         // Software revision
         //        [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
@@ -1084,6 +1095,44 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
         // Dispose of any resources that can be recreated.
     }
     
+    // MARK: Begin RscMgr functions
+    
+    // serial cable connection detected
+    func cableConnected(_ protocolString: String!) {
+        
+        //        connectionLabel.textColor = myGreen
+        //        connectionLabel.text = "Cable connected"
+        
+        rscMgr.open()
+        //        priceLabel.text = "Yep"
+        //        self.view.setNeedsDisplay()
+        rscMgr.setBaud(baudRate)
+    }
+    
+    // serial cable disconnection detected
+    func cableDisconnected() {
+        
+        //        connectionLabel.textColor = myRed
+        //        connectionLabel.text = "Cable disconnected"
+    }
+    
+    // a change has been made to the port configuration; needed to conform to RscMgrDelegate protocol
+    func portStatusChanged() {
+        
+    }
+    
+    // data is ready to read
+    func readBytesAvailable(_ length: UInt32) {
+        
+        let data: Data = rscMgr.getDataFromBytesAvailable()   // note: may also process text using rscMgr.getStringFromBytesAvailable()
+        let dataString = String(data: data, encoding: String.Encoding.utf8)!
+        //        priceLabel.text = dataString
+        
+        //        receivedTextView.text = receivedTextView.text + (dataString + "\n")
+    }
+    
+    // MARK: End of RscMgr functions
+    
     // Arduino
     // MARK: - Bluetooth Connection Functions
     func scanForPeriph() {
@@ -1113,13 +1162,13 @@ class ViewController: UIViewController, BluetoothSerialDelegate {
     }
     
     func sendUnlockMessage() {
-        //        serial.sendMessageToDevice("u")
         serial.sendMessageToDevice("UNLOCK\n")
+        rscMgr.write("UNLOCK\n")
     }
     
     func sendLockMessage() {
-        //        serial.sendMessageToDevice("l")
         serial.sendMessageToDevice("LOCK\n")
+        rscMgr.write("LOCK\n")
         //        if (bluetoothStatus == "BOTH") {
         //            serial.sendMessageToDevice("LOCK\n")
         //        }

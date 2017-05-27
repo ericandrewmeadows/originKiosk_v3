@@ -96,7 +96,7 @@
 								$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
 							}
 							if ($charged == 0) {
-								chargeCustomer($chargeAmt, $companyName, $userToken, $conn);
+								chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
 								$charged = 1;
 							}
 
@@ -140,7 +140,7 @@
 						$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
 					}
 					if ($charged == 0) {
-						chargeCustomer($chargeAmt, $companyName, $userToken, $conn);
+						chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
 						$charged = 1;
 					}
 					// Only for site reworks
@@ -189,7 +189,7 @@
 					}
 
 					if ($chargeNow == 1) {
-			        	chargeCustomer($chargeAmt, $companyName, $userToken, $conn);
+			        	chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
 			        }
 			        // Epona Epona Epona Epona Epona Epona Epona Epona -- works
 				}
@@ -220,7 +220,7 @@
 			$chargeAmt = getPaymentAmount($conn, $companyName, $basePrice);
 			// $chargeAmt = getPaymentAmount_new ($conn, $phoneNumber, $companyName, $basePrice);
 
-	        chargeCustomer($chargeAmt, $companyName, $paymentToken, $conn);
+	        chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
 	    }
 	    else {
 			// Old Registration

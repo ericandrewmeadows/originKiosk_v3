@@ -1253,30 +1253,40 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         print(message)
         bluetoothStatus = message
         
+        bluetoothRx_array += message
+        bluetoothRx_array = (bluetoothRx_array as NSString).replacingOccurrences(of: "?", with: "")
         
-        if (message.range(of:"<CCINFO>") != nil) {
-            bluetoothRx_array += message
-        }
-        else if (bluetoothRx_array.range(of:"</CCINFO>") == nil) {
-            bluetoothRx_array += message
-            bluetoothRx_array = (bluetoothRx_array as NSString).replacingOccurrences(of: "?", with: "")
-            
-        }
         if (bluetoothRx_array.range(of:"</CCINFO>") != nil) {
-            self.view.setNeedsDisplay()
             bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<CCINFO>")[1]
-            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<CCINFO>")[0]
+            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</CCINFO>")[0]
             bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
             methodToExecute = "ccInfo"
             ccInfo_chargeUser = 1;
             processPayment(method: methodToExecute)
             bluetoothRx_array = ""
         }
+        else if (bluetoothRx_array.range(of:"</LOCK>") != nil) {
+            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<LOCK>")[1]
+            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</LOCK>")[0]
+            bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
+            //            processPayment(method: methodToExecute)
+            bluetoothRx_array = ""
+        }
+        else if (bluetoothRx_array.range(of:"</FREEZER>") != nil) {
+            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<FREEZER>")[1]
+            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</FREEZER>")[0]
+            bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
+            //            processPayment(method: methodToExecute)
+            bluetoothRx_array = ""
+        }
+        else if (bluetoothRx_array.range(of:"</KEEPALIVE>") != nil) {
+            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<KEEPALIVE>")[1]
+            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</KEEPALIVE>")[0]
+            bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
+            //            processPayment(method: methodToExecute)
+            bluetoothRx_array = ""
+        }
         
-        
-        //        priceLabel.text = dataString
-        
-        //        receivedTextView.text = receivedTextView.text + (dataString + "\n")
     }
     
     // MARK: End of RscMgr functions

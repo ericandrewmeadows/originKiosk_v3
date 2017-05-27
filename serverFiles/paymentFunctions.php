@@ -255,7 +255,7 @@
         return $chargeAmt;
     }
 
-    function chargeCustomer($chargeAmt, $companyName, $paymentToken, $conn) {
+    function chargeCustomer($chargeAmt, $companyName, $paymentToken, $conn, $phoneNumber) {
         \Stripe\Stripe::setApiKey("sk_live_3p3kLuWKmiz6rG3hFXLcyyTJ");
         $charge = \Stripe\Charge::create(array(
                                                 "amount" => $chargeAmt * 100, // $2.99 this time
@@ -270,7 +270,49 @@
                 WHERE
                     token = "'.$paymentToken.'";';
         $conn->query($sql);
-        print str_replace("Stripe\\Charge JSON: ","",$charge);
+        $charge = str_replace("Stripe\\Charge JSON: ","",$charge);
+        
+        print($charge);
+        sendReceipt($phoneNumber, $charge);
+    }
+    
+    use Twilio\Rest\Client; 
+    function sendReceipt($phoneNumber, $charge) {
+
+        $data = json_decode($charge, true);
+
+        $brand = $data["source"]["brand"];
+        $last4 = $data["source"]["last4"];
+
+        $stripeAmount = ($data["amount"]/100);
+        $chargeAmt = number_format($stripeAmount, 2);
+        
+        // $timeSeconds=time();
+        $timeSeconds = date('U');
+
+        $xml = file_get_contents(   "https://io.calmlee.com/receiptGenerator.php"
+                                    ."?phoneNumber=".$phoneNumber
+                                    ."&brand=".$brand
+                                    ."&last4=".$last4
+                                    ."&chargeAmt=".$chargeAmt
+                                    ."&timeSeconds=".$timeSeconds);
+        $receiptLink = "https://io.calmlee.com/receipts/".$phoneNumber."_".$timeSeconds.".html";
+        // print($xml);
+
+        $sid = 'ACce96ececbb8285c903180db35796f65b';
+        $token = '8b4c29703aaeb3797b0d61e4d7cb5d6d';
+        $client = new Client($sid, $token);
+
+        $twilioDesitination = "+1".$phoneNumber;
+
+        $client->messages->create(
+            $twilioDesitination,
+            array(
+                'from' => '+15623625363',
+                'body' => 'Here is your smoothie receipt!  '.$receiptLink
+            )
+        );
+
     }
 
     function newSubscriber($subscribeAmt, $phoneNumber, $paymentToken, $conn, $subscriptionPrice) {
@@ -317,7 +359,7 @@
         return $chargeAmt;
     }
 
-    use Twilio\Rest\Client; 
+    // use Twilio\Rest\Client; 
     function sendText_paymentInfo($phoneNumber) {
 
         print("Customer not created");

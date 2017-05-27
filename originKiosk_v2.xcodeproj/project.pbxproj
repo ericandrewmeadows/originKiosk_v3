@@ -7,12 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		533CB17C1E71032F00DEBDB2 /* FrameExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533CB17B1E71032F00DEBDB2 /* FrameExtractor.swift */; };
 		533EA9611E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */; };
 		5355D9B41ED51B76008640BE /* libRscMgrUniv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5355D9B31ED51B76008640BE /* libRscMgrUniv.a */; };
 		5355D9B91ED51BD7008640BE /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5355D9B81ED51BD7008640BE /* ExternalAccessory.framework */; };
 		535C5A7B1E9403E400A902A6 /* setupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535C5A7A1E9403E400A902A6 /* setupViewController.swift */; };
-		535FB50C1E71115C00D28095 /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 535FB50B1E71115C00D28095 /* OpenCVWrapper.mm */; };
 		535FB5101E71129E00D28095 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535FB50F1E71129E00D28095 /* Accelerate.framework */; };
 		535FB5121E7112A500D28095 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535FB5111E7112A500D28095 /* AssetsLibrary.framework */; };
 		535FB5141E7112AB00D28095 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535FB5131E7112AB00D28095 /* AVFoundation.framework */; };
@@ -31,7 +29,6 @@
 		539C28131E67DC3300B0F9F6 /* SnackBlend_KioskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C28121E67DC3300B0F9F6 /* SnackBlend_KioskTests.swift */; };
 		539C281E1E67DC3300B0F9F6 /* SnackBlend_KioskUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C281D1E67DC3300B0F9F6 /* SnackBlend_KioskUITests.swift */; };
 		539C282C1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 539C282B1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf */; };
-		539C282F1E70EC7000B0F9F6 /* VideoUserTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C282E1E70EC7000B0F9F6 /* VideoUserTracker.swift */; };
 		53A339421E7E73FD00EE23C9 /* DemoDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A339411E7E73FD00EE23C9 /* DemoDay.swift */; };
 		53D8E9091EA3109E00E06BFE /* BluetoothSerial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D8E9081EA3109E00E06BFE /* BluetoothSerial.swift */; };
 		53D8E90B1EA3115900E06BFE /* BluetoothTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D8E90A1EA3115900E06BFE /* BluetoothTest.swift */; };
@@ -55,7 +52,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		533CB17B1E71032F00DEBDB2 /* FrameExtractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FrameExtractor.swift; sourceTree = "<group>"; };
 		533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Avenir-Next-LT-Pro-Bold_5182.ttf"; path = "../../Avenir-Next-LT-Pro-Bold_5182.ttf"; sourceTree = "<group>"; };
 		5355D9B31ED51B76008640BE /* libRscMgrUniv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRscMgrUniv.a; sourceTree = "<group>"; };
 		5355D9B51ED51B89008640BE /* redparkSerial.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = redparkSerial.h; sourceTree = "<group>"; };
@@ -63,9 +59,6 @@
 		5355D9B71ED51B89008640BE /* SwiftDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwiftDemo-Bridging-Header.h"; sourceTree = "<group>"; };
 		5355D9B81ED51BD7008640BE /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
 		535C5A7A1E9403E400A902A6 /* setupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = setupViewController.swift; sourceTree = "<group>"; };
-		535FB50A1E71115C00D28095 /* OpenCVWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenCVWrapper.h; sourceTree = "<group>"; };
-		535FB50B1E71115C00D28095 /* OpenCVWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVWrapper.mm; sourceTree = "<group>"; };
-		535FB50D1E71118500D28095 /* SnackBlend Kiosk-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; path = "SnackBlend Kiosk-Bridging-Header.h"; sourceTree = "<group>"; };
 		535FB50F1E71129E00D28095 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		535FB5111E7112A500D28095 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		535FB5131E7112AB00D28095 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -76,7 +69,6 @@
 		535FB51D1E7112DD00D28095 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		535FB51F1E7112E500D28095 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		535FB5211E7112EA00D28095 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		535FB5231E71136C00D28095 /* SnackBlend Kiosk-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SnackBlend Kiosk-Prefix.pch"; sourceTree = "<group>"; };
 		539C27FA1E67DC3300B0F9F6 /* originKiosk_v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = originKiosk_v2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		539C27FD1E67DC3300B0F9F6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		539C27FF1E67DC3300B0F9F6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -91,7 +83,6 @@
 		539C281D1E67DC3300B0F9F6 /* SnackBlend_KioskUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnackBlend_KioskUITests.swift; sourceTree = "<group>"; };
 		539C281F1E67DC3300B0F9F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		539C282B1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "GrandHotel-Regular.ttf"; path = "Resources/GrandHotel-Regular.ttf"; sourceTree = "<group>"; };
-		539C282E1E70EC7000B0F9F6 /* VideoUserTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoUserTracker.swift; sourceTree = "<group>"; };
 		53A339411E7E73FD00EE23C9 /* DemoDay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DemoDay.swift; sourceTree = "<group>"; };
 		53D8E9081EA3109E00E06BFE /* BluetoothSerial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BluetoothSerial.swift; sourceTree = "<group>"; };
 		53D8E90A1EA3115900E06BFE /* BluetoothTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BluetoothTest.swift; sourceTree = "<group>"; };
@@ -134,19 +125,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		533CB17A1E71031B00DEBDB2 /* Video Processing */ = {
-			isa = PBXGroup;
-			children = (
-				539C282E1E70EC7000B0F9F6 /* VideoUserTracker.swift */,
-				533CB17B1E71032F00DEBDB2 /* FrameExtractor.swift */,
-				535FB50A1E71115C00D28095 /* OpenCVWrapper.h */,
-				535FB50B1E71115C00D28095 /* OpenCVWrapper.mm */,
-				535FB50D1E71118500D28095 /* SnackBlend Kiosk-Bridging-Header.h */,
-				535FB5231E71136C00D28095 /* SnackBlend Kiosk-Prefix.pch */,
-			);
-			name = "Video Processing";
-			sourceTree = "<group>";
-		};
 		5355D9B11ED51B51008640BE /* lib */ = {
 			isa = PBXGroup;
 			children = (
@@ -195,7 +173,7 @@
 			isa = PBXGroup;
 			children = (
 				539C282D1E67E32200B0F9F6 /* Resources */,
-				539C27FC1E67DC3300B0F9F6 /* SnackBlend Kiosk */,
+				539C27FC1E67DC3300B0F9F6 /* Origin Kiosk */,
 				539C28111E67DC3300B0F9F6 /* SnackBlend KioskTests */,
 				539C281C1E67DC3300B0F9F6 /* SnackBlend KioskUITests */,
 				539C27FB1E67DC3300B0F9F6 /* Products */,
@@ -213,12 +191,11 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		539C27FC1E67DC3300B0F9F6 /* SnackBlend Kiosk */ = {
+		539C27FC1E67DC3300B0F9F6 /* Origin Kiosk */ = {
 			isa = PBXGroup;
 			children = (
 				5376C1001E9D6A7500B4E278 /* Arduino Connection */,
 				53A3393C1E7E737A00EE23C9 /* Demo Day Menu */,
-				533CB17A1E71031B00DEBDB2 /* Video Processing */,
 				539C27FD1E67DC3300B0F9F6 /* AppDelegate.swift */,
 				53D8E90A1EA3115900E06BFE /* BluetoothTest.swift */,
 				539C27FF1E67DC3300B0F9F6 /* ViewController.swift */,
@@ -228,6 +205,7 @@
 				539C28061E67DC3300B0F9F6 /* LaunchScreen.storyboard */,
 				539C28091E67DC3300B0F9F6 /* Info.plist */,
 			);
+			name = "Origin Kiosk";
 			path = "SnackBlend Kiosk";
 			sourceTree = "<group>";
 		};
@@ -336,7 +314,7 @@
 				TargetAttributes = {
 					539C27F91E67DC3300B0F9F6 = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = LQG25CTX7K;
+						DevelopmentTeam = 8KBRWM6HF4;
 						LastSwiftMigration = 0820;
 						ProvisioningStyle = Automatic;
 					};
@@ -409,10 +387,7 @@
 				53D8E90B1EA3115900E06BFE /* BluetoothTest.swift in Sources */,
 				539C28001E67DC3300B0F9F6 /* ViewController.swift in Sources */,
 				53A339421E7E73FD00EE23C9 /* DemoDay.swift in Sources */,
-				535FB50C1E71115C00D28095 /* OpenCVWrapper.mm in Sources */,
 				539C27FE1E67DC3300B0F9F6 /* AppDelegate.swift in Sources */,
-				533CB17C1E71032F00DEBDB2 /* FrameExtractor.swift in Sources */,
-				539C282F1E70EC7000B0F9F6 /* VideoUserTracker.swift in Sources */,
 				53D8E9091EA3109E00E06BFE /* BluetoothSerial.swift in Sources */,
 				535C5A7B1E9403E400A902A6 /* setupViewController.swift in Sources */,
 			);
@@ -568,16 +543,17 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = LQG25CTX7K;
+				DEVELOPMENT_TEAM = 8KBRWM6HF4;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/SnackBlend\\ Kiosk",
-					"$(PROJECT_DIR)/SnackBlend\\ Kiosk",
-					"/Users/ericmeadows/Documents/SnackBlend/Self-service",
-					Kiosk/SnackBlend,
-					Kiosk,
+					"$(PROJECT_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = "SnackBlend Kiosk/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -590,7 +566,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "/usr/include/OpenCV_PATH $(inherited)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
 		};
@@ -600,16 +576,17 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = LQG25CTX7K;
+				DEVELOPMENT_TEAM = 8KBRWM6HF4;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/SnackBlend\\ Kiosk",
-					"$(PROJECT_DIR)/SnackBlend\\ Kiosk",
-					"/Users/ericmeadows/Documents/SnackBlend/Self-service",
-					Kiosk/SnackBlend,
-					Kiosk,
+					"$(PROJECT_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = "SnackBlend Kiosk/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -621,7 +598,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "SwiftDemo-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "/usr/include/OpenCV_PATH $(inherited)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
 		};

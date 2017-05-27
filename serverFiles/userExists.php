@@ -125,7 +125,24 @@
 					}
 				}
 				else if ($userExists) {
-					print("Needs PIN");
+					// print("User needs PIN");
+					$basePrice = 2.99;				
+					$chargeAmt = getPaymentAmount($conn, $companyName, $basePrice);
+					$userToken = getPaymentToken_customer ($conn, $phoneNumber);
+					if (isset($_GET['subscribe'])) {
+						$subscribeNow = $_GET['subscribe'];
+						if ($subscribeNow == 1) {
+							$subscriptionPrice = 3.99;
+							$subscribeAmt = 12.00;
+							newSubscriber($subscribeAmt, $phoneNumber, $userToken, $conn, $subscriptionPrice);
+							$charged = 1;
+						}
+						$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
+					}
+					if ($charged == 0) {
+						chargeCustomer($chargeAmt, $companyName, $userToken, $conn);
+						$charged = 1;
+					}
 					// Only for site reworks
 					// Epona
 				}

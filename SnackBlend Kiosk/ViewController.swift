@@ -77,6 +77,11 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     var phoneNumString_exact: [Character] = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
     var phoneNumStringCount = 0
     
+    // Master Unlock
+    let masterUnlockString = "CC062616"
+    var input_last8 = [" ", " ", " ", " ", " ", " ", " ", " "]
+    var printString = "      "
+    
     // PIN Code Entry
     let pinLength = 4;
     var pinNumStringCount = 0
@@ -201,7 +206,14 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     }
     
     func successfulPayment () {
-        print("Successful")
+        
+        if (printString == masterUnlockString) {
+            print("Master Unlock")
+        }
+        else {
+            print("Successful Payment")
+        }
+        
         // Reset PIN, phoneNumber, etc
         
         DispatchQueue.main.async {
@@ -256,6 +268,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             }
             
             var payAndCheck_normalAgain = Timer.scheduledTimer(timeInterval: self.successTransition, target: self, selector:  Selector("hide_greenCircle_andCheck"), userInfo: nil, repeats: false)
+            
         }
     }
     
@@ -321,7 +334,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             self.checkMark.text = "✓"
         }) { (finished) in
             if finished {
-                print("Done")
                 self.paymentReset()
                 self.resetKeurigLabel()
             }
@@ -331,12 +343,16 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     func numpadPressed(sender: UIButton) {
         // Epona
         // Need to configure for the PIN
+        var inputVal = " "
         if (keypadVersion == "phoneNumber") {
             if (sender.titleLabel?.text == "Cancel") {
-                print("reset")
                 paymentReset()
+                inputVal = "C"
+                //Arthena
+//                sendUnlockMessage()
             }
             else if (sender.titleLabel?.text != "x") {
+                inputVal = (sender.titleLabel?.text)!
                 if phoneNumStringCount < 10 {
                     phoneNumString_exact[phoneNumStringCount] = Character((sender.titleLabel?.text)!)
                     phoneNumStringCount += 1
@@ -371,6 +387,16 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                     phoneNumberDisplay.text = ""
                 }
             }
+            
+            // Master Unlock
+            input_last8[0] = inputVal
+            input_last8 = input_last8.shiftRight()
+            printString = input_last8.joined(separator: "")
+            if (printString == masterUnlockString) {
+                phoneNumberDisplay.text = ""
+                successfulPayment()
+            }
+            
             if phoneNumStringCount == 10 {
                 if ((!localRegistration) && (String(pinString) != "----")) {
                     self.disablePaymentButtons()
@@ -395,7 +421,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
 //            pinString
 //            pinString_validate
             if (sender.titleLabel?.text == "Cancel") {
-                print("reset")
                 paymentReset()
             }
             else if sender.titleLabel?.text != "x" {
@@ -537,6 +562,90 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     let screenSize: CGRect = UIScreen.main.bounds
     var initialLoad = false
     
+    var timeSpecific_locked = true
+    var timer_hourSpecific: Timer?
+    func unlock_timeSpecific() {
+        let hours = Calendar.current.component(.hour, from: Date())
+        let minutes = Calendar.current.component(.minute, from: Date())
+        let overallMinutes = hours * 60 + minutes
+        //        print(" -- " + String(overallMinutes) + " -- ")
+        // Unlock times are from 730A - 930A
+        let startM = 450
+        let endM = 570
+        //        if ((( overallMinutes >= 450 ) && ( overallMinutes <= 570 )) && (timeSpecific_locked)) {
+        if ((( overallMinutes >= startM ) && ( overallMinutes <= endM )) && (timeSpecific_locked)) {
+            timeSpecific_locked = false
+            sendUnlockMessage()
+            pinPadImage_view.isHidden = true
+            swipeImage_view.isHidden = true
+            keurigLabel.isHidden = true
+            hidePinPad_true()
+            unlockedPriceLabel()
+        }
+        //        if ((( overallMinutes < 450 ) || ( overallMinutes > 570 )) && (!timeSpecific_locked)) {
+        if ((( overallMinutes < startM ) || ( overallMinutes > endM )) && (!timeSpecific_locked)) {
+            timeSpecific_locked = true
+            sendLockMessage()
+            pinPadImage_view.isHidden = false
+            swipeImage_view.isHidden = false
+            keurigLabel.isHidden = false
+            hidePinPad_false()
+            originalPriceLabel()
+        }
+    }
+    
+    func hidePinPad_true() {
+        button1.isHidden = true
+        button2.isHidden = true
+        button3.isHidden = true
+        button4.isHidden = true
+        button5.isHidden = true
+        button6.isHidden = true
+        button7.isHidden = true
+        button8.isHidden = true
+        button9.isHidden = true
+        button0.isHidden = true
+        buttonDel.isHidden = true
+        buttonVideo.isHidden = true
+    }
+    
+    func hidePinPad_false() {
+        button1.isHidden = false
+        button2.isHidden = false
+        button3.isHidden = false
+        button4.isHidden = false
+        button5.isHidden = false
+        button6.isHidden = false
+        button7.isHidden = false
+        button8.isHidden = false
+        button9.isHidden = false
+        button0.isHidden = false
+        buttonDel.isHidden = false
+        buttonVideo.isHidden = false
+    }
+    
+    func originalPriceLabel() {
+        let string = "$4.49"
+        var attributedString = NSMutableAttributedString(string: string as String)
+        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
+        attributedString.addAttributes(secondAttributes, range: NSMakeRange(0, string.characters.count))
+        priceLabel.attributedText = attributedString
+        self.view.setNeedsDisplay()
+        
+    }
+    
+    func unlockedPriceLabel() {
+        let string = "Unlocked"
+        let greenColour = UIColor(red: 10/255, green: 190/255, blue: 50/255, alpha: 1)
+        var attributedString = NSMutableAttributedString(string: string as String)
+        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!, NSForegroundColorAttributeName : greenColour] as [String : Any]
+        attributedString.addAttributes(secondAttributes, range: NSMakeRange(0, string.characters.count))
+        priceLabel.attributedText = attributedString
+        self.view.setNeedsDisplay()
+        
+    }
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -554,7 +663,8 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         // Arduino
         // Load based upon setup value
         defaults.set(true, forKey: "arduinoInstalled")
-        defaults.set("WeWork Civic Center", forKey: "company")
+//        defaults.set("WeWork Civic Center", forKey: "company")
+        defaults.set("Sentient", forKey: "company")
         defaults.set("1.1", forKey: "version")
         
         // Buttons
@@ -650,15 +760,16 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         view.addSubview(keurigLabel)
         
         
-        //        priceLabel.frame = CGRect(x: self.screenSize.width / 8,
-        //                                 y: r3y - self.screenSize.height / 16,
-        //                                 width: self.screenSize.width / 4,
-        //                                 height: self.screenSize.height / 8)
-        priceLabel.frame = CGRect(x: self.screenSize.width / 16,
-                                  y: r1y - self.screenSize.height / 10,//(imageView.frame.maxY + (r2y + r3y) / 2) / 2 - self.screenSize.height / 5,
-            width: self.screenSize.width * 3 / 8,
-            height: self.screenSize.height / 5)
-//        priceLabel.text = "$5.99"
+//        priceLabel.frame = CGRect(x: self.screenSize.width / 8,
+//                                 y: r3y - self.screenSize.height / 16,
+//                                 width: self.screenSize.width / 4,
+//                                 height: self.screenSize.height / 8)
+        // Subscription setup
+//        priceLabel.frame = CGRect(x: self.screenSize.width / 16,
+//                                  y: r1y - self.screenSize.height / 10,//(imageView.frame.maxY + (r2y + r3y) / 2) / 2 - self.screenSize.height / 5,
+//            width: self.screenSize.width * 3 / 8,
+//            height: self.screenSize.height / 5)
+//        priceLabel.text = "$2.99"
         
 //        let price_formattedString = NSMutableAttributedString()
 //        let price_attrs_stk:[String:AnyObject] = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(10/170))!]
@@ -666,9 +777,17 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
 //        text = "$5.99"
 //        price_formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:price_attrs_stk))
         
-        originalPriceLabel()
+//        originalPriceLabel()
         
 //        priceLabel.font = UIFont.boldSystemFont(ofSize: priceLabel.frame.height / 2)
+        
+        
+        priceLabel.frame = CGRect(x: self.screenSize.width / 8,
+                                  y: r1y - self.screenSize.height / 16,//(imageView.frame.maxY + (r2y + r3y) / 2) / 2 - self.screenSize.height / 5,
+            width: self.screenSize.width / 4,
+            height: self.screenSize.height / 5)
+        priceLabel.text = "$4.49"
+        priceLabel.font = UIFont.boldSystemFont(ofSize: priceLabel.frame.height / 2)
         priceLabel.textAlignment = .center
         priceLabel.textColor = .black
         priceLabel.isHidden = false
@@ -683,7 +802,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         subscribeLabel.textAlignment = .center
         subscribeLabel.textColor = .black
         subscribeLabel.isHidden = true
-        view.addSubview(self.subscribeLabel)
+//        view.addSubview(self.subscribeLabel)
         
         subscribeDetails.frame = CGRect(x: self.screenSize.width / 24,
                                         y: r4y,
@@ -750,7 +869,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         subscribeButton.clipsToBounds = true
         subscribeButton.isHidden = false
         subscribeButton.addTarget(self, action: #selector(processSubscription), for: .touchUpInside)
-        view.addSubview(self.subscribeButton)
+//        view.addSubview(self.subscribeButton)
         
         
         // Payment Successful - Label
@@ -1088,6 +1207,9 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         if (defaults.bool(forKey: "arduinoInstalled")) {
             connectTimer = Timer.scheduledTimer(timeInterval: 3, target: self, selector: #selector(ViewController.scanForPeriph), userInfo: nil, repeats: true)
         }
+        
+        // Time-specific Locking
+        timer_hourSpecific = Timer.scheduledTimer(timeInterval: 30, target: self, selector: #selector(ViewController.unlock_timeSpecific), userInfo: nil, repeats: true)
     }
     
     override func didReceiveMemoryWarning() {
@@ -1104,8 +1226,8 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         //        connectionLabel.text = "Cable connected"
         
         rscMgr.open()
-        //        priceLabel.text = "Yep"
-        //        self.view.setNeedsDisplay()
+//                priceLabel.text = "Yep"
+                self.view.setNeedsDisplay()
         rscMgr.setBaud(baudRate)
     }
     
@@ -1125,9 +1247,31 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     func readBytesAvailable(_ length: UInt32) {
         
         let data: Data = rscMgr.getDataFromBytesAvailable()   // note: may also process text using rscMgr.getStringFromBytesAvailable()
-        let dataString = String(data: data, encoding: String.Encoding.utf8)!
+        let message = String(data: data, encoding: String.Encoding.utf8)!
         
         // Need to implement same checking for CCINFO
+        print(message)
+        bluetoothStatus = message
+        
+        
+        if (message.range(of:"<CCINFO>") != nil) {
+            bluetoothRx_array += message
+        }
+        else if (bluetoothRx_array.range(of:"</CCINFO>") == nil) {
+            bluetoothRx_array += message
+            bluetoothRx_array = (bluetoothRx_array as NSString).replacingOccurrences(of: "?", with: "")
+            
+        }
+        if (bluetoothRx_array.range(of:"</CCINFO>") != nil) {
+            self.view.setNeedsDisplay()
+            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<CCINFO>")[1]
+            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<CCINFO>")[0]
+            bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
+            methodToExecute = "ccInfo"
+            ccInfo_chargeUser = 1;
+            processPayment(method: methodToExecute)
+            bluetoothRx_array = ""
+        }
         
         
         //        priceLabel.text = dataString
@@ -1146,7 +1290,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     
     func scanTimeOut() {
         serial.stopScan()
-        print("timedOut")
+//        print("timedOut")
     }
     
     func connectToDefaultPeripheral() {
@@ -1167,12 +1311,31 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     
     func sendUnlockMessage() {
         serial.sendMessageToDevice("UNLOCK\n")
-        rscMgr.write("UNLOCK\n")
+//        rscMgr.write("UNLOCK\
+        let unlockString = "UNLOCK\n"
+//        let unlockString = "U\n"
+        
+        let cs = (unlockString as NSString).utf8String
+        var buffer = unlockString.data(using: String.Encoding.utf8)!
+        
+        rscMgr.write(unlockString)
+//        rscMgr.write(unlockString)
+        
+//        priceLabel.text = "HELP"
     }
     
     func sendLockMessage() {
         serial.sendMessageToDevice("LOCK\n")
-        rscMgr.write("LOCK\n")
+//        rscMgr.write("LOCK\n")
+        
+        let lockString = "LOCK\n"
+//        let lockString = "L\n"
+        
+        let cs = (lockString as NSString).utf8String
+        var buffer = lockString.data(using: String.Encoding.utf8)!
+        
+        rscMgr.write(lockString)
+        
         //        if (bluetoothStatus == "BOTH") {
         //            serial.sendMessageToDevice("LOCK\n")
         //        }
@@ -1297,34 +1460,32 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
 //        self.viewDidLoad()
     }
     
-    func originalPriceLabel() {
-        let string = "$5.99 | $3.99\n\t\t\t\t\t\t\tMembers Only" //\n(subscription opens tomorrow)"
-        var attributedString = NSMutableAttributedString(string: string as String)
-        let zeroAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
-        let firstAttributes = [NSStrikethroughStyleAttributeName: 2, NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
-        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(6/170))!] as [String : Any]
-        attributedString.addAttributes(zeroAttributes, range: NSMakeRange(0,13))
-        attributedString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.black, range: NSMakeRange(0, attributedString.length))
-        
-        priceLabel.attributedText = attributedString
-        priceLabel.numberOfLines = 0
-    }
-    
-    func subscriptionPriceLabel() {
-        let string = "\n\n$12 / Month\n$3.99 / Smoothie" //\n(subscription opens tomorrow)"
-        var attributedString = NSMutableAttributedString(string: string as String)
-        let zeroAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(9/170))!] as [String : Any]
+//    func originalPriceLabel() {
+//        let string = "$5.99 | $3.99\n\t\t\t\t\t\t\tMembers Only" //\n(subscription opens tomorrow)"
+//        var attributedString = NSMutableAttributedString(string: string as String)
+//        let zeroAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
 //        let firstAttributes = [NSStrikethroughStyleAttributeName: 2, NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
 //        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(6/170))!] as [String : Any]
-        let initOff = 2
-        attributedString.addAttributes(zeroAttributes,
-                                       range: NSMakeRange(initOff,
-                                                          attributedString.length-initOff))
-        attributedString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.black, range: NSMakeRange(0, attributedString.length))
-        
-        priceLabel.attributedText = attributedString
-        priceLabel.numberOfLines = 0
-        self.view.setNeedsDisplay()
+//        attributedString.addAttributes(zeroAttributes, range: NSMakeRange(0,13))
+//        attributedString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.black, range: NSMakeRange(0, attributedString.length))
+//        
+//        priceLabel.attributedText = attributedString
+//        priceLabel.numberOfLines = 0
+//    }
+    
+    func subscriptionPriceLabel() {
+//        let string = "\n\n$12 / Month\n$3.99 / Smoothie" //\n(subscription opens tomorrow)"
+//        var attributedString = NSMutableAttributedString(string: string as String)
+//        let zeroAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(9/170))!] as [String : Any]
+//        let initOff = 2
+//        attributedString.addAttributes(zeroAttributes,
+//                                       range: NSMakeRange(initOff,
+//                                                          attributedString.length-initOff))
+//        attributedString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.black, range: NSMakeRange(0, attributedString.length))
+//        
+//        priceLabel.attributedText = attributedString
+//        priceLabel.numberOfLines = 0
+//        self.view.setNeedsDisplay()
     }
     
     func processSubscription() {
@@ -1466,21 +1627,26 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                 self.logoImage_view.isHidden = true
                 self.priceLabel.isHidden = true
                 
-                let formattedString = NSMutableAttributedString()
-                let attrs:[String:AnyObject] = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(7/170))!]
-                formattedString.append(NSAttributedString(string: "Awesome!\nNow "))
-                var text = "enter "
-                formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:attrs))
-                formattedString.append(NSAttributedString(string: "your\n"))
-                text = "Phone Number"
-                formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:attrs))
-                self.keurigLabel.attributedText = formattedString
+                // corkDork12
                 
-                if (codeToken_start == "tok_") {
-                    self.waitingForCC = false;
-                }
+//                if (codeToken_start == "tok_") {
+//                    self.waitingForCC = false;
+//                }
                 if (!self.waitingForCC) {
                     self.localRegistration = true;
+                    
+                    // Moved from corkDork12
+                    let formattedString = NSMutableAttributedString()
+                    let attrs:[String:AnyObject] = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(7/170))!]
+                    formattedString.append(NSAttributedString(string: "Awesome!\nNow "))
+                    var text = "enter "
+                    formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:attrs))
+                    formattedString.append(NSAttributedString(string: "your\n"))
+                    text = "Phone Number"
+                    formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:attrs))
+                    self.keurigLabel.attributedText = formattedString
+                    self.view.setNeedsDisplay()
+                    // Moved from corkDork12
                 }
                 else {
                     print("0: \n")
@@ -1906,5 +2072,27 @@ extension NSMutableAttributedString {
         let normal =  NSAttributedString(string: text)
         self.append(normal)
         return self
+    }
+}
+
+extension String {
+    func substring(from: Int) -> String? {
+        guard from < self.characters.count else { return nil }
+        let fromIndex = index(self.startIndex, offsetBy: from)
+        return substring(from: fromIndex)
+    }
+}
+
+extension Array {
+    
+    func shiftRight( amount: Int = 1) -> [Element] {
+        var amount = amount
+        assert(-count...count ~= amount, "Shift amount out of bounds")
+        if amount < 0 { amount += count }  // this needs to be >= 0
+        return Array(self[amount ..< count] + self[0 ..< amount])
+    }
+    
+    mutating func shiftRightInPlace(amount: Int = 1) {
+        self = shiftRight(amount: amount)
     }
 }

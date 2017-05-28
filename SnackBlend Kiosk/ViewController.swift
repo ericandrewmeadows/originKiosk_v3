@@ -663,9 +663,10 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         // Arduino
         // Load based upon setup value
         defaults.set(true, forKey: "arduinoInstalled")
-//        defaults.set("WeWork Civic Center", forKey: "company")
-        defaults.set("Sentient", forKey: "company")
         defaults.set("1.1", forKey: "version")
+        
+        // This can be remotely set
+        defaults.set(UIDevice.current.name, forKey: "company")
         
         // Buttons
         let num_w = self.screenSize.width/8
@@ -786,11 +787,12 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                                   y: r1y - self.screenSize.height / 16,//(imageView.frame.maxY + (r2y + r3y) / 2) / 2 - self.screenSize.height / 5,
             width: self.screenSize.width / 4,
             height: self.screenSize.height / 5)
-        priceLabel.text = "$4.49"
-        priceLabel.font = UIFont.boldSystemFont(ofSize: priceLabel.frame.height / 2)
-        priceLabel.textAlignment = .center
-        priceLabel.textColor = .black
+//        priceLabel.text = "$4.49"
+//        priceLabel.font = UIFont.boldSystemFont(ofSize: priceLabel.frame.height / 2)
+//        priceLabel.textColor = .black
         priceLabel.isHidden = false
+        priceLabel.textAlignment = .center
+        originalPriceLabel()
         view.addSubview(self.priceLabel)
         
         subscribeLabel.frame = CGRect(x: self.screenSize.width / 8,

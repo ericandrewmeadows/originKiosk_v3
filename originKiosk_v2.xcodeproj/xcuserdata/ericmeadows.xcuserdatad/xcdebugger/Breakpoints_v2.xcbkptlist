@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SnackBlend Kiosk/ViewController.swift"
-            timestampString = "517598460.79692"
+            timestampString = "517648269.513962"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1909"
-            endingLineNumber = "1909"
+            startingLineNumber = "1912"
+            endingLineNumber = "1912"
             landmarkName = "hashCheck()"
             landmarkType = "7">
          </BreakpointContent>
@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SnackBlend Kiosk/ViewController.swift"
-            timestampString = "517598460.79692"
+            timestampString = "517648269.513962"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1577"
-            endingLineNumber = "1577"
+            startingLineNumber = "1580"
+            endingLineNumber = "1580"
             landmarkName = "processPayment(method:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -74,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SnackBlend Kiosk/ViewController.swift"
-            timestampString = "517598460.79692"
+            timestampString = "517648269.513962"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1578"
-            endingLineNumber = "1578"
+            startingLineNumber = "1581"
+            endingLineNumber = "1581"
             landmarkName = "processPayment(method:)"
             landmarkType = "7">
             <Locations>
@@ -90,11 +90,11 @@
                   moduleName = "originKiosk_v2"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/ericmeadows/Documents/Origin%20Kiosk%20-%20FINAL/SnackBlend%20Kiosk/ViewController.swift"
-                  timestampString = "517598460.961481"
+                  timestampString = "517648400.610048"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1579"
-                  endingLineNumber = "1579"
+                  startingLineNumber = "1582"
+                  endingLineNumber = "1582"
                   offsetFromSymbolStart = "28">
                </Location>
                <Location
@@ -105,11 +105,11 @@
                   moduleName = "originKiosk_v2"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/ericmeadows/Documents/Origin%20Kiosk%20-%20FINAL/SnackBlend%20Kiosk/ViewController.swift"
-                  timestampString = "517598460.964376"
+                  timestampString = "517648400.612212"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1581"
-                  endingLineNumber = "1581"
+                  startingLineNumber = "1584"
+                  endingLineNumber = "1584"
                   offsetFromSymbolStart = "28">
                </Location>
             </Locations>
@@ -122,11 +122,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SnackBlend Kiosk/ViewController.swift"
-            timestampString = "517598460.79692"
+            timestampString = "517648269.513962"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1497"
-            endingLineNumber = "1497"
+            startingLineNumber = "1500"
+            endingLineNumber = "1500"
             landmarkName = "subscriptionPriceLabel()"
             landmarkType = "7">
          </BreakpointContent>

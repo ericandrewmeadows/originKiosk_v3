@@ -104,7 +104,7 @@ CREATE TABLE subscriberInfo (
 	PRIMARY KEY (phoneNumber)
 );
 
-
+urlWithParams	String	"https://io.calmlee.com/userExists.php?phoneNumber=9377761657&companyName=WeWork Civic Center&version=1.1&PIN=5815&subscribe=1"	
 
 
 
@@ -188,13 +188,122 @@ CREATE TABLE discount (
 	PRIMARY KEY ( phoneNumber )
 );
 
+//
+// Information to store in database to provide proper localized logging, in addition to phone & company
+        $chargeId = substr($data["id"],3); // removed "ch_"
+        $chargeAmt = $data["amount"];
+        $chargeTime = $data["created"];
+        // $customerId = $data["customer"]; fetchable via userInfo
+        $currency = $data["currency"];
+        $status = $data["status"];
+        $outcome_networkStatus = $data["outcome"]["network_status"];
+        $outcome_reason = $data["outcome"]["reason"];
+        $outcome_riskLevel = $data["outcome"]["risk_level"];
+        $outcome_sellerMessage = $data["outcome"]["seller_message"];
+        $outcome_type = $data["outcome"]["type"];
+        $source_id = substr($data["source"]["id"],5); // removed "card_"
+//
+// Not abstracted
 CREATE TABLE chargeInfo (
-	chargeId BIGINT NOT NULL AUTO_INCREMENT,
-	customerId BIGINT,
+	charge BIGINT NOT NULL AUTO_INCREMENT,
+	phoneNumber BIGINT NOT NULL,
 	machineId MEDIUMINT,
-	chargeAmount NUMERIC(8,2),
-	PRIMARY KEY ( chargeId )
+	chargeId TEXT,
+	chargeAmt NUMERIC(4,2),
+	chargeTime MEDIUMINT UNSIGNED,
+	currency TEXT,
+	status TEXT,
+	o_networkStatus TEXT,
+	o_reason TEXT,
+	o_riskLevel TEXT,
+	o_sellerMessage TEXT,
+	o_type TEXT,
+	sourceId TEXT,
+	PRIMARY KEY ( charge )
 );
+
+
+////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////abstracted/////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+DROP TABLE IF EXISTS chargeInfo;
+CREATE TABLE chargeInfo (
+	charge BIGINT NOT NULL AUTO_INCREMENT,
+	phoneNumber BIGINT NOT NULL,
+	machineId MEDIUMINT,
+	chargeId VARCHAR(30),
+	chargeAmt NUMERIC(4,2),
+	chargeTime MEDIUMINT UNSIGNED,
+	currencyId TINYINT UNSIGNED,
+	paymentStatusId TINYINT UNSIGNED,
+	outcome_networkStatusId SMALLINT UNSIGNED,
+	outcome_reasonId SMALLINT UNSIGNED,
+	outcome_riskLevelId TINYINT UNSIGNED,
+	outcome_sellerMessageId SMALLINT UNSIGNED,
+	outcome_typeId TINYINT UNSIGNED,
+	source_id TEXT,
+	UNIQUE KEY charge (chargeId),
+	PRIMARY KEY ( charge )
+);
+
+DROP TABLE IF EXISTS currency;
+CREATE TABLE currency (
+	currencyId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	currency VARCHAR(10),
+	UNIQUE KEY currency (currency),
+	PRIMARY KEY ( currencyId )
+);
+
+DROP TABLE IF EXISTS paymentStatus;
+CREATE TABLE paymentStatus (
+	paymentStatusId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	paymentStatus VARCHAR(20),
+	UNIQUE KEY paymentStatus (paymentStatus),
+	PRIMARY KEY ( paymentStatusId )
+);
+
+DROP TABLE IF EXISTS outcome_networkStatus;
+CREATE TABLE outcome_networkStatus (
+	outcome_networkStatusId SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	outcome_networkStatus VARCHAR(50),
+	UNIQUE KEY outcome_networkStatus (outcome_networkStatus),
+	PRIMARY KEY ( outcome_networkStatusId )
+);
+
+DROP TABLE IF EXISTS outcome_reason;
+CREATE TABLE outcome_reason (
+	outcome_reasonId SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	outcome_reason VARCHAR(20),
+	UNIQUE KEY outcome_reason (outcome_reason),
+	PRIMARY KEY ( outcome_reasonId )
+);
+
+DROP TABLE IF EXISTS outcome_riskLevel;
+CREATE TABLE outcome_riskLevel (
+	outcome_riskLevelId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	outcome_riskLevel VARCHAR(10),
+	UNIQUE KEY outcome_riskLevel (outcome_riskLevel),
+	PRIMARY KEY ( outcome_riskLevelId )
+);
+
+DROP TABLE IF EXISTS outcome_sellerMessage;
+CREATE TABLE outcome_sellerMessage (
+	outcome_sellerMessageId SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	outcome_sellerMessage VARCHAR(20),
+	UNIQUE KEY outcome_sellerMessage (outcome_sellerMessage),
+	PRIMARY KEY ( outcome_sellerMessageId )
+);
+
+DROP TABLE IF EXISTS outcome_type;
+CREATE TABLE outcome_type (
+	outcome_typeId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	outcome_type VARCHAR(20),
+	UNIQUE KEY outcome_type (outcome_type),
+	PRIMARY KEY ( outcome_typeId )
+);
+////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////finished//////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 
 CREATE TABLE machineInfo (
 	machineId MEDIUMINT NOT NULL AUTO_INCREMENT,

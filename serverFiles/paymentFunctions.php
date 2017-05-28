@@ -273,13 +273,95 @@
         $charge = str_replace("Stripe\\Charge JSON: ","",$charge);
         
         print($charge);
-        sendReceipt($phoneNumber, $charge);
+        $data = json_decode($charge, true);
+
+        documentCharge($phoneNumber, $companyName, $data, $conn);
+        if ($data["status"] == "succeeded") {
+            sendReceipt($phoneNumber, $data);
+        }
+    }
+
+    function documentCharge($phoneNumber, $companyName, $data, $conn) {
+        // Information to store in database to provide proper localized logging, in addition to phone & company
+        $chargeId = substr($data["id"],3); // removed "ch_"
+        $chargeAmt = $data["amount"];
+        $chargeTime = $data["created"];
+        // $customerId = $data["customer"]; fetchable via userInfo
+        $currency = $data["currency"];
+        $paymentStatus = $data["status"];
+        $outcome_networkStatus = $data["outcome"]["network_status"];
+        $outcome_reason = $data["outcome"]["reason"];
+        $outcome_riskLevel = $data["outcome"]["risk_level"];
+        $outcome_sellerMessage = $data["outcome"]["seller_message"];
+        $outcome_type = $data["outcome"]["type"];
+        $source_id = substr($data["source"]["id"],5); // removed "card_"
+
+        $loopList = array(
+                        "currency",
+                        "paymentStatus",
+                        "outcome_networkStatus",
+                        "outcome_reason",
+                        "outcome_riskLevel",
+                        "outcome_sellerMessage",
+                        "outcome_type"
+                    );
+
+        // Creates variables "..Id" in loop in accordance with the main table and abstracted tables
+        foreach ($loopList as $loopItem) {
+            $sql = '
+                    INSERT IGNORE INTO
+                        '.$loopItem.'
+                        ('.$loopItem.')
+                    VALUES
+                        ("'.${$loopItem}.'")';
+            $conn->query($sql);
+
+            $sql = 'SELECT
+                        '.$loopItem.'Id
+                    FROM
+                        '.$loopItem.'
+                    WHERE
+                        '.$loopItem.' = "'.${$loopItem}.'"
+                    LIMIT 1;';
+            $object = $conn->query($sql)->fetch_object();//->{$loopItem + "Id"};
+            $value = get_object_vars($object);
+            
+            ${$loopItem."Id"} = $value[''.$loopItem.'Id'];
+        }
+
+        $sql = 'SELECT
+                    *
+                FROM
+                    machineInfo
+                WHERE
+                    company = "'.$companyName.'"
+                ORDER BY
+                    machineId DESC
+                LIMIT 1;';
+        $machineId = $conn->query($sql)->fetch_object()->machineId;
+
+        $sql = '
+                INSERT IGNORE INTO
+                    chargeInfo
+                    (
+                        phoneNumber, machineId, chargeId, chargeAmt, chargeTime,
+                        currencyId, paymentStatusId,
+                        outcome_networkStatusId, outcome_reasonId, outcome_riskLevelId, outcome_sellerMessageId, outcome_typeId,
+                        source_id
+                    )
+                VALUES
+                    (
+                        '.$phoneNumber.','.$machineId.',"'.$chargeId.'",'.($chargeAmt/100).','.$chargeTime.','
+                        .$currencyId.','.$paymentStatusId.','
+                        .$outcome_networkStatusId.','.$outcome_reasonId.','.$outcome_riskLevelId.','.$outcome_sellerMessageId.','.$outcome_typeId.','
+                        .'"'.$source_id.'")
+                    ;';
+        print($sql."<br>-----<br>");
+        $conn->query($sql);
     }
     
     use Twilio\Rest\Client; 
-    function sendReceipt($phoneNumber, $charge) {
-
-        $data = json_decode($charge, true);
+    function sendReceipt($phoneNumber, $data) {
 
         $brand = $data["source"]["brand"];
         $last4 = $data["source"]["last4"];
@@ -309,7 +391,14 @@
             $twilioDesitination,
             array(
                 'from' => '+15623625363',
-                'body' => 'Here is your smoothie receipt!  '.$receiptLink
+                'body' => 'Here is your smoothie receipt!'
+            )
+        );
+        $client->messages->create(
+            $twilioDesitination,
+            array(
+                'from' => '+15623625363',
+                'body' => $receiptLink
             )
         );
 

@@ -1,8 +1,11 @@
 <?php
   // Formatting - replaced 88ae47 with 505050
   // Formatting - replaced f9fafa with 808080
+  // Formatting - replaced 808080 with ffffff
   // Formatting - replaced 008cdd with dcdcdc
+  // Formatting - replaced dcdcdc with 008cdd
   // Formatting - replaced 98c24f with a9a9a9
+  // Formatting - replaced a9a9a9 with 000000
 
   $phoneNumber = $_GET['phoneNumber'];
   $chargeAmt = $_GET['chargeAmt'];
@@ -79,7 +82,7 @@
       }
 
       span.apple-override-hidden a {
-        color: #a9a9a9 !important;
+        color: #000000 !important;
         text-decoration: none !important;
       }
 
@@ -406,16 +409,16 @@
 
     </style>
   </head>
-  <body bgcolor="808080" style="border: 0; margin: 0; padding: 0; min-width: 100%;" override="fix">
+  <body bgcolor="ffffff" style="border: 0; margin: 0; padding: 0; min-width: 100%;" override="fix">
 
     <!-- background -->
     <table border="0" cellpadding="0" cellspacing="0" width="100%">
       <tbody>
         <tr>
-          <td bgcolor="808080" style="border: 0; margin: 0; padding: 0;">
+          <td bgcolor="ffffff" style="border: 0; margin: 0; padding: 0;">
 
             <!-- header -->
-            <table style="background-color: #a9a9a9;" border="0" cellpadding="0" cellspacing="0" width="100%">
+            <table style="background-color: #000000;" border="0" cellpadding="0" cellspacing="0" width="100%">
               <tbody>
                 <tr>
                   <td align="center" style="border: 0; margin: 0; padding: 0;">
@@ -428,8 +431,8 @@
                             <table align="center" border="0" cellpadding="0" cellspacing="0" class="width" width="500">
                               <tbody>
                                 <tr>
-                                  <td align="center" height="20" style="border: 0; margin: 0; padding: 0; font-size: 1px; line-height: 1px; mso-line-height-rule: exactly; color: #a9a9a9; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
-                                    <?php echo "Thanks for your $".$chargeAmt." payment to ";?> <span class="apple-override-hidden" style="border: 0; margin: 0; padding: 0; font-size: 1px; line-height: 1px; mso-line-height-rule: exactly; color: #a9a9a9; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">Origin</span>.
+                                  <td align="center" height="20" style="border: 0; margin: 0; padding: 0; font-size: 1px; line-height: 1px; mso-line-height-rule: exactly; color: #000000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                                    <?php echo "Thanks for your $".$chargeAmt." payment to ";?> <span class="apple-override-hidden" style="border: 0; margin: 0; padding: 0; font-size: 1px; line-height: 1px; mso-line-height-rule: exactly; color: #000000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">Origin</span>.
                                   </td>
                                 </tr>
                               </tbody>
@@ -473,7 +476,7 @@
                                     </tr>
                                     <tr>
                                       <td align="center" class="title" style="border: 0; margin: 0; padding: 0; font-size: 1px; line-height: 1px; mso-line-height-rule: exactly; color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; line-height: 25px; text-shadow: 0 1px 1px #505050;">
-                                          <span class="apple-override" style="color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; line-height: 25px;"><?php echo "$".$chargeAmt;?></span> <span style="color: #000000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; line-height: 25px; opacity: 0.75;">at</span> <a href="http://www.eatorigin.com" style="color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; line-height: 25px; text-decoration: none;" target="_blank" rel="noreferrer"><span class="apple-override-header" style="color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; line-height: 25px; text-decoration: none;">Origin</span></a>
+                                          <span class="apple-override" style="color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; line-height: 25px;"><?php echo "$".$chargeAmt;?></span> <span style="color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; line-height: 25px; opacity: 0.75;">at</span> <a href="http://www.eatorigin.com" style="color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; line-height: 25px; text-decoration: none;" target="_blank" rel="noreferrer"><span class="apple-override-header" style="color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; line-height: 25px; text-decoration: none;">Origin</span></a>
                                       </td>
                                     </tr>
 
@@ -613,7 +616,7 @@
                           </td>
                           <td align="center" class="font-large" style="border: 0; margin: 0; padding: 0; font-size: 1px; line-height: 1px; color: #515f66; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 15px; line-height: 21px;">
 
-                              Have a question or need help? <a href="mailto:eric@eatorigin.com" style="border: 0; margin: 0; padding: 0; color: #515f66; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-decoration: none;" target="_blank" rel="noreferrer"><span style="border: 0; margin: 0; padding: 0; color: #dcdcdc; text-decoration: none;">Send us an email</span></a> or <a href="sms:5623625363" style="border: 0; margin: 0; padding: 0; color: #515f66; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-decoration: none;" target="_blank" rel="noreferrer"><span style="border: 0; margin: 0; padding: 0; color: #dcdcdc; text-decoration: none;">send us a text message at (562) 362-5363</span></a>.
+                              Have a question or need help? <a href="mailto:eric@eatorigin.com" style="border: 0; margin: 0; padding: 0; color: #515f66; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-decoration: none;" target="_blank" rel="noreferrer"><span style="border: 0; margin: 0; padding: 0; color: #008cdd; text-decoration: none;">Send us an email</span></a> or <a href="sms:5623625363" style="border: 0; margin: 0; padding: 0; color: #515f66; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-decoration: none;" target="_blank" rel="noreferrer"><span style="border: 0; margin: 0; padding: 0; color: #008cdd; text-decoration: none;">send us a text message at (562) 362-5363</span></a>.
                           </td>
                           <td style="border: 0; margin: 0; padding: 0; font-size: 1px; line-height: 1px; mso-line-height-rule: exactly;">
                             <div class="clear" style="height: 1px; width: 20px;"></div>
@@ -664,7 +667,7 @@
                             <div class="clear" style="height: 1px; width: 20px;"></div>
                           </td>
                           <td align="center" class="font-small" style="border: 0; margin: 0; padding: 0; color: #959fa5; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 17px;">
-                              You are receiving this text message receipt because you made a purchase at <a href="http://www.eatorigin.com" style="border: 0; margin: 0; padding: 0; color: #dcdcdc; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-decoration: none;" target="_blank" rel="noreferrer"><span style="border: 0; margin: 0; padding: 0; color: #dcdcdc; text-decoration: none;">Origin</span></a>.
+                              You are receiving this text message receipt because you made a purchase at <a href="http://www.eatorigin.com" style="border: 0; margin: 0; padding: 0; color: #008cdd; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-decoration: none;" target="_blank" rel="noreferrer"><span style="border: 0; margin: 0; padding: 0; color: #008cdd; text-decoration: none;">Origin</span></a>.
                           </td>
                           <td class="perm-padding" style="border: 0; margin: 0; padding: 0; font-size: 1px; line-height: 1px;" width="20">
                             <div class="clear" style="height: 1px; width: 20px;"></div>

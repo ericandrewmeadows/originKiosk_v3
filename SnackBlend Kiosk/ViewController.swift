@@ -14,6 +14,9 @@ let phoneExistsAddress = "https://io.calmlee.com/phoneExists.php"
 let pinExistsAddress = "https://io.calmlee.com/pinExists.php"
 let pinCheckAddress = "https://io.calmlee.com/hashCheck.php"
 let registerNewUserAddress = "https://io.calmlee.com/paymentPosting_GET.php"
+let lockAddress = "https://io.calmlee.com/lock_commands.php"
+let keepAliveAddress = "https://io.calmlee.com/keepAlive_commands.php"
+let freezerAddress = "https://io.calmlee.com/freezer_commands.php"
 //let paymentAddress = "https://io.calmlee.com/userExists_stripeTestMode.php"
 
 let baudRate: Int32 = 9600      // baud rate
@@ -591,6 +594,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             keurigLabel.isHidden = false
             hidePinPad_false()
             originalPriceLabel()
+            paymentReset()
         }
     }
     
@@ -1272,6 +1276,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</LOCK>")[0]
             bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
             //            processPayment(method: methodToExecute)
+            serverComms_lockCommunication(lockString: bluetoothRx_array)
             bluetoothRx_array = ""
         }
         else if (bluetoothRx_array.range(of:"</FREEZER>") != nil) {
@@ -1279,6 +1284,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</FREEZER>")[0]
             bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
             //            processPayment(method: methodToExecute)
+            serverComms_freezerCommunication(freezerString: bluetoothRx_array)
             bluetoothRx_array = ""
         }
         else if (bluetoothRx_array.range(of:"</KEEPALIVE>") != nil) {
@@ -1286,6 +1292,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</KEEPALIVE>")[0]
             bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
             //            processPayment(method: methodToExecute)
+            serverComms_keepAliveCommunication()
             bluetoothRx_array = ""
         }
         
@@ -1323,28 +1330,16 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     
     func sendUnlockMessage() {
         serial.sendMessageToDevice("UNLOCK\n")
-//        rscMgr.write("UNLOCK\
         let unlockString = "UNLOCK\n"
-//        let unlockString = "U\n"
-        
-        let cs = (unlockString as NSString).utf8String
-        var buffer = unlockString.data(using: String.Encoding.utf8)!
+        serverComms_lockCommunication(lockString: "Sent: Unlock")
         
         rscMgr.write(unlockString)
-//        rscMgr.write(unlockString)
-        
-//        priceLabel.text = "HELP"
     }
     
     func sendLockMessage() {
         serial.sendMessageToDevice("LOCK\n")
-//        rscMgr.write("LOCK\n")
-        
         let lockString = "LOCK\n"
-//        let lockString = "L\n"
-        
-        let cs = (lockString as NSString).utf8String
-        var buffer = lockString.data(using: String.Encoding.utf8)!
+        serverComms_lockCommunication(lockString: "Sent: Lock")
         
         rscMgr.write(lockString)
         
@@ -1520,7 +1515,125 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
 //        processPayment(method: "phoneNumber")
     }
     
-    // Epona 658
+    // Lock Messages - Server Communications
+    func serverComms_lockCommunication( lockString: String ) {
+        //        "State: Unlocked, State: Locked, Sent: Unlock, Sent: Lock"
+        var lockString = lockString
+        
+        lockString = lockString.components(separatedBy: ": ")[1]
+        
+        // Create NSURL Object
+        let lockString_url = "?lockMessage=" + lockString
+        let companyName_url = "&companyName=" + defaults.string(forKey: "company")!
+        var urlWithParams = lockAddress + lockString_url + companyName_url
+        urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+        print(">>>")
+        print(urlWithParams)
+        print("<<<")
+        let myUrl = NSURL(string: urlWithParams);
+        
+        // Creaste URL Request
+        let request = NSMutableURLRequest(url:myUrl! as URL);
+        
+        // Set request HTTP method to GET. It could be POST as well
+        request.httpMethod = "GET"
+        
+        // Execute HTTP Request
+        let task = URLSession.shared.dataTask(with: request as URLRequest) {
+            data, response, error in
+            DispatchQueue.main.async {
+                // Check for error
+                if error != nil
+                {
+                    print("error=\(String(describing: error))")
+                    return
+                }
+            }
+        }
+        
+        task.resume()
+        
+    }
+    
+    // Keep Alive Messages - Server Communications
+    func serverComms_keepAliveCommunication() {
+        
+        // Create NSURL Object
+        let companyName_url = "?companyName=" + defaults.string(forKey: "company")!
+        var urlWithParams = keepAliveAddress + companyName_url
+        urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+        print(">>>")
+        print(urlWithParams)
+        print("<<<")
+        let myUrl = NSURL(string: urlWithParams);
+        
+        // Creaste URL Request
+        let request = NSMutableURLRequest(url:myUrl! as URL);
+        
+        // Set request HTTP method to GET. It could be POST as well
+        request.httpMethod = "GET"
+        
+        // Execute HTTP Request
+        let task = URLSession.shared.dataTask(with: request as URLRequest) {
+            data, response, error in
+            DispatchQueue.main.async {
+                // Check for error
+                if error != nil
+                {
+                    print("error=\(error)")
+                    return
+                }
+            }
+        }
+        
+        task.resume()
+        
+    }
+    
+    // Freezer Messages - Server Communications
+    func serverComms_freezerCommunication( freezerString: String ) {
+        // freezerString - Temp: ##.##, State: (On/Off/SS)
+        
+        let freezerComponents = freezerString.components(separatedBy: ",")
+        var freezerTemp = freezerComponents[0]
+        freezerTemp = freezerTemp.components(separatedBy: ": ")[1]
+        var freezerState = freezerComponents[1]
+        freezerState = freezerState.components(separatedBy: ": ")[1]
+        
+        // Create NSURL Object
+        let companyName_url = "?companyName=" + defaults.string(forKey: "company")!
+        let freezerTemp_url = "&freezerTemp=" + freezerTemp
+        let freezerState_url = "&freezerState=" + freezerState
+        var urlWithParams = freezerAddress + companyName_url + freezerTemp_url + freezerState_url
+        urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+        print(">>>")
+        print(urlWithParams)
+        print("<<<")
+        let myUrl = NSURL(string: urlWithParams);
+        
+        // Creaste URL Request
+        let request = NSMutableURLRequest(url:myUrl! as URL);
+        
+        // Set request HTTP method to GET. It could be POST as well
+        request.httpMethod = "GET"
+        
+        // Execute HTTP Request
+        let task = URLSession.shared.dataTask(with: request as URLRequest) {
+            data, response, error in
+            DispatchQueue.main.async {
+                // Check for error
+                if error != nil
+                {
+                    print("error=\(error)")
+                    return
+                }
+            }
+        }
+        
+        task.resume()
+        
+    }
+    
     func processPayment(method: String) {
         // Process Payment - PPMT
 //        self.payButton.backgroundColor = .black
@@ -1563,9 +1676,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         
         // Create NSURL Object
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
-        print(">>>")
-        print(urlWithParams)
-        print("<<<")
         let myUrl = NSURL(string: urlWithParams);
         
         // Creaste URL Request

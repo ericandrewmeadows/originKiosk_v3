@@ -1,25 +1,25 @@
 CREATE DATABASE snackblendKiosk;
 
 CREATE TABLE userInfo (
-	customerId BIGINT NOT NULL AUTO_INCREMENT,
-	phoneNumber BIGINT,
-	firstName TEXT,
-	lastName TEXT,
-	last4 INT,
-	brand TEXT,
-	funding TEXT,
-	expMonth TINYINT,
-	expYear SMALLINT,
-	token TEXT,
-	PRIMARY KEY ( customerId )
+    customerId BIGINT NOT NULL AUTO_INCREMENT,
+    phoneNumber BIGINT,
+    firstName TEXT,
+    lastName TEXT,
+    last4 INT,
+    brand TEXT,
+    funding TEXT,
+    expMonth TINYINT,
+    expYear SMALLINT,
+    token TEXT,
+    PRIMARY KEY ( customerId )
 );
 
 // machineId - company who is providing the discount
 CREATE TABLE discount_companySpecific (
-	customerId BIGINT,
-	machineId MEDIUMINT,
-	smoothiePrice FLOAT(4,2),
-	PRIMARY KEY ( customerId )
+    customerId BIGINT,
+    machineId MEDIUMINT,
+    smoothiePrice FLOAT(4,2),
+    PRIMARY KEY ( customerId )
 );
 
 refer a friend - get a free smoothie, they get a free smoothie once redeemed by friend.
@@ -46,21 +46,21 @@ going to need to do a select query to see if a customerId is present.  this allo
 // search userInfo for the record
 // if customer has not presence in userInfo --> create new customer & subscription      {progression1} -> {progression2}
 // elseif customerId in userInfo / not in subscription --> create new subscription      {progression2}
-// else --> proceed																		{progression3}
+// else --> proceed                                                                     {progression3}
 // when time hits renew date
 
 CREATE TABLE userSubscription_details (
-	customerId BIGINT NOT NULL,
-	items_remaining TINYINT,
-	items_renewLevel TINYINT,
-	items_type TINYINT,
-	items_consumed_all INT,
-	startDate DATETIME,
-	renewDate DATETIME,
-	thresholdConfig INT,
-	active TINYINT,
-	machineId MEDIUMINT,
-	PRIMARY KEY (customerId)
+    customerId BIGINT NOT NULL,
+    items_remaining TINYINT,
+    items_renewLevel TINYINT,
+    items_type TINYINT,
+    items_consumed_all INT,
+    startDate DATETIME,
+    renewDate DATETIME,
+    thresholdConfig INT,
+    active TINYINT,
+    machineId MEDIUMINT,
+    PRIMARY KEY (customerId)
 );
 
 // {progression1}
@@ -69,42 +69,42 @@ CREATE TABLE userSubscription_details (
 // First Name & Last Name <-- Swipe
 // Exp Month & Exp Year <-- Swipe
 INSERT INTO
-	userInfo
-	(phoneNumber, firstName, lastName, last4, brand, funding, expMonth, expYear, token)
+    userInfo
+    (phoneNumber, firstName, lastName, last4, brand, funding, expMonth, expYear, token)
 VALUES
-	(0000000000, "Test", "Name", 9999, "Visa", "credit", 11, 2222, "cus_XXXXXXXXXXXXXX");
+    (0000000000, "Test", "Name", 9999, "Visa", "credit", 11, 2222, "cus_XXXXXXXXXXXXXX");
 
 
 
 // {progression2}
 // Times will be stored in relation to GMT
 INSERT INTO
-	userSubscription_details
-	(customerId,
-	 items_remaining, items_type, items_consumed_all,
-	 startDate, renewDate,
-	 thresholdConfig, active,
-	 machineId)
+    userSubscription_details
+    (customerId,
+     items_remaining, items_type, items_consumed_all,
+     startDate, renewDate,
+     thresholdConfig, active,
+     machineId)
 VALUES
-	((SELECT customerId FROM userInfo WHERE phoneNumber = 9377761657),
-	 3, 1, 0,
-	 '2017-01-31 15:00', '2017-01-31 15:00',
-	 (SELECT thresholdConfig FROM thresholdConfig WHERE thresholdType = "Weekly"), 1,
-	 (SELECT machineId FROM machineInfo WHERE Company = "WeWork Civic Center"));
+    ((SELECT customerId FROM userInfo WHERE phoneNumber = 9377761657),
+     3, 1, 0,
+     '2017-01-31 15:00', '2017-01-31 15:00',
+     (SELECT thresholdConfig FROM thresholdConfig WHERE thresholdType = "Weekly"), 1,
+     (SELECT machineId FROM machineInfo WHERE Company = "WeWork Civic Center"));
 
 ///phoneNumber, subscribeAmt, subscriptionPrice, enrollDate, renewDate, active
 
 CREATE TABLE subscriberInfo (
-	phoneNumber BIGINT NOT NULL,
-	subscribeAmt FLOAT(4,2) NOT NULL,
-	subscriptionPrice FLOAT(4,2) NOT NULL,
-	enrollDate DATETIME,
-	renewDate DATETIME,
-	active TINYINT,
-	PRIMARY KEY (phoneNumber)
+    phoneNumber BIGINT NOT NULL,
+    subscribeAmt FLOAT(4,2) NOT NULL,
+    subscriptionPrice FLOAT(4,2) NOT NULL,
+    enrollDate DATETIME,
+    renewDate DATETIME,
+    active TINYINT,
+    PRIMARY KEY (phoneNumber)
 );
 
-urlWithParams	String	"https://io.calmlee.com/userExists.php?phoneNumber=9377761657&companyName=WeWork Civic Center&version=1.1&PIN=5815&subscribe=1"	
+urlWithParams   String  "https://io.calmlee.com/userExists.php?phoneNumber=9377761657&companyName=WeWork Civic Center&version=1.1&PIN=5815&subscribe=1" 
 
 
 
@@ -115,32 +115,32 @@ urlWithParams	String	"https://io.calmlee.com/userExists.php?phoneNumber=93777616
 
 // subSmoothie<X>_price is $$/smoothie, not $$ = X smoothies
 CREATE TABLE subscriptionInfo (
-	machineId MEDIUMINT,
-	subSmoothie1_count TINYINT,
-	subSmoothie1_price FLOAT(4,2),
-	subSmoothie2_count TINYINT,
-	subSmoothie2_price FLOAT(4,2),
-	subSmoothie3_count TINYINT,
-	subSmoothie3_price FLOAT(4,2),
-	PRIMARY KEY ( machineId )
+    machineId MEDIUMINT,
+    subSmoothie1_count TINYINT,
+    subSmoothie1_price FLOAT(4,2),
+    subSmoothie2_count TINYINT,
+    subSmoothie2_price FLOAT(4,2),
+    subSmoothie3_count TINYINT,
+    subSmoothie3_price FLOAT(4,2),
+    PRIMARY KEY ( machineId )
 );
 
 CREATE TABLE subscriptionItems_details (
-	items_type TINYINT NOT NULL AUTO_INCREMENT,
-	items_text TEXT,
-	PRIMARY KEY (items_type)
+    items_type TINYINT NOT NULL AUTO_INCREMENT,
+    items_text TEXT,
+    PRIMARY KEY (items_type)
 );
 INSERT INTO
-	subscriptionItems_details
-	(items_text)
+    subscriptionItems_details
+    (items_text)
 VALUES
-	("Smoothies")
+    ("Smoothies")
 ;
 
 CREATE TABLE pinCode (
-	phoneNumber BIGINT,
-	pinHash TEXT,
-	PRIMARY KEY ( phoneNumber )
+    phoneNumber BIGINT,
+    pinHash TEXT,
+    PRIMARY KEY ( phoneNumber )
 );
 
 
@@ -154,18 +154,18 @@ CREATE TABLE pinCode (
 // SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(company, ' ', 1), ' ', -1) FROM machineInfo WHERE machineId = 13;
 
 INSERT INTO
-	machineInfo
-	(company, addressLine1_shipping, city_shipping, state_shipping, zipCode_shipping, addressLine1_billing, city_billing, state_billing, zipCode_billing)
+    machineInfo
+    (company, addressLine1_shipping, city_shipping, state_shipping, zipCode_shipping, addressLine1_billing, city_billing, state_billing, zipCode_billing)
 VALUES
-	("WeWork Civic Center", "1161 Mission St", "San Francisco", "CA", 94103, "1161 Mission St", "San Francisco", "CA", 94103)
+    ("WeWork Civic Center", "1161 Mission St", "San Francisco", "CA", 94103, "1161 Mission St", "San Francisco", "CA", 94103)
 ;
 INSERT INTO
-	subscriptionInfo
-	(machineId,
-	subSmoothie1_count, subSmoothie1_price, subSmoothie2_count, subSmoothie2_price)
+    subscriptionInfo
+    (machineId,
+    subSmoothie1_count, subSmoothie1_price, subSmoothie2_count, subSmoothie2_price)
 VALUES
-	((SELECT machineId FROM machineInfo WHERE company = "WeWork Civic Center"),
-	 3, 4.99, 5, 4.79)
+    ((SELECT machineId FROM machineInfo WHERE company = "WeWork Civic Center"),
+     3, 4.99, 5, 4.79)
 ;
 
 
@@ -173,227 +173,274 @@ VALUES
 
 
 CREATE TABLE userDashboard (
-	machineIdHashed MEDIUMINT,
-	passHash TEXT,
-	PRIMARY KEY ( machineId )
+    machineIdHashed MEDIUMINT,
+    passHash TEXT,
+    PRIMARY KEY ( machineId )
 );
 
 
 
 CREATE TABLE discount (
-	phoneNumber BIGINT,
-	price FLOAT(4,2),
-	quantity INT,
-	authorizer TEXT,
-	PRIMARY KEY ( phoneNumber )
+    phoneNumber BIGINT,
+    price FLOAT(4,2),
+    quantity INT,
+    authorizer TEXT,
+    PRIMARY KEY ( phoneNumber )
 );
 
-//
-// Information to store in database to provide proper localized logging, in addition to phone & company
-        $chargeId = substr($data["id"],3); // removed "ch_"
-        $chargeAmt = $data["amount"];
-        $chargeTime = $data["created"];
-        // $customerId = $data["customer"]; fetchable via userInfo
-        $currency = $data["currency"];
-        $status = $data["status"];
-        $outcome_networkStatus = $data["outcome"]["network_status"];
-        $outcome_reason = $data["outcome"]["reason"];
-        $outcome_riskLevel = $data["outcome"]["risk_level"];
-        $outcome_sellerMessage = $data["outcome"]["seller_message"];
-        $outcome_type = $data["outcome"]["type"];
-        $source_id = substr($data["source"]["id"],5); // removed "card_"
-//
-// Not abstracted
-CREATE TABLE chargeInfo (
-	charge BIGINT NOT NULL AUTO_INCREMENT,
-	phoneNumber BIGINT NOT NULL,
-	machineId MEDIUMINT,
-	chargeId TEXT,
-	chargeAmt NUMERIC(4,2),
-	chargeTime MEDIUMINT UNSIGNED,
-	currency TEXT,
-	status TEXT,
-	o_networkStatus TEXT,
-	o_reason TEXT,
-	o_riskLevel TEXT,
-	o_sellerMessage TEXT,
-	o_type TEXT,
-	sourceId TEXT,
-	PRIMARY KEY ( charge )
-);
-
-
-////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////abstracted/////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
+// All attempted charges - Information
 DROP TABLE IF EXISTS chargeInfo;
-CREATE TABLE chargeInfo (
-	charge BIGINT NOT NULL AUTO_INCREMENT,
-	phoneNumber BIGINT NOT NULL,
-	machineId MEDIUMINT,
-	chargeId VARCHAR(30),
-	chargeAmt NUMERIC(4,2),
-	chargeTime MEDIUMINT UNSIGNED,
-	currencyId TINYINT UNSIGNED,
-	paymentStatusId TINYINT UNSIGNED,
-	outcome_networkStatusId SMALLINT UNSIGNED,
-	outcome_reasonId SMALLINT UNSIGNED,
-	outcome_riskLevelId TINYINT UNSIGNED,
-	outcome_sellerMessageId SMALLINT UNSIGNED,
-	outcome_typeId TINYINT UNSIGNED,
-	source_id TEXT,
-	UNIQUE KEY charge (chargeId),
-	PRIMARY KEY ( charge )
-);
-
 DROP TABLE IF EXISTS currency;
-CREATE TABLE currency (
-	currencyId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	currency VARCHAR(10),
-	UNIQUE KEY currency (currency),
-	PRIMARY KEY ( currencyId )
-);
-
 DROP TABLE IF EXISTS paymentStatus;
-CREATE TABLE paymentStatus (
-	paymentStatusId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	paymentStatus VARCHAR(20),
-	UNIQUE KEY paymentStatus (paymentStatus),
-	PRIMARY KEY ( paymentStatusId )
-);
-
 DROP TABLE IF EXISTS outcome_networkStatus;
-CREATE TABLE outcome_networkStatus (
-	outcome_networkStatusId SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	outcome_networkStatus VARCHAR(50),
-	UNIQUE KEY outcome_networkStatus (outcome_networkStatus),
-	PRIMARY KEY ( outcome_networkStatusId )
-);
-
 DROP TABLE IF EXISTS outcome_reason;
-CREATE TABLE outcome_reason (
-	outcome_reasonId SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	outcome_reason VARCHAR(20),
-	UNIQUE KEY outcome_reason (outcome_reason),
-	PRIMARY KEY ( outcome_reasonId )
-);
-
 DROP TABLE IF EXISTS outcome_riskLevel;
-CREATE TABLE outcome_riskLevel (
-	outcome_riskLevelId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	outcome_riskLevel VARCHAR(10),
-	UNIQUE KEY outcome_riskLevel (outcome_riskLevel),
-	PRIMARY KEY ( outcome_riskLevelId )
-);
-
 DROP TABLE IF EXISTS outcome_sellerMessage;
-CREATE TABLE outcome_sellerMessage (
-	outcome_sellerMessageId SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	outcome_sellerMessage VARCHAR(20),
-	UNIQUE KEY outcome_sellerMessage (outcome_sellerMessage),
-	PRIMARY KEY ( outcome_sellerMessageId )
+DROP TABLE IF EXISTS outcome_type;
+
+CREATE TABLE chargeInfo (
+    charge BIGINT NOT NULL AUTO_INCREMENT,
+    phoneNumber BIGINT NOT NULL,
+    machineId MEDIUMINT,
+    chargeId VARCHAR(30),
+    chargeAmt NUMERIC(4,2),
+    chargeTime BIGINT UNSIGNED,
+    currencyId TINYINT UNSIGNED,
+    paymentStatusId TINYINT UNSIGNED,
+    outcome_networkStatusId SMALLINT UNSIGNED,
+    outcome_reasonId SMALLINT UNSIGNED,
+    outcome_riskLevelId TINYINT UNSIGNED,
+    outcome_sellerMessageId SMALLINT UNSIGNED,
+    outcome_typeId TINYINT UNSIGNED,
+    source_id TEXT,
+    UNIQUE KEY charge (chargeId),
+    PRIMARY KEY ( charge )
+);
+SELECT * FROM chargeInfo;
+
+CREATE TABLE currency (
+    currencyId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    currency VARCHAR(10),
+    UNIQUE KEY currency (currency),
+    PRIMARY KEY ( currencyId )
 );
 
-DROP TABLE IF EXISTS outcome_type;
-CREATE TABLE outcome_type (
-	outcome_typeId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	outcome_type VARCHAR(20),
-	UNIQUE KEY outcome_type (outcome_type),
-	PRIMARY KEY ( outcome_typeId )
+CREATE TABLE paymentStatus (
+    paymentStatusId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    paymentStatus VARCHAR(20),
+    UNIQUE KEY paymentStatus (paymentStatus),
+    PRIMARY KEY ( paymentStatusId )
 );
-////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////finished//////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
+
+CREATE TABLE outcome_networkStatus (
+    outcome_networkStatusId SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    outcome_networkStatus VARCHAR(50),
+    UNIQUE KEY outcome_networkStatus (outcome_networkStatus),
+    PRIMARY KEY ( outcome_networkStatusId )
+);
+
+CREATE TABLE outcome_reason (
+    outcome_reasonId SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    outcome_reason VARCHAR(20),
+    UNIQUE KEY outcome_reason (outcome_reason),
+    PRIMARY KEY ( outcome_reasonId )
+);
+
+CREATE TABLE outcome_riskLevel (
+    outcome_riskLevelId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    outcome_riskLevel VARCHAR(10),
+    UNIQUE KEY outcome_riskLevel (outcome_riskLevel),
+    PRIMARY KEY ( outcome_riskLevelId )
+);
+
+CREATE TABLE outcome_sellerMessage (
+    outcome_sellerMessageId SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    outcome_sellerMessage VARCHAR(20),
+    UNIQUE KEY outcome_sellerMessage (outcome_sellerMessage),
+    PRIMARY KEY ( outcome_sellerMessageId )
+);
+
+CREATE TABLE outcome_type (
+    outcome_typeId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    outcome_type VARCHAR(20),
+    UNIQUE KEY outcome_type (outcome_type),
+    PRIMARY KEY ( outcome_typeId )
+);
+
+// Free Smoothies table
+DROP TABLE IF EXISTS giftSmoothies;
+CREATE TABLE giftSmoothies (
+    giftId MEDIUMINT NOT NULL AUTO_INCREMENT,
+    customerId BIGINT NOT NULL,
+    giftsRemaining TINYINT,
+    giftAmount TINYINT,
+    gifter_customerId BIGINT,
+    PRIMARY KEY ( giftId )
+);
+
+INSERT INTO
+    giftSmoothies
+    (customerId, giftsRemaining, giftAmount, gifter_customerId)
+VALUES
+    (
+        (
+            SELECT
+                MAX(customerId)
+            FROM
+                userInfo
+            WHERE
+                phoneNumber = 9377761657
+        ),
+        100, 100,
+        (
+            SELECT
+                MAX(customerId)
+            FROM
+                userInfo
+            WHERE
+                phoneNumber = 9377761657
+        )
+    )
+;
+
+// Lock Messages
+DROP TABLE IF EXISTS lockMessages;
+DROP TABLE IF EXISTS lockMessages_details;
+CREATE TABLE lockMessages (
+    lockId BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    machineId MEDIUMINT NOT NULL,
+    lockMessageId TINYINT UNSIGNED NOT NULL,
+    lockMessageTime BIGINT UNSIGNED,
+    PRIMARY KEY ( lockId )
+);
+
+CREATE TABLE lockMessages_details (
+    lockMessageId TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    lockMessage VARCHAR(20) NOT NULL,
+    UNIQUE KEY lockMessage ( lockMessage ),
+    PRIMARY KEY ( lockMessageId ) 
+);
+
+
+// Keep Alive Message
+DROP TABLE IF EXISTS keepAlive;
+CREATE TABLE keepAlive (
+    machineId MEDIUMINT,
+    keepAliveTime BIGINT UNSIGNED,
+    PRIMARY KEY ( machineId )
+);
+
+//////////////////////////////////////
+////////////     Work     ////////////
+//////////////////////////////////////
+DROP TABLE IF EXISTS freezerInfo;
+DROP TABLE IF EXISTS freezerState;
+CREATE TABLE freezerInfo (
+    machineId MEDIUMINT,
+    freezerUpdateTime BIGINT UNSIGNED,
+    freezerStatId TINYINT NOT NULL,
+    freezerTemp FLOAT(4,2),
+    PRIMARY KEY ( machineId )
+);
+CREATE TABLE freezerState (
+    freezerStateId TINYINT NOT NULL AUTO_INCREMENT,
+    freezerState VARCHAR(10),
+    UNIQUE KEY freezerState ( freezerState ),
+    PRIMARY KEY ( freezerStateId )
+);
+//////////////////////////////////////
+///////////    Finished    ///////////
+//////////////////////////////////////
 
 CREATE TABLE machineInfo (
-	machineId MEDIUMINT NOT NULL AUTO_INCREMENT,
-	company TEXT,
-	paymentSystem INT,
-	addressLine1_shipping TEXT,
-	addressLine2_shipping TEXT,
-	city_shipping TEXT,
-	state_shipping CHAR(2),
-	zipCode_shipping MEDIUMINT,
-	addressLine1_billing TEXT,
-	addressLine2_billing TEXT,
-	city_billing TEXT,
-	state_billing CHAR(2),
-	zipCode_billing MEDIUMINT,
-	contactName TEXT,
-	contactEmail TEXT,
-	contactPhone BIGINT,
-	PRIMARY KEY ( machineId )
+    machineId MEDIUMINT NOT NULL AUTO_INCREMENT,
+    company TEXT,
+    paymentSystem INT,
+    addressLine1_shipping TEXT,
+    addressLine2_shipping TEXT,
+    city_shipping TEXT,
+    state_shipping CHAR(2),
+    zipCode_shipping MEDIUMINT,
+    addressLine1_billing TEXT,
+    addressLine2_billing TEXT,
+    city_billing TEXT,
+    state_billing CHAR(2),
+    zipCode_billing MEDIUMINT,
+    contactName TEXT,
+    contactEmail TEXT,
+    contactPhone BIGINT,
+    PRIMARY KEY ( machineId )
 );
 
 ALTER TABLE machineInfo
 ADD lockInstalled INT after `paymentSystem `;
 
 CREATE TABLE deliveryInfo (
-	deliveryId BIGINT NOT NULL AUTO_INCREMENT,
-	company TEXT,
-	podCount INT,
-	date DATE,
-	PRIMARY KEY ( deliveryId )
+    deliveryId BIGINT NOT NULL AUTO_INCREMENT,
+    company TEXT,
+    podCount INT,
+    date DATE,
+    PRIMARY KEY ( deliveryId )
 );
 
 
 INSERT INTO
-	machineInfo
-	(company, addressLine1, addressLine2, city, state, zipCode)
+    machineInfo
+    (company, addressLine1, addressLine2, city, state, zipCode)
 VALUES
-	("Nominum", "800 Bridge Pkwy", "#100", "Palo Alto","CA",94065)
+    ("Nominum", "800 Bridge Pkwy", "#100", "Palo Alto","CA",94065)
 ;
 
 
 
 
 CREATE TABLE company_subsidyStipend (
-	subsidyStipendId BIGINT NOT NULL AUTO_INCREMENT,
-	company TEXT,
-	employeeThresh BIT(1),
-	thresholdConfig INT,
-	threshold1 INT,
-	price1 FLOAT(4,2),
-	threshold2 INT,
-	price2 FLOAT(4,2),
-	PRIMARY KEY ( subsidyStipendId )
+    subsidyStipendId BIGINT NOT NULL AUTO_INCREMENT,
+    company TEXT,
+    employeeThresh BIT(1),
+    thresholdConfig INT,
+    threshold1 INT,
+    price1 FLOAT(4,2),
+    threshold2 INT,
+    price2 FLOAT(4,2),
+    PRIMARY KEY ( subsidyStipendId )
 );
 
 INSERT INTO
-	machineInfo
-	(company, addressLine1_shipping, city_shipping, state_shipping, zipCode_shipping, addressLine1_billing, city_billing, state_billing, zipCode_billing)
+    machineInfo
+    (company, addressLine1_shipping, city_shipping, state_shipping, zipCode_shipping, addressLine1_billing, city_billing, state_billing, zipCode_billing)
 VALUES
-	("CareDx", "3260 Bayshore Blvd", "Brisbane","CA", 94005, "3260 Bayshore Blvd", "Brisbane","CA", 94005)
+    ("CareDx", "3260 Bayshore Blvd", "Brisbane","CA", 94005, "3260 Bayshore Blvd", "Brisbane","CA", 94005)
 ;
 INSERT INTO
-	company_subsidyStipend
-	(company, employeeThresh, thresholdConfig, threshold1, price1, threshold2, price2)
+    company_subsidyStipend
+    (company, employeeThresh, thresholdConfig, threshold1, price1, threshold2, price2)
 VALUES
-	("Actiance", 0, 1, 0, 2.49, 0, 2.49)
+    ("Actiance", 0, 1, 0, 2.49, 0, 2.49)
 ;
 CREATE TABLE thresholdConfig (
-	thresholdConfig INT NOT NULL,
-	thresholdType TEXT,
-	PRIMARY KEY ( thresholdConfig )
+    thresholdConfig INT NOT NULL,
+    thresholdType TEXT,
+    PRIMARY KEY ( thresholdConfig )
 );
 INSERT INTO
-	thresholdConfig
-	(thresholdConfig, thresholdType)
+    thresholdConfig
+    (thresholdConfig, thresholdType)
 VALUES
-	(1, "Monthly")
+    (1, "Monthly")
 ;
 INSERT INTO
-	thresholdConfig
-	(thresholdConfig, thresholdType)
+    thresholdConfig
+    (thresholdConfig, thresholdType)
 VALUES
-	(2, "Weekly")
+    (2, "Weekly")
 ;
 
 INSERT INTO
-	company_subsidyStipend
-	(company, employeeThresh, thresholdConfig, threshold1, price1, threshold2, price2)
+    company_subsidyStipend
+    (company, employeeThresh, thresholdConfig, threshold1, price1, threshold2, price2)
 VALUES
-	("CareDx", 0, 1, 0, 2.99, 0, 2.99)
+    ("CareDx", 0, 1, 0, 2.99, 0, 2.99)
 ;
 
 

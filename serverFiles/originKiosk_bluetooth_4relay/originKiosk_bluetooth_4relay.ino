@@ -67,7 +67,7 @@ void setup()
 
 static const unsigned long REFRESH_INTERVAL = 200; // ms
 static const unsigned long FREEZER_INTERVAL = 30000; // ms
-static const unsigned long KEEPALIVE_INTERVAL = 10000; // ms
+static const unsigned long KEEPALIVE_INTERVAL = 300000; // ms <- 5 minute intervals
 unsigned long lastRefreshTime = 0;
 unsigned long lastFreezerRefreshTime = 0;
 unsigned long lastKeepAliveRefreshTime = 0;

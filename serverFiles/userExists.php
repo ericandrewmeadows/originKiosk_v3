@@ -57,6 +57,7 @@
 	if ($conn->connect_error) {
 	    die("Connection failed: " . $conn->connect_error);
 	}
+	ensureCompanyIn_machineInfo($conn, $companyName);
 
 	// print_r($_GET);
 	if (isset($_GET['version'])) {
@@ -90,11 +91,22 @@
 								if ($subscribeNow == 1) {
 									$subscriptionPrice = 3.99;
 									$subscribeAmt = 12.00;
-									newSubscriber($subscribeAmt, $phoneNumber, $userToken, $conn, $subscriptionPrice);
+									newSubscriber($subscribescribeAmt, $phoneNumber, $userToken, $conn, $subscriptionPrice);
 									$charged = 1;
 								}
 								$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
 							}
+
+							// ---------- Free Smoothie Check ----------
+							if ($charged == 0) {
+								$giftOutput = checkFor_gifts($phoneNumber, $conn); // Automatically subtracts gifts and sends "FREE" receipt
+								if ($giftOutput != "error") {
+									print($giftOutput);
+									$charged = 1;
+								}
+							}
+
+							// -------------- Charge user --------------
 							if ($charged == 0) {
 								chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
 								$charged = 1;

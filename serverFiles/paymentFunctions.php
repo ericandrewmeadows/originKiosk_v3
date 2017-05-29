@@ -1,5 +1,16 @@
 <?php
 
+    function ensureCompanyIn_machineInfo ($conn, $companyName) {
+        $sql = '
+                INSERT IGNORE INTO
+                    machineInfo
+                    ( company )
+                VALUES
+                    ( "'.$companyName.'" )
+                ;';
+        $conn->query($sql);
+    }
+
     function validatePin(mysqli $conn, $phoneNumber, $PIN) {
 
         // $phoneNumber = 9377761657;
@@ -255,6 +266,86 @@
         return $chargeAmt;
     }
 
+    function checkFor_gifts($phoneNumber, $conn) {
+        $sql = "SELECT
+                    *
+                FROM
+                    userInfo
+                WHERE
+                    customerId =
+                    (
+                        SELECT
+                            MAX(customerId)
+                        FROM
+                            userInfo
+                        WHERE
+                            phoneNumber = ".$phoneNumber."
+                    )
+                ;";
+
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            while($row = $result->fetch_assoc()) {
+
+                $customerId = $row['customerId'];
+
+                $sql = 'SELECT
+                            *
+                        FROM
+                            giftSmoothies
+                        WHERE
+                            giftId = 
+                            (
+                                SELECT
+                                    MAX(giftId)
+                                FROM
+                                    giftSmoothies
+                                WHERE
+                                    customerId = '.$customerId.'
+                                    AND
+                                    giftsRemaining > 0
+                            );';
+                $result = $conn->query($sql);
+                if ($result->num_rows > 0) {
+                    while($row = $result->fetch_assoc()) {
+
+                        $giftId = $row['giftId'];
+
+                        $sql = '
+                                UPDATE
+                                    giftSmoothies
+                                SET
+                                    giftsRemaining = giftsRemaining - 1
+                                WHERE
+                                    giftId = '.$giftId.'
+                                ;';
+                        $conn->query($sql);
+
+                        $sql = '
+                                SELECT
+                                    SUM(giftsRemaining) AS gifts
+                                FROM
+                                    giftSmoothies
+                                WHERE
+                                    customerId = '.$customerId.'
+                                ;';
+                        $giftsRemaining = $conn->query($sql)->fetch_object()->gifts;
+
+                        send_giftReceivedReceipt($phoneNumber, $giftsRemaining);
+
+                        return '{"status": "succeeded"}'; // For legacy apps to still run.
+                    }
+                }
+
+
+            }
+            return "error";
+        }
+        else {
+            return "error";
+        }
+    }
+
     function chargeCustomer($chargeAmt, $companyName, $paymentToken, $conn, $phoneNumber) {
         \Stripe\Stripe::setApiKey("sk_live_3p3kLuWKmiz6rG3hFXLcyyTJ");
         $charge = \Stripe\Charge::create(array(
@@ -379,6 +470,41 @@
                                     ."&chargeAmt=".$chargeAmt
                                     ."&timeSeconds=".$timeSeconds);
         $receiptLink = "https://io.calmlee.com/receipts/".$phoneNumber."_".$timeSeconds.".html";
+        // print($xml);
+
+        $sid = 'ACce96ececbb8285c903180db35796f65b';
+        $token = '8b4c29703aaeb3797b0d61e4d7cb5d6d';
+        $client = new Client($sid, $token);
+
+        $twilioDesitination = "+1".$phoneNumber;
+
+        $client->messages->create(
+            $twilioDesitination,
+            array(
+                'from' => '+15623625363',
+                'body' => 'Here is your smoothie receipt!'
+            )
+        );
+        $client->messages->create(
+            $twilioDesitination,
+            array(
+                'from' => '+15623625363',
+                'body' => $receiptLink
+            )
+        );
+
+    }
+
+    function send_giftReceivedReceipt($phoneNumber, $giftsRemaining) {
+        
+        // $timeSeconds=time();
+        $timeSeconds = date('U');
+
+        $xml = file_get_contents(   "https://io.calmlee.com/giftReceived_receiptGenerator.php"
+                                    ."?phoneNumber=".$phoneNumber
+                                    ."&giftsRemaining=".$giftsRemaining
+                                    ."&timeSeconds=".$timeSeconds);
+        $receiptLink = "https://io.calmlee.com/receipts/gift_".$phoneNumber."_".$timeSeconds.".html";
         // print($xml);
 
         $sid = 'ACce96ececbb8285c903180db35796f65b';

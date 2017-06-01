@@ -11,23 +11,23 @@
 #define freezerTempBus 12
 OneWire oneWire(freezerTempBus); 
 DallasTemperature sensors(&oneWire);
-static int temperatureOn = 26.5;  // 27
-static int temperatureOff = 27.5; // 25
+float highTemp = 27.5;  // 27
+float lowTemp = 26.5; // 25
 static float freezerTemp = 0;
 
 // Lock - lockRelay HIGH -> LOCKED, LOW -> UNLOCKED
 #define lockRelay 6
 
 // btSerial
-#define BT_rx 9 //2
-#define BT_tx 8 //3
+#define BT_rx 9 //2 -- Transmit
+#define BT_tx 8 //3 -- Receive
 AltSoftSerial btSerial;
 String bt_rxString;
 char inputChar;
 
 // Credit Card
-#define CC_rx 11
-#define CC_tx 10
+#define CC_rx 11 // Receive
+#define CC_tx 10 // Transmit
 static bool stringStart = false;
 static int charsMissed = 0;
 String ccInfo = "";
@@ -65,8 +65,9 @@ void setup()
     ccSerial.attachInterrupt( getCC_info );
 } 
 
-static const unsigned long REFRESH_INTERVAL = 200; // ms
-static const unsigned long FREEZER_INTERVAL = 30000; // ms
+static const unsigned long REFRESH_INTERVAL = 200; // ms   <-  200 millis intervals
+//static const unsigned long FREEZER_INTERVAL = 30000; // ms <-   30 second intervals
+unsigned long FREEZER_INTERVAL = 30000; // ms <-   30 second intervals
 static const unsigned long KEEPALIVE_INTERVAL = 300000; // ms <- 5 minute intervals
 unsigned long lastRefreshTime = 0;
 unsigned long lastFreezerRefreshTime = 0;
@@ -98,10 +99,9 @@ void loop()
         stringStart = false;
         ccInfo.remove(ccInfo.length()-2);
         ccInfo += "</CCINFO>";
-        Serial.print("\n-----\n");
         Serial.println(ccInfo);
-        Serial.print("\n-----\n");
         btSerial.print(ccInfo);
+        delay(200);
         ccInfo = "";
       }
     }
@@ -149,11 +149,11 @@ void regulateTemp()
   // Arthena
   String temperatureOutput = "<FREEZER>Temp: " + String(freezerTemp) + ", State: ";
   
-  if (freezerTemp >= temperatureOn) {
+  if (freezerTemp >= highTemp) {
     digitalWrite(freezerRelay, HIGH);
     temperatureOutput += "On";
   }
-  else if (freezerTemp < temperatureOff) {
+  else if (freezerTemp < lowTemp) {
     digitalWrite(freezerRelay, LOW);
     temperatureOutput += "Off";
   }
@@ -163,7 +163,8 @@ void regulateTemp()
   temperatureOutput += "</FREEZER>";
   
   btSerial.print(temperatureOutput);
-  Serial.print(temperatureOutput);
+  delay(200);
+  Serial.println(temperatureOutput);
 }
 
 void checkString()
@@ -172,21 +173,52 @@ void checkString()
   if (bt_rxString == "UNLOCK") {
     digitalWrite(lockRelay, LOW);
     lockOutput += "Unlocked";
+    lockOutput += "</LOCK>";
+    btSerial.print(lockOutput);
+    delay(200);
+    Serial.println(lockOutput);
   }
   else if (bt_rxString == "LOCK") {
     digitalWrite(lockRelay, HIGH);
     lockOutput += "Locked";
+    lockOutput += "</LOCK>";
+    btSerial.print(lockOutput);
+    delay(200);
+    Serial.println(lockOutput);
   }
-  lockOutput += "</LOCK>";
+  else if (bt_rxString.length() > 16) {
+    if (bt_rxString.substring(0,16) == "FreezerSettings:") {
+      bt_rxString = bt_rxString.substring(16);
+      Serial.println("=== <FREEZERSETTINGS> ===");
+      
+      // Freezer Time Interval
+      int delimiter = bt_rxString.indexOf(",");
+      FREEZER_INTERVAL = 1000*bt_rxString.substring(0,delimiter).toInt();
+      Serial.println(FREEZER_INTERVAL);
+      bt_rxString = bt_rxString.substring(delimiter+1);
+
+      // Low Temp
+      delimiter = bt_rxString.indexOf(",");
+      lowTemp = bt_rxString.substring(0,delimiter).toFloat();
+      Serial.println(lowTemp);
+      bt_rxString = bt_rxString.substring(delimiter+1);
+
+      // High Temp
+      highTemp = bt_rxString.toFloat();
+      Serial.println(highTemp);
+      Serial.println("=== </FREEZERSETTINGS> ==");
+    }
+    //(bt_rxString.substring(0,16))
+  }
   
-  btSerial.print(lockOutput);
-  Serial.print(lockOutput);
 }
 
 void keepAlive()
 {
   String keepAliveString = "<KEEPALIVE>true</KEEPALIVE>";
   btSerial.print(keepAliveString);
+  delay(200);
+  Serial.println(keepAliveString);
 }
 
 // Epona

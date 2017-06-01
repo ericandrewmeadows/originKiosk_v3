@@ -66,5 +66,4 @@
     			( '.$machineId.', '.$lockMessageId.', '.$lockMessageTime.' )
     		;';
     $conn->query($sql);
-    $conn->close();
 ?>

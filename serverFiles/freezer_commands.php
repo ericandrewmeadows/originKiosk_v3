@@ -70,6 +70,6 @@
                 freezerTemp = '.$freezerTemp.',
                 freezerUpdateTime = '.$freezerUpdateTime.'
             ;';
-    print($sql);
     $conn->query($sql);
+    $conn->close();
 ?>

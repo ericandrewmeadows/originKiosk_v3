@@ -28,4 +28,5 @@
 
 	documentCharge($phoneNumber, $companyName, $data, $conn);
 	sendReceipt($phoneNumber, $data);
+	$conn->close();
 ?>

@@ -1,0 +1,10 @@
+.DS_Store
+SnackBlend KioskTests/
+SnackBlend KioskUITests/
+serverFiles/.DS_Store
+serverFiles/loopTest.php
+serverFiles/outputLogs.txt
+serverFiles/testGifts.php
+serverFiles/userExists_new.php
+weworkPhoneNumbers.csv
+serverFiles/serverRequests.log

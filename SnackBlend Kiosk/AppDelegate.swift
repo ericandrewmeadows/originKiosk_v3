@@ -12,7 +12,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    
+
     
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         if let rootViewController = self.topViewControllerWithRootViewController(rootViewController: window?.rootViewController) {
@@ -40,6 +40,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        // Kill ..
+        NSSetUncaughtExceptionHandler { (exception) in
+            NSLog("butt")
+        }
+        
+        signal(SIGABRT) { (_) in
+            NSLog("butt1")
+        }
+        signal(SIGILL) { (_) in
+            NSLog("butt2")
+        }
+        
+        signal(SIGSEGV) { (_) in
+            NSLog("butt3")
+        }
+        signal(SIGFPE) { (_) in
+            NSLog("butt4")
+        }
+        signal(SIGBUS) { (_) in
+            NSLog("butt5")
+        }
+        
+        signal(SIGPIPE) { (_) in
+            NSLog("butt6")
+        }
+        // .. Kill
         
         var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         let documentsDirectory = paths[0]
@@ -70,6 +97,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+        print("aWT reached")
     }
 
 

@@ -114,6 +114,7 @@ urlWithParams   String  "https://io.calmlee.com/userExists.php?phoneNumber=93777
 
 
 // subSmoothie<X>_price is $$/smoothie, not $$ = X smoothies
+DROP TABLE IF EXISTS subscriptionInfo;
 CREATE TABLE subscriptionInfo (
     machineId MEDIUMINT,
     subSmoothie1_count TINYINT,
@@ -124,6 +125,15 @@ CREATE TABLE subscriptionInfo (
     subSmoothie3_price FLOAT(4,2),
     PRIMARY KEY ( machineId )
 );
+INSERT INTO
+    subscriptionInfo
+    (machineId,
+    subSmoothie1_count, subSmoothie1_price, subSmoothie2_count, subSmoothie2_price, subSmoothie3_count, subSmoothie3_price)
+VALUES
+    ((SELECT machineId FROM machineInfo WHERE company = "WeWork Civic Center"),
+     0, 3.99, 0, 3.99, 0, 3.99)
+;
+SELECT * FROM subscriptionInfo;
 
 CREATE TABLE subscriptionItems_details (
     items_type TINYINT NOT NULL AUTO_INCREMENT,
@@ -165,7 +175,7 @@ INSERT INTO
     subSmoothie1_count, subSmoothie1_price, subSmoothie2_count, subSmoothie2_price)
 VALUES
     ((SELECT machineId FROM machineInfo WHERE company = "WeWork Civic Center"),
-     3, 4.99, 5, 4.79)
+     0, 3.99, 0, 3.99)
 ;
 
 
@@ -291,7 +301,7 @@ VALUES
             WHERE
                 phoneNumber = 9377761657
         ),
-        100, 100,
+        3, 3,
         (
             SELECT
                 MAX(customerId)
@@ -330,15 +340,13 @@ CREATE TABLE keepAlive (
     PRIMARY KEY ( machineId )
 );
 
-//////////////////////////////////////
-////////////     Work     ////////////
-//////////////////////////////////////
+// Freezer Messages
 DROP TABLE IF EXISTS freezerInfo;
 DROP TABLE IF EXISTS freezerState;
 CREATE TABLE freezerInfo (
     machineId MEDIUMINT,
     freezerUpdateTime BIGINT UNSIGNED,
-    freezerStatId TINYINT NOT NULL,
+    freezerStateId TINYINT NOT NULL,
     freezerTemp FLOAT(4,2),
     PRIMARY KEY ( machineId )
 );
@@ -348,6 +356,39 @@ CREATE TABLE freezerState (
     UNIQUE KEY freezerState ( freezerState ),
     PRIMARY KEY ( freezerStateId )
 );
+DROP TABLE IF EXISTS siteSpecificUnlockTimes;
+CREATE TABLE siteSpecificUnlockTimes (
+    unlockId MEDIUMINT NOT NULL AUTO_INCREMENT,
+    machineId MEDIUMINT,
+    startTime SMALLINT NOT NULL,
+    endTime SMALLINT NOT NULL,
+    PRIMARY KEY ( unlockId )
+);
+INSERT INTO
+    siteSpecificUnlockTimes
+    ( machineId, startTime, endTime )
+VALUES
+    ( 16, 630, 634 )
+;
+DROP TABLE IF EXISTS freezerSettings;
+CREATE TABLE freezerSettings (
+    freezerSettingsId MEDIUMINT NOT NULL AUTO_INCREMENT,
+    machineId MEDIUMINT NOT NULL,
+    freezerInterval INT NOT NULL,
+    lowTemp FLOAT(4,2) NOT NULL,
+    highTemp FLOAT(4,2) NOT NULL,
+    UNIQUE KEY ( machineId ),
+    PRIMARY KEY ( freezerSettingsId )
+);
+INSERT INTO
+    freezerSettings
+    ( machineId, freezerInterval, lowTemp, highTemp )
+VALUES
+    (0, 30, 26.5, 27.5);
+//////////////////////////////////////
+////////////     Work     ////////////
+//////////////////////////////////////
+//
 //////////////////////////////////////
 ///////////    Finished    ///////////
 //////////////////////////////////////

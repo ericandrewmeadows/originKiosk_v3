@@ -447,7 +447,6 @@
                         .$outcome_networkStatusId.','.$outcome_reasonId.','.$outcome_riskLevelId.','.$outcome_sellerMessageId.','.$outcome_typeId.','
                         .'"'.$source_id.'")
                     ;';
-        print($sql."<br>-----<br>");
         $conn->query($sql);
     }
     
@@ -470,7 +469,6 @@
                                     ."&chargeAmt=".$chargeAmt
                                     ."&timeSeconds=".$timeSeconds);
         $receiptLink = "https://io.calmlee.com/receipts/".$phoneNumber."_".$timeSeconds.".html";
-        // print($xml);
 
         $sid = 'ACce96ececbb8285c903180db35796f65b';
         $token = '8b4c29703aaeb3797b0d61e4d7cb5d6d';
@@ -505,7 +503,6 @@
                                     ."&giftsRemaining=".$giftsRemaining
                                     ."&timeSeconds=".$timeSeconds);
         $receiptLink = "https://io.calmlee.com/receipts/gift_".$phoneNumber."_".$timeSeconds.".html";
-        // print($xml);
 
         $sid = 'ACce96ececbb8285c903180db35796f65b';
         $token = '8b4c29703aaeb3797b0d61e4d7cb5d6d';
@@ -546,7 +543,15 @@
                 ON DUPLICATE KEY UPDATE
                     subscribeAmt = '.$subscribeAmt.', subscriptionPrice = '.$subscriptionPrice.', renewDate = NOW(), active = 1;';
         $conn->query($sql);
-        print str_replace("Stripe\\Charge JSON: ","",$charge);
+        $charge = str_replace("Stripe\\Charge JSON: ","",$charge);
+        
+        print($charge);
+        $data = json_decode($charge, true);
+
+        documentCharge($phoneNumber, $companyName, $data, $conn);
+        if ($data["status"] == "succeeded") {
+            sendReceipt($phoneNumber, $data);
+        }
     }
 
     function getSubscriptionPrice($phoneNumber, $chargeAmt, $conn) {

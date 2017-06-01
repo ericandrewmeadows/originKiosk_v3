@@ -1,7 +1,4 @@
 <?php
-
-	ob_start();
-
 	require 'vendor/autoload.php';
 	require 'paymentFunctions.php';
 	require_once 'nameParser.php';
@@ -14,15 +11,6 @@
 
     // Get the PHP helper library from twilio.com/docs/php/install 
 	require_once '/home/ubuntu/vendor/autoload.php'; // Loads the library
-
-	try {
-		$req_dump = print_r($_REQUEST, TRUE);
-		$fp = fopen('serverRequests.log', 'a');
-		fwrite($fp, $req_dump);
-		fclose($fp);
-	} catch (Exception $e) {
-		// skip
-	}
 	 
 
 	// Token is created using Stripe.js or Checkout!
@@ -35,7 +23,6 @@
 	$username = "root";
 	$password = "root";
 	$database = "snackblendKiosk";
-	$charged = 0;
 
 	if (isset($_GET['phoneNumber'])) {
 		$phoneNumber = $_GET["phoneNumber"];
@@ -57,7 +44,6 @@
 	if ($conn->connect_error) {
 	    die("Connection failed: " . $conn->connect_error);
 	}
-	ensureCompanyIn_machineInfo($conn, $companyName);
 
 	// print_r($_GET);
 	if (isset($_GET['version'])) {
@@ -86,31 +72,7 @@
 							$basePrice = 2.99;				
 							$chargeAmt = getPaymentAmount($conn, $companyName, $basePrice);
 							$userToken = getPaymentToken_customer ($conn, $phoneNumber);
-							if (isset($_GET['subscribe'])) {
-								$subscribeNow = $_GET['subscribe'];
-								if ($subscribeNow == 1) {
-									$subscriptionPrice = 3.99;
-									$subscribeAmt = 12.00;
-									newSubscriber($subscribescribeAmt, $phoneNumber, $userToken, $conn, $subscriptionPrice);
-									$charged = 1;
-								}
-								$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
-							}
-
-							// ---------- Free Smoothie Check ----------
-							if ($charged == 0) {
-								$giftOutput = checkFor_gifts($phoneNumber, $conn); // Automatically subtracts gifts and sends "FREE" receipt
-								if ($giftOutput != "error") {
-									print($giftOutput);
-									$charged = 1;
-								}
-							}
-
-							// -------------- Charge user --------------
-							if ($charged == 0) {
-								chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
-								$charged = 1;
-							}
+					        chargeCustomer($chargeAmt, $companyName, $userToken, $conn);
 
 							// Ocarina
 							// // Is the user subscribed?
@@ -137,29 +99,7 @@
 					}
 				}
 				else if ($userExists) {
-					// print("User needs PIN");
-					if ($companyName == "Sentient") {
-						$basePrice = 2.99;				
-						$chargeAmt = getPaymentAmount($conn, $companyName, $basePrice);
-						$userToken = getPaymentToken_customer ($conn, $phoneNumber);
-						if (isset($_GET['subscribe'])) {
-							$subscribeNow = $_GET['subscribe'];
-							if ($subscribeNow == 1) {
-								$subscriptionPrice = 3.99;
-								$subscribeAmt = 12.00;
-								newSubscriber($subscribeAmt, $phoneNumber, $userToken, $conn, $subscriptionPrice);
-								$charged = 1;
-							}
-							$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
-						}
-						if ($charged == 0) {
-							chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
-							$charged = 1;
-						}
-					}
-					else {
-						print("User needs PIN");
-					}
+					print("Needs PIN");
 					// Only for site reworks
 					// Epona
 				}
@@ -193,29 +133,13 @@
 
 				$cardToken = create_cardToken($ccInfo_e);
 				$userToken = cardExists_inDb($cardToken, $conn);
-				$phoneNumber = getUserPhoneNumber($cardToken,$conn);
 				if ($userToken !=  "error") {
 					// Epona Epona Epona Epona Epona Epona Epona Epona -- works
 					$basePrice = 2.99;				
 					$chargeAmt = getPaymentAmount($conn, $companyName, $basePrice);
 
-					if (isset($_GET['subscribe'])) {
-						if ($phoneNumber != -1) {
-							$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
-						}
-					}
-
-					// ---------- Free Smoothie Check ----------
-					if ($charged == 0) {
-						$giftOutput = checkFor_gifts($phoneNumber, $conn); // Automatically subtracts gifts and sends "FREE" receipt
-						if ($giftOutput != "error") {
-							print($giftOutput);
-							$charged = 1;
-						}
-					}
-
-					if (($chargeNow == 1) && ( $charged == 0 )) {
-			        	chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
+					if ($chargeNow == 1) {
+			        	chargeCustomer($chargeAmt, $companyName, $userToken, $conn);
 			        }
 			        // Epona Epona Epona Epona Epona Epona Epona Epona -- works
 				}
@@ -238,15 +162,14 @@
 	}
 	if ($version == "1.0") {
 
-		$userToken = getPaymentToken_customer ($conn, $phoneNumber);
+		$paymentToken = getPaymentToken_customer ($conn, $phoneNumber);
 
-		if ($userToken != "error"){
+		if ($paymentToken != "error"){
 
 			$basePrice = 2.99;				
 			$chargeAmt = getPaymentAmount($conn, $companyName, $basePrice);
-			// $chargeAmt = getPaymentAmount_new ($conn, $phoneNumber, $companyName, $basePrice);
 
-	        chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
+	        chargeCustomer($chargeAmt, $companyName, $paymentToken, $conn);
 	    }
 	    else {
 			// Old Registration
@@ -255,7 +178,5 @@
 	}
 	$conn->close();
 
-	file_put_contents('outputLogs.txt',"-----\n".ob_get_contents().PHP_EOL , FILE_APPEND | LOCK_EX);
-	ob_end_flush();
-
+	
 ?>

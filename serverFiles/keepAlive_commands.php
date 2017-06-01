@@ -41,4 +41,5 @@
                 keepAliveTime = '.$keepAliveTime.'
             ;';
     $conn->query($sql);
+    $conn->close();
 ?>

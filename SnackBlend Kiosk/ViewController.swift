@@ -9,6 +9,7 @@
 import UIKit
 import CoreBluetooth
 
+
 let paymentAddress = "https://io.calmlee.com/userExists.php"
 let phoneExistsAddress = "https://io.calmlee.com/phoneExists.php"
 let pinExistsAddress = "https://io.calmlee.com/pinExists.php"
@@ -17,11 +18,45 @@ let registerNewUserAddress = "https://io.calmlee.com/paymentPosting_GET.php"
 let lockAddress = "https://io.calmlee.com/lock_commands.php"
 let keepAliveAddress = "https://io.calmlee.com/keepAlive_commands.php"
 let freezerAddress = "https://io.calmlee.com/freezer_commands.php"
+let siteSpecificUnlockTimesAddress = "https://io.calmlee.com/siteSpecificUnlockTimes.php"
+let freezerSettingsAddress = "https://io.calmlee.com/freezerSettings.php"
+let priceSettingsAddresss = "https://io.calmlee.com/priceSettings.php"
+let pinMigrationAddress = "https://io.calmlee.com/pinMigration.php"
 //let paymentAddress = "https://io.calmlee.com/userExists_stripeTestMode.php"
 
 let baudRate: Int32 = 9600      // baud rate
 
 class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate {
+    
+    // PIN was not set
+    var pin_wasNotSet = false
+    
+    // Subscription Information
+    var subscription_priceSet: Bool = false
+    var subscription_smoothieCount1: Int = 0
+    var subscription_smoothieCount2: Int = 0
+    var subscription_smoothieCount3: Int = 0
+    var subscription_smoothiePrice1: Float = 2.99
+    var subscription_smoothiePrice2: Float = 0
+    var subscription_smoothiePrice3: Float = 0
+    
+    // Payment Information
+    var payment_priceSet: Bool = false
+    var payment_employeeThreshold:  Int = 0
+    var payment_thresholdConfig:    Int = 0
+    var payment_threshold1:         Int = 0
+    var payment_threshold2:         Int = 0
+    var payment_price1:             Float = 9.99
+    var payment_price2:             Float = 0
+    
+    
+    // Payment or Master Unlock
+    var paymentOr_masterUnlock = false
+    
+    // siteSpecificUnlockTimes
+    var siteSpecificUnlockTimes = [[Int]]()
+    let unlock_TimeSpecific_interval: Double = 30
+    let timeSpecificUnlockStatus_interval: Double = 5*60
     
     // RscMgr
     var rscMgr:  RscMgr!     // RscMgr handles the serial communication
@@ -128,6 +163,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     let enabledColor = UIColor.black
     
     func resetPhoneNumber() {
+        self.phoneNumberDisplay.isHidden = false
         phoneNumString = ["(", " ", " ", " ", ")", " ", " ", " ", " ", "-", " ", " ", " ", " "]
         phoneNumString_exact = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
         phoneNumStringCount = 0
@@ -211,15 +247,22 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     func successfulPayment () {
         
         if (printString == masterUnlockString) {
-            print("Master Unlock")
+            NSLog("Master Unlock")
         }
         else {
-            print("Successful Payment")
+            NSLog("Successful Payment")
         }
         
         // Reset PIN, phoneNumber, etc
         
+        self.paymentSuccessfulLabel.isHidden = true
+        self.paymentSuccessfulLabel.text = "Payment Successful"
+        self.shapeLayer.isHidden = true
+        self.checkMark.text = "✓"
+        self.view.setNeedsDisplay()
+        
         DispatchQueue.main.async {
+            self.phoneNumberDisplay.isHidden = true
 //            self.payButton.isHidden = true
             self.pinPadImage_view.isHidden = true
             self.swipeImage_view.isHidden = true
@@ -232,6 +275,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
 //            self.payButton.setTitle("Pay Now", for: .normal)
             self.subscribeButton.isHidden = true
             self.cardToken = ""
+            
             
             UIView.animate(withDuration: self.successTransition,
                            animations: {
@@ -275,6 +319,34 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         }
     }
     
+    func processingPaymentRequest () {
+        self.shapeLayer.removeAllAnimations()
+        DispatchQueue.main.async {
+            self.paymentSuccessfulLabel.textColor = UIColor(
+                red: 105/255.0,
+                green: 105/255.0,
+                blue: 105/255.0,
+                alpha: 1.0)
+            
+            self.checkMark.text = "•••"
+            self.paymentSuccessfulLabel.text = "Processing"
+            self.subscribeButton.isHidden = true
+            self.priceLabel.isHidden = true
+            self.subscribeLabel.isHidden = true
+            self.subscribeDetails.isHidden = true
+            self.checkMark.isHidden = false
+            self.paymentSuccessfulLabel.isHidden = false
+            
+            self.shapeLayer.fillColor = UIColor(
+                red: 105/255.0,
+                green: 105/255.0,
+                blue: 105/255.0,
+                alpha: 1.0).cgColor
+            self.shapeLayer.isHidden = false
+            self.view.setNeedsDisplay()
+        }
+    }
+    
     func registrationRequired () {
         print("Registering")
         
@@ -308,7 +380,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                             animcolor.isRemovedOnCompletion = false
                             animcolor.fillMode = kCAFillModeForwards
                             self.shapeLayer.add(animcolor, forKey: "fillColor")
-                            
             })
             
             self.paymentSuccessfulLabel.textColor = .clear
@@ -335,8 +406,10 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             self.enablePaymentButtons()
             self.paymentSuccessfulLabel.text = "Payment Successful"
             self.checkMark.text = "✓"
+            
         }) { (finished) in
             if finished {
+                
                 self.paymentReset()
                 self.resetKeurigLabel()
             }
@@ -351,8 +424,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             if (sender.titleLabel?.text == "Cancel") {
                 paymentReset()
                 inputVal = "C"
-                //Arthena
-//                sendUnlockMessage()
             }
             else if (sender.titleLabel?.text != "x") {
                 inputVal = (sender.titleLabel?.text)!
@@ -396,16 +467,22 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             input_last8 = input_last8.shiftRight()
             printString = input_last8.joined(separator: "")
             if (printString == masterUnlockString) {
+                self.paymentOr_masterUnlock = true
                 phoneNumberDisplay.text = ""
                 successfulPayment()
             }
             
             if phoneNumStringCount == 10 {
-                if ((!localRegistration) && (String(pinString) != "----")) {
-                    self.disablePaymentButtons()
-                    if (String(phoneNumString_exact) == "9377761657") {
-                        buttonVideo.setTitle("Setup", for: .normal)
-                    }
+//                if ((!localRegistration) && (String(pinString) != "----")) {//                    DispatchQueue.main.async {
+//                        self.disablePaymentButtons()
+//                        if (String(self.phoneNumString_exact) == "9377761657") {
+//                            self.buttonVideo.setTitle("Setup", for: .normal)
+//                        }
+//                        self.view.setNeedsDisplay()
+//                    }
+//                }
+                if (self.pin_wasNotSet == true) {
+                    // Placeholder
                 }
                 else {
                     // Epona
@@ -444,7 +521,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             }
             if pinNumStringCount == pinLength {
                 
-                if (!pinRegistration) {
+                if (!pinRegistration && !pin_wasNotSet) {
                     pinString_validate = pinString;
                     
                     // Set both to each other
@@ -479,9 +556,8 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                     pinNumStringCount = 0;
                 }
                 else if ((String(pinString_validate) == String(pinString)) && pinRegistration) {
-                    // Epona
-                    // PIN codes match
-                    print("CODES MATCH");
+                    self.phoneNumberDisplay.isHidden = true
+                    
                     pinString_str = String(pinString)
                     phoneNumberDisplay.text = "";
                     keypadVersion == "phoneNumber";
@@ -510,6 +586,9 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                         print("waitingForCC")
 //                        phoneNumberDisplay.text = "Swipe Credit Card";
                     }
+                    else if (pin_wasNotSet) {
+                        // Arthena
+                    }
                     else {
                         registerUser()
                         print("\n-----\nReached somehow\n-----\n")
@@ -517,7 +596,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                     pinString_display =  ["-","-","-","-"];
                     pinNumStringCount = 0;
                 }
-                else if ((str_pinString != str_pinStringValidate) && pinRegistration) {
+                else if ((str_pinString != str_pinStringValidate) && (pinRegistration || pin_wasNotSet)) {
                     print("PINs don't match")
                     pinString = ["-","-","-","-"];
                     pinString_validate = ["-","-","-","-"];
@@ -542,6 +621,10 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                 }
                 else if (!pinRegistration) {
 //                    hashCheck()
+                    self.phoneNumberDisplay.isHidden = true
+                    self.keurigLabel.isHidden = true
+                    self.pinPadImage_view.isHidden = true
+                    
                     processPayment(method: "PIN")
 //                    methodToExecute = "PIN"
                     //                    self.payUsing_worldSelector()
@@ -565,37 +648,78 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     let screenSize: CGRect = UIScreen.main.bounds
     var initialLoad = false
     
-    var timeSpecific_locked = true
+    var lockState = true
     var timer_hourSpecific: Timer?
+    var timer_acquireUnlockTimes: Timer?
+    
     func unlock_timeSpecific() {
+        var intermediateLockState = true
         let hours = Calendar.current.component(.hour, from: Date())
         let minutes = Calendar.current.component(.minute, from: Date())
         let overallMinutes = hours * 60 + minutes
-        //        print(" -- " + String(overallMinutes) + " -- ")
-        // Unlock times are from 730A - 930A
-        let startM = 450
-        let endM = 570
-        //        if ((( overallMinutes >= 450 ) && ( overallMinutes <= 570 )) && (timeSpecific_locked)) {
-        if ((( overallMinutes >= startM ) && ( overallMinutes <= endM )) && (timeSpecific_locked)) {
-            timeSpecific_locked = false
-            sendUnlockMessage()
-            pinPadImage_view.isHidden = true
-            swipeImage_view.isHidden = true
-            keurigLabel.isHidden = true
-            hidePinPad_true()
-            unlockedPriceLabel()
+        NSLog("-- " + String(overallMinutes) + " --")
+        
+        //  --  Implementing Site-Specific Unlock Times from Server --  //
+        for siteSpecificUnlockTime in self.siteSpecificUnlockTimes {
+            let startM = siteSpecificUnlockTime[0]
+            let endM = siteSpecificUnlockTime[1]
+            
+            if ((( overallMinutes >= startM ) && ( overallMinutes <= endM ))) {
+                intermediateLockState = intermediateLockState && false
+            }
+            if ((( overallMinutes < startM ) || ( overallMinutes > endM ))) {
+                intermediateLockState = intermediateLockState && true
+            }
+//            print(String(startM) + " <= " + String(overallMinutes) + " <= " + String(endM) + "; " + "IML state: " + String(intermediateLockState)) // Debugging
         }
-        //        if ((( overallMinutes < 450 ) || ( overallMinutes > 570 )) && (!timeSpecific_locked)) {
-        if ((( overallMinutes < startM ) || ( overallMinutes > endM )) && (!timeSpecific_locked)) {
-            timeSpecific_locked = true
-            sendLockMessage()
-            pinPadImage_view.isHidden = false
-            swipeImage_view.isHidden = false
-            keurigLabel.isHidden = false
-            hidePinPad_false()
-            originalPriceLabel()
-            paymentReset()
+        if (self.paymentOr_masterUnlock == false) {
+            if (intermediateLockState != lockState) {
+                if (intermediateLockState == true) {
+                    NSLog("paymentOr_masterUnlock = " + String(self.paymentOr_masterUnlock))
+                    NSLog("timeSpecific Lock")
+                    sendLockMessage()
+                    pinPadImage_view.isHidden = false
+                    swipeImage_view.isHidden = false
+                    keurigLabel.isHidden = false
+                    hidePinPad_false()
+                    set_priceLabels()
+                    paymentReset()
+                }
+                else {
+                    sendUnlockMessage()
+                    pinPadImage_view.isHidden = true
+                    swipeImage_view.isHidden = true
+                    keurigLabel.isHidden = true
+                    hidePinPad_true()
+                    unlockedPriceLabel()
+                }
+            }
         }
+        // Debugging
+//        print("Lock state: " + String(lockState))
+//        print("")
+//        // Unlock times are from 730A - 930A
+//        let startM = 450
+//        let endM = 570
+//        if ((( overallMinutes >= startM ) && ( overallMinutes <= endM )) && (timeSpecific_locked)) {
+//            timeSpecific_locked = false
+//            sendUnlockMessage()
+//            pinPadImage_view.isHidden = true
+//            swipeImage_view.isHidden = true
+//            keurigLabel.isHidden = true
+//            hidePinPad_true()
+//            unlockedPriceLabel()
+//        }
+//        if ((( overallMinutes < startM ) || ( overallMinutes > endM )) && (!timeSpecific_locked)) {
+//            timeSpecific_locked = true
+//            sendLockMessage()
+//            pinPadImage_view.isHidden = false
+//            swipeImage_view.isHidden = false
+//            keurigLabel.isHidden = false
+//            hidePinPad_false()
+//            subscription_priceLabel()
+//            paymentReset()
+//        }
     }
     
     func hidePinPad_true() {
@@ -627,31 +751,37 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         buttonDel.isHidden = false
         buttonVideo.isHidden = false
     }
-    
-    func originalPriceLabel() {
-        let string = "$4.49"
-        var attributedString = NSMutableAttributedString(string: string as String)
-        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
-        attributedString.addAttributes(secondAttributes, range: NSMakeRange(0, string.characters.count))
-        priceLabel.attributedText = attributedString
-        self.view.setNeedsDisplay()
-        
-    }
-    
-    func unlockedPriceLabel() {
-        let string = "Unlocked"
-        let greenColour = UIColor(red: 10/255, green: 190/255, blue: 50/255, alpha: 1)
-        var attributedString = NSMutableAttributedString(string: string as String)
-        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!, NSForegroundColorAttributeName : greenColour] as [String : Any]
-        attributedString.addAttributes(secondAttributes, range: NSMakeRange(0, string.characters.count))
-        priceLabel.attributedText = attributedString
-        self.view.setNeedsDisplay()
-        
-    }
 
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Kill ..
+        NSSetUncaughtExceptionHandler { (exception) in
+            NSLog("butt")
+        }
+        
+        signal(SIGABRT) { (_) in
+            NSLog("butt1")
+        }
+        signal(SIGILL) { (_) in
+            NSLog("butt2")
+        }
+        
+        signal(SIGSEGV) { (_) in
+            NSLog("butt3")
+        }
+        signal(SIGFPE) { (_) in
+            NSLog("butt4")
+        }
+        signal(SIGBUS) { (_) in
+            NSLog("butt5")
+        }
+        
+        signal(SIGPIPE) { (_) in
+            NSLog("butt6")
+        }
+        // .. Kill
         
         // rscMgr
         rscMgr = RscMgr()
@@ -770,10 +900,10 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
 //                                 width: self.screenSize.width / 4,
 //                                 height: self.screenSize.height / 8)
         // Subscription setup
-//        priceLabel.frame = CGRect(x: self.screenSize.width / 16,
-//                                  y: r1y - self.screenSize.height / 10,//(imageView.frame.maxY + (r2y + r3y) / 2) / 2 - self.screenSize.height / 5,
-//            width: self.screenSize.width * 3 / 8,
-//            height: self.screenSize.height / 5)
+        priceLabel.frame = CGRect(x: self.screenSize.width / 16,
+                                  y: r1y - self.screenSize.height / 10.8,//(imageView.frame.maxY + (r2y + r3y) / 2) / 2 - self.screenSize.height / 5,
+            width: self.screenSize.width * 3 / 8,
+            height: self.screenSize.height / 5)
 //        priceLabel.text = "$2.99"
         
 //        let price_formattedString = NSMutableAttributedString()
@@ -782,21 +912,21 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
 //        text = "$5.99"
 //        price_formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:price_attrs_stk))
         
-//        originalPriceLabel()
         
-//        priceLabel.font = UIFont.boldSystemFont(ofSize: priceLabel.frame.height / 2)
+        priceLabel.font = UIFont.boldSystemFont(ofSize: priceLabel.frame.height / 4)
         
         
-        priceLabel.frame = CGRect(x: self.screenSize.width / 8,
-                                  y: r1y - self.screenSize.height / 16,//(imageView.frame.maxY + (r2y + r3y) / 2) / 2 - self.screenSize.height / 5,
-            width: self.screenSize.width / 4,
-            height: self.screenSize.height / 5)
-//        priceLabel.text = "$4.49"
-//        priceLabel.font = UIFont.boldSystemFont(ofSize: priceLabel.frame.height / 2)
-//        priceLabel.textColor = .black
-        priceLabel.isHidden = false
+//        priceLabel.frame = CGRect(x: self.screenSize.width / 8,
+//                                  y: r1y - self.screenSize.height / 16,//(imageView.frame.maxY + (r2y + r3y) / 2) / 2 - self.screenSize.height / 5,
+//            width: self.screenSize.width / 4,
+//            height: self.screenSize.height / 5)
+//        
+////        priceLabel.text = "$4.49"
+////        priceLabel.font = UIFont.boldSystemFont(ofSize: priceLabel.frame.height / 2)
+////        priceLabel.textColor = .black
+//        priceLabel.isHidden = false
         priceLabel.textAlignment = .center
-        originalPriceLabel()
+        priceLabel.numberOfLines = 0
         view.addSubview(self.priceLabel)
         
         subscribeLabel.frame = CGRect(x: self.screenSize.width / 8,
@@ -808,7 +938,10 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         subscribeLabel.textAlignment = .center
         subscribeLabel.textColor = .black
         subscribeLabel.isHidden = true
-//        view.addSubview(self.subscribeLabel)
+        view.addSubview(self.subscribeLabel)
+        
+        set_priceLabels()
+        view.setNeedsDisplay()
         
         subscribeDetails.frame = CGRect(x: self.screenSize.width / 24,
                                         y: r4y,
@@ -849,7 +982,10 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                                        y: r2y - self.screenSize.height / 32,
                                        width: self.screenSize.width / 3 / 3,
                                        height: payButton.frame.height)
+        subscribeButton.tag = 10
         subscribeButton.setTitle("Join and get it for: $3.99", for: .normal)
+        
+        view.addSubview(self.subscribeButton)
         
         // NOW
         let subscribeString = "Join"
@@ -875,7 +1011,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         subscribeButton.clipsToBounds = true
         subscribeButton.isHidden = false
         subscribeButton.addTarget(self, action: #selector(processSubscription), for: .touchUpInside)
-//        view.addSubview(self.subscribeButton)
         
         
         // Payment Successful - Label
@@ -1214,8 +1349,26 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             connectTimer = Timer.scheduledTimer(timeInterval: 3, target: self, selector: #selector(ViewController.scanForPeriph), userInfo: nil, repeats: true)
         }
         
-        // Time-specific Locking
-        timer_hourSpecific = Timer.scheduledTimer(timeInterval: 30, target: self, selector: #selector(ViewController.unlock_timeSpecific), userInfo: nil, repeats: true)
+//        unlock_timeSpecific()
+        serverComms_priceSettings()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0, execute: {
+            //timer_acquireUnlockTimes
+            self.serverComms_siteSpecificUnlockTimes()
+            self.timer_acquireUnlockTimes = Timer.scheduledTimer(timeInterval: self.timeSpecificUnlockStatus_interval, target: self, selector: #selector(ViewController.serverComms_siteSpecificUnlockTimes), userInfo: nil, repeats: true)
+            
+            // Time-specific Locking
+            self.unlock_timeSpecific()
+            self.timer_hourSpecific = Timer.scheduledTimer(timeInterval: self.unlock_TimeSpecific_interval, target: self, selector: #selector(ViewController.unlock_timeSpecific), userInfo: nil, repeats: true)
+            
+            // Freezer Settings
+            self.serverComms_freezerSettings()
+            self.acquireFreezerSettings_timer = Timer.scheduledTimer(timeInterval: TimeInterval(self.acquireFreezerSettings_timeInterval), target: self, selector: #selector(ViewController.serverComms_freezerSettings), userInfo: nil, repeats: true)
+            
+            // Price Settings
+            self.serverComms_priceSettings()
+            self.acquirePriceSettings_timer = Timer.scheduledTimer(timeInterval: TimeInterval(self.acquirePriceSettings_timeInterval), target: self, selector: #selector(ViewController.serverComms_priceSettings), userInfo: nil, repeats: true)
+        })
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -1232,8 +1385,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         //        connectionLabel.text = "Cable connected"
         
         rscMgr.open()
-//                priceLabel.text = "Yep"
-                self.view.setNeedsDisplay()
+        
         rscMgr.setBaud(baudRate)
     }
     
@@ -1249,6 +1401,17 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         
     }
     
+    func extractAfterStart ( bluetoothRx_array: String, startString: String ) -> String {
+        var bluetoothRx_array = bluetoothRx_array
+        if ((bluetoothRx_array.components(separatedBy: startString).count) == 1) {
+            bluetoothRx_array = ""
+        }
+        else {
+            bluetoothRx_array = bluetoothRx_array.components(separatedBy: startString)[1]
+        }
+        return bluetoothRx_array
+    }
+    
     // data is ready to read
     func readBytesAvailable(_ length: UInt32) {
         
@@ -1261,39 +1424,88 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         
         bluetoothRx_array += message
         bluetoothRx_array = (bluetoothRx_array as NSString).replacingOccurrences(of: "?", with: "")
+        NSLog(bluetoothRx_array)
         
         if (bluetoothRx_array.range(of:"</CCINFO>") != nil) {
-            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<CCINFO>")[1]
+//            if ((bluetoothRx_array.components(separatedBy: "<CCINFO>").count) == 1) {
+//                bluetoothRx_array = ""
+//            }
+//            else {
+//                bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<CCINFO>")[1]
+//            }
+            bluetoothRx_array = extractAfterStart(bluetoothRx_array: bluetoothRx_array, startString: "<CCINFO>")
+            
             bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</CCINFO>")[0]
             bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
             methodToExecute = "ccInfo"
             ccInfo_chargeUser = 1;
             processPayment(method: methodToExecute)
-            bluetoothRx_array = ""
+            if ((bluetoothRx_array.components(separatedBy: "</CCINFO>").count) == 1) {
+                bluetoothRx_array = ""
+            }
+            else {
+                bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</CCINFO>")[1]
+            }
         }
         else if (bluetoothRx_array.range(of:"</LOCK>") != nil) {
-            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<LOCK>")[1]
+//            if ((bluetoothRx_array.components(separatedBy: "<LOCK>").count) == 1) {
+//                bluetoothRx_array = ""
+//            }
+//            else {
+//                bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<LOCK>")[1]
+//            }
+            
+            bluetoothRx_array = extractAfterStart(bluetoothRx_array: bluetoothRx_array, startString: "<LOCK>")
+            
             bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</LOCK>")[0]
-            bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
-            //            processPayment(method: methodToExecute)
             serverComms_lockCommunication(lockString: bluetoothRx_array)
-            bluetoothRx_array = ""
+            
+            if ((bluetoothRx_array.components(separatedBy: "</LOCK>").count) == 1) {
+                bluetoothRx_array = ""
+            }
+            else {
+                bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</LOCK>")[1]
+            }
         }
         else if (bluetoothRx_array.range(of:"</FREEZER>") != nil) {
-            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<FREEZER>")[1]
+//            if ((bluetoothRx_array.components(separatedBy: "<FREEZER>").count) == 1) {
+//                bluetoothRx_array = ""
+//            }
+//            else {
+//                bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<FREEZER>")[1]
+            //            }
+            
+            bluetoothRx_array = extractAfterStart(bluetoothRx_array: bluetoothRx_array, startString: "<FREEZER>")
+            
             bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</FREEZER>")[0]
-            bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
-            //            processPayment(method: methodToExecute)
             serverComms_freezerCommunication(freezerString: bluetoothRx_array)
-            bluetoothRx_array = ""
+            
+            if ((bluetoothRx_array.components(separatedBy: "</FREEZER>").count) == 1) {
+                bluetoothRx_array = ""
+            }
+            else {
+                bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</FREEZER>")[1]
+            }
         }
         else if (bluetoothRx_array.range(of:"</KEEPALIVE>") != nil) {
-            bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<KEEPALIVE>")[1]
+//            if ((bluetoothRx_array.components(separatedBy: "<KEEPALIVE>").count) == 1) {
+//                bluetoothRx_array = ""
+//            }
+//            else {
+//                bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<KEEPALIVE>")[1]
+            //            }
+            
+            bluetoothRx_array = extractAfterStart(bluetoothRx_array: bluetoothRx_array, startString: "<KEEPALIVE>")
+            
             bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</KEEPALIVE>")[0]
-            bluetoothRx_array = bluetoothRx_array.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
-            //            processPayment(method: methodToExecute)
             serverComms_keepAliveCommunication()
-            bluetoothRx_array = ""
+            
+            if ((bluetoothRx_array.components(separatedBy: "</KEEPALIVE>").count) == 1) {
+                bluetoothRx_array = ""
+            }
+            else {
+                bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</KEEPALIVE>")[1]
+            }
         }
         
     }
@@ -1332,15 +1544,18 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         serial.sendMessageToDevice("UNLOCK\n")
         let unlockString = "UNLOCK\n"
         serverComms_lockCommunication(lockString: "Sent: Unlock")
-        
+        lockState = false
         rscMgr.write(unlockString)
     }
     
     func sendLockMessage() {
+        if (self.paymentOr_masterUnlock == true) {
+            self.paymentOr_masterUnlock = false
+        }
         serial.sendMessageToDevice("LOCK\n")
         let lockString = "LOCK\n"
         serverComms_lockCommunication(lockString: "Sent: Lock")
-        
+        lockState = true
         rscMgr.write(lockString)
         
         //        if (bluetoothStatus == "BOTH") {
@@ -1435,7 +1650,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     func paymentReset () {
         DispatchQueue.main.async {
             self.subscription = 0
-            self.originalPriceLabel()
+            self.set_priceLabels()
             self.resetKeurigLabel()
             self.keypadVersion = "phoneNumber"
             self.localRegistration = false;
@@ -1461,38 +1676,73 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             self.keurigLabel.isHidden = false
             self.priceLabel.isHidden = false
             self.subscribeButton.isHidden = false
+            self.phoneNumberDisplay.isHidden = false
         }
         phoneNumberDisplay.text = ""
         self.view.setNeedsDisplay()
 //        self.viewDidLoad()
     }
     
-//    func originalPriceLabel() {
-//        let string = "$5.99 | $3.99\n\t\t\t\t\t\t\tMembers Only" //\n(subscription opens tomorrow)"
-//        var attributedString = NSMutableAttributedString(string: string as String)
-//        let zeroAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
-//        let firstAttributes = [NSStrikethroughStyleAttributeName: 2, NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
-//        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(6/170))!] as [String : Any]
-//        attributedString.addAttributes(zeroAttributes, range: NSMakeRange(0,13))
-//        attributedString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.black, range: NSMakeRange(0, attributedString.length))
-//        
-//        priceLabel.attributedText = attributedString
-//        priceLabel.numberOfLines = 0
-//    }
+    func subscription_priceLabel() {
+        var string = ""
+        if (subscription_smoothieCount1 == 0) {
+            string = "$" + String(format: "%.2f", payment_price1) + " | $" + String(format: "%.2f", subscription_smoothiePrice1) + "\n\t\t\t\t\t\t\t     Members Only" //\n(subscription opens tomorrow)"
+        }
+        else { // Not implemented
+            string = "$" + String(format: "%.2f", payment_price1) + " | $" + String(format: "%.2f", subscription_smoothiePrice1) + "\n\t\t\t\t\t\t\t     Members Only" //\n(subscription opens tomorrow)"
+        }
+        var attributedString = NSMutableAttributedString(string: string as String)
+        let zeroAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
+        let firstAttributes = [NSStrikethroughStyleAttributeName: 2, NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
+        
+        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Regular", size: self.screenSize.height*(4/170))!] as [String : Any]
+        attributedString.addAttributes(zeroAttributes, range: NSMakeRange(0,13))
+        attributedString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.black, range: NSMakeRange(0, attributedString.length))
+        
+        // WeWork
+        attributedString.addAttributes(secondAttributes, range: NSMakeRange(13,attributedString.length - 13))
+        
+        priceLabel.attributedText = attributedString
+        priceLabel.numberOfLines = 0
+    }
+    
+    func noSubscription_priceLabel() {
+        let string = "$" + String(format: "%.2f", payment_price1)
+        var attributedString = NSMutableAttributedString(string: string as String)
+        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
+        attributedString.addAttributes(secondAttributes, range: NSMakeRange(0, string.characters.count))
+        priceLabel.attributedText = attributedString
+        self.view.setNeedsDisplay()
+    }
+    
+    func unlockedPriceLabel() {
+        let string = "Unlocked"
+        let greenColour = UIColor(red: 10/255, green: 190/255, blue: 50/255, alpha: 1)
+        var attributedString = NSMutableAttributedString(string: string as String)
+        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!, NSForegroundColorAttributeName : greenColour] as [String : Any]
+        attributedString.addAttributes(secondAttributes, range: NSMakeRange(0, string.characters.count))
+        priceLabel.attributedText = attributedString
+        self.view.setNeedsDisplay()
+        
+    }
     
     func subscriptionPriceLabel() {
-//        let string = "\n\n$12 / Month\n$3.99 / Smoothie" //\n(subscription opens tomorrow)"
-//        var attributedString = NSMutableAttributedString(string: string as String)
-//        let zeroAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(9/170))!] as [String : Any]
-//        let initOff = 2
-//        attributedString.addAttributes(zeroAttributes,
-//                                       range: NSMakeRange(initOff,
-//                                                          attributedString.length-initOff))
-//        attributedString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.black, range: NSMakeRange(0, attributedString.length))
-//        
-//        priceLabel.attributedText = attributedString
-//        priceLabel.numberOfLines = 0
-//        self.view.setNeedsDisplay()
+        let string = "\n\n$12 / Month\n$3.99 / Smoothie" //\n(subscription opens tomorrow)"
+        var attributedString = NSMutableAttributedString(string: string as String)
+        let zeroAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(9/170))!] as [String : Any]
+        let initAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(2/170))!] as [String : Any]
+        let initOff = 2
+        attributedString.addAttributes(zeroAttributes,
+                                       range: NSMakeRange(initOff,
+                                                          attributedString.length-initOff))
+        attributedString.addAttributes(initAttributes,
+                                       range: NSMakeRange(0,
+                                                          initOff))
+        attributedString.addAttribute(NSStrikethroughColorAttributeName, value: UIColor.black, range: NSMakeRange(0, attributedString.length))
+        
+        priceLabel.attributedText = attributedString
+        priceLabel.numberOfLines = 0
+        self.view.setNeedsDisplay()
     }
     
     func processSubscription() {
@@ -1509,10 +1759,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     }
     
     func phoneNumberPayment() {
-        // Epona
-        // get PIN
         self.keypadVersion = "PIN"
-//        processPayment(method: "phoneNumber")
     }
     
     // Lock Messages - Server Communications
@@ -1527,9 +1774,9 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         let companyName_url = "&companyName=" + defaults.string(forKey: "company")!
         var urlWithParams = lockAddress + lockString_url + companyName_url
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
-        print(">>>")
-        print(urlWithParams)
-        print("<<<")
+        
+        NSLog("serverComms_lockCommunication")
+        NSLog("--> " + urlWithParams)
         let myUrl = NSURL(string: urlWithParams);
         
         // Creaste URL Request
@@ -1562,9 +1809,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         let companyName_url = "?companyName=" + defaults.string(forKey: "company")!
         var urlWithParams = keepAliveAddress + companyName_url
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
-        print(">>>")
-        print(urlWithParams)
-        print("<<<")
         let myUrl = NSURL(string: urlWithParams);
         
         // Creaste URL Request
@@ -1606,9 +1850,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         let freezerState_url = "&freezerState=" + freezerState
         var urlWithParams = freezerAddress + companyName_url + freezerTemp_url + freezerState_url
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
-        print(">>>")
-        print(urlWithParams)
-        print("<<<")
         let myUrl = NSURL(string: urlWithParams);
         
         // Creaste URL Request
@@ -1634,6 +1875,193 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         
     }
     
+    // Freezer Messages - Server Communications
+    func serverComms_siteSpecificUnlockTimes( ) {
+        
+        // Create NSURL Object
+        let companyName_url = "?companyName=" + defaults.string(forKey: "company")!
+        var urlWithParams = siteSpecificUnlockTimesAddress + companyName_url
+        urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+        let myUrl = NSURL(string: urlWithParams);
+        
+        // Creaste URL Request
+        let request = NSMutableURLRequest(url:myUrl! as URL);
+        
+        // Set request HTTP method to GET. It could be POST as well
+        request.httpMethod = "GET"
+        
+        // Execute HTTP Request
+        let task = URLSession.shared.dataTask(with: request as URLRequest) {
+            data, response, error in
+            DispatchQueue.main.async {
+                // Check for error
+                if error != nil
+                {
+                    print("error=\(error)")
+                    return
+                }
+                // Print out response string
+                var responseString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue) as! String
+                responseString = responseString.replacingOccurrences(of: "\n", with: "")
+                
+                let responseArray = responseString.components(separatedBy: ";")
+                
+                for items in responseArray {
+                    if (items.characters.count) > 0 {
+                        let times = items.components(separatedBy: ",")
+                        let startTime = Int(times[0])
+                        let endTime = Int(times[1])
+                        self.siteSpecificUnlockTimes.append([startTime!, endTime!])
+                    }
+                }
+                self.unlock_timeSpecific()
+            }
+        }
+        
+        task.resume()
+    }
+    
+    // Freezer Messages - Server Communications
+    var acquireFreezerSettings_timer: Timer?
+    let acquireFreezerSettings_timeInterval = 15*60
+    func serverComms_freezerSettings ( ) {
+        
+        // Create NSURL Object
+        let companyName_url = "?companyName=" + defaults.string(forKey: "company")!
+        var urlWithParams = freezerSettingsAddress + companyName_url
+        urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+        let myUrl = NSURL(string: urlWithParams);
+        
+        // Creaste URL Request
+        let request = NSMutableURLRequest(url:myUrl! as URL);
+        
+        // Set request HTTP method to GET. It could be POST as well
+        request.httpMethod = "GET"
+        
+        // Execute HTTP Request
+        let task = URLSession.shared.dataTask(with: request as URLRequest) {
+            data, response, error in
+            DispatchQueue.main.async {
+                // Check for error
+                if error != nil
+                {
+                    print("error=\(error)")
+                    return
+                }
+                // Print out response string
+                var responseString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue) as! String
+                responseString = responseString.replacingOccurrences(of: "\n", with: "")
+                
+                let responseArray = responseString.components(separatedBy: ";")
+                
+                if ( responseArray[0] == "Exists" ) {
+                    if ( responseArray[1].characters.count > 0 ) {
+                        let items = responseArray[1].components(separatedBy: ",")
+                        let freezerInterval = items[0]
+                        let lowTemp = items[1]
+                        let highTemp = items[2]
+                        
+                        // Send "FreezerSettings:freezerInterval,lowTemp,highTemp\n"
+                        let commString = "FreezerSettings:" + freezerInterval + "," + lowTemp + "," + highTemp + "\n"
+                        NSLog(commString)
+                        self.rscMgr.write(commString)
+                    }
+                }
+            }
+        }
+        
+        task.resume()
+    }
+    
+    // Freezer Messages - Server Communications
+    var acquirePriceSettings_timer: Timer?
+    let acquirePriceSettings_timeInterval = 15*60
+    func serverComms_priceSettings ( ) {
+        
+        // Create NSURL Object
+        let companyName_url = "?companyName=" + defaults.string(forKey: "company")!
+        var urlWithParams = priceSettingsAddresss + companyName_url
+        urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+        let myUrl = NSURL(string: urlWithParams);
+        
+        // Creaste URL Request
+        let request = NSMutableURLRequest(url:myUrl! as URL);
+        
+        // Set request HTTP method to GET. It could be POST as well
+        request.httpMethod = "GET"
+        
+        // Execute HTTP Request
+        let task = URLSession.shared.dataTask(with: request as URLRequest) {
+            data, response, error in
+            DispatchQueue.main.async {
+                // Check for error
+                if error != nil
+                {
+                    print("error=\(error)")
+                    return
+                }
+                // Print out response string
+                var responseString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)! as String
+                responseString = responseString.replacingOccurrences(of: "\n", with: "")
+                
+                // Price information
+                let priceString = (responseString.components(separatedBy: "</PRICE>")[0]).components(separatedBy: "<PRICE>")[1]
+                if priceString.range(of:",") != nil{
+                    let priceArray = priceString.components(separatedBy: ",")
+                    self.payment_priceSet = true
+                    self.payment_employeeThreshold = Int(priceArray[0])!
+                    self.payment_thresholdConfig = Int(priceArray[1])!
+                    self.payment_threshold1 = Int(priceArray[2])!
+                    self.payment_threshold2 = Int(priceArray[4])!
+                    self.payment_price1 = Float(priceArray[3])!
+                    self.payment_price2 = Float(priceArray[5])!
+                }
+                
+                // Subscription information
+                let subscriptionString = ((responseString.components(separatedBy: "</SUBSCRIPTION>")[0]).components(separatedBy: "<SUBSCRIPTION>")[1])
+                if subscriptionString.range(of:",") != nil{
+                    let subscriptionArray = subscriptionString.components(separatedBy: ",")
+                    self.subscription_priceSet = true
+                    self.subscription_smoothieCount1 = Int(subscriptionArray[0])!
+                    self.subscription_smoothieCount2 = Int(subscriptionArray[2])!
+                    self.subscription_smoothieCount3 = Int(subscriptionArray[4])!
+                    self.subscription_smoothiePrice1 = Float(subscriptionArray[1])!
+                    self.subscription_smoothiePrice2 = Float(subscriptionArray[3])!
+                    self.subscription_smoothiePrice3 = Float(subscriptionArray[5])!
+                }
+                
+                self.set_priceLabels()
+                
+//                if ( responseArray[0] == "Exists" ) {
+//                    if ( responseArray[1].characters.count > 0 ) {
+//                        
+//                    }
+//                }
+            }
+        }
+        
+        task.resume()
+    }
+    
+    func set_priceLabels() {
+        if (self.subscription_priceSet) {
+            self.subscription_priceLabel()
+            self.view.addSubview(self.subscribeButton)
+        }
+        else {
+            self.noSubscription_priceLabel()
+            self.removeSubview(tag: self.subscribeButton.tag)
+            
+        }
+    }
+    
+    func removeSubview(tag: Int){
+        if let viewWithTag = self.view.viewWithTag(tag) {
+            viewWithTag.removeFromSuperview()
+        }
+    }
+    
+    
     func processPayment(method: String) {
         // Process Payment - PPMT
 //        self.payButton.backgroundColor = .black
@@ -1649,14 +2077,13 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             urlWithParams = paymentAddress + phoneString + companyString + versionString
         }
         else if (method == "ccInfo") {
-            print(">>>>>>>>>>>\n");
-            print(bluetoothRx_array);
-            print("<<<<<<<<<<<\n");
             let ccInfoString = "?ccInfo=" + bluetoothRx_array
             let chargeUser_now = "&chargeNow=" + String(ccInfo_chargeUser)
             let companyString = "&companyName=" + defaults.string(forKey: "company")!
             let subscribeString = "&subscribe=" + String(self.subscription)
             urlWithParams = paymentAddress + ccInfoString + companyString + versionString + chargeUser_now + subscribeString
+            // Arthena
+            processingPaymentRequest()
         }
         else if (method == "PIN") { // Yields to "Needs Registration"
             let phoneString = "?phoneNumber=" + String(phoneNumString_exact)
@@ -1664,6 +2091,15 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             let companyString = "&companyName=" + defaults.string(forKey: "company")!
             let subscribeString = "&subscribe=" + String(self.subscription)
             urlWithParams = paymentAddress + phoneString + companyString + versionString + pinString_url + subscribeString
+            // Arthena
+            processingPaymentRequest()
+        }
+        else if (method == "pinMigration") {
+            let phoneString = "?phoneNumber=" + String(phoneNumString_exact)
+            let pinString_url = "&PIN=" + String(pinString)
+            let companyString = "&companyName=" + defaults.string(forKey: "company")!
+            urlWithParams = pinMigrationAddress + phoneString + pinString_url + companyString
+            processingPaymentRequest()
         }
         else if (method == "phoneThenSwipeRegister") {
             let phoneString = "?phoneNumber=" + String(phoneNumString_exact)
@@ -1712,16 +2148,9 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                 self.registrationRequired()
             }
             else if (chargeResponse[0] == "Needs registration") {
-                // Epona123
-//                self.registerUser()
                 self.waitingForCC = true;
-//                let ccInfoString = "?ccInfo=" + bluetoothRx_array
-//                let chargeUser_now = "&chargeNow=" + String(ccInfo_chargeUser)
-//                let companyString = "&companyName=" + defaults.string(forKey: "company")!
-//                urlWithParams = paymentAddress + ccInfoString + companyString + versionString + chargeUser_now
             }
             else if (chargeResponse[0] == "PIN is incorrect") {
-                // Epona 892
                 let formattedString = NSMutableAttributedString()
                 let attrs:[String:AnyObject] = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(7/170))!]
                 formattedString.append(NSAttributedString(string: "Uh oh!  Please re-enter your "))
@@ -1736,6 +2165,11 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                 self.pinNumStringCount = 0;
                 
                 self.keypadVersion = "PIN"
+            }
+            else if (chargeResponse[0] == "User needs PIN") {
+                // Migrate PIN & charge customer
+                self.processPayment(method: "pinMigration")
+                self.processPayment(method: "PIN")
             }
             else if (chargeResponse[0] == "User not created") { // Card provided
                 self.cardToken = chargeResponse[1]
@@ -1771,18 +2205,13 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                     // Moved from corkDork12
                 }
                 else {
-                    print("0: \n")
-//                    self.processPayment(method: "ccInfo")
                     self.registerUser()
-//                    print("1: \n")
                     self.waitingForCC = false
-//                    print("2: \n")
                 }
                 self.phoneNumString = ["(", " ", " ", " ", ")", " ", " ", " ", " ", "-", " ", " ", " ", " "]
                 self.phoneNumString_exact = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
                 self.phoneNumStringCount = 0
                 self.phoneNumberDisplay.text = ""
-                // Epona123
                 // Prompt - Needs to show that phone number is required for registration
                 
                 
@@ -1820,7 +2249,10 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                     //                    print(data!)
                     //                    print(convertedJsonIntoDict)
                     if (String(describing: convertedJsonIntoDict["status"]!) == "succeeded") {
+                        self.paymentOr_masterUnlock = true
                         self.successfulPayment()
+                        
+                        self.pin_wasNotSet = false
                         self.keypadVersion = "phoneNumber";
                     }
                     
@@ -1831,15 +2263,12 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             } catch let error as NSError {
                 print(error.localizedDescription)
             }
-//            semaphore.signal(); //910
             }
         }
         
         task.resume()
-//        semaphore.wait(timeout: dispatch_time_t(2000));
         
         if ((method == "ccInfo") && (waitingForCC)) {
-//            self.processPayment(method: "phoneThenSwipeRegister")
             methodToExecute = "phoneThenSwipeRegister"
             // Epona658 - Unhide
         }
@@ -1869,8 +2298,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         var urlWithParams = ""
         let phoneString = "?phoneNumber=" + String(phoneNumString_exact)
         urlWithParams = phoneExistsAddress + phoneString
-        
-        print(urlWithParams)
         
         // Create NSURL Object
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
@@ -1910,6 +2337,48 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         task.resume()
     }
     
+    func pinEntry_notInDatabase () {
+        DispatchQueue.main.async {
+            self.logoImage_view.isHidden = true
+            self.priceLabel.isHidden = true
+            self.swipeImage_view.isHidden = true
+            
+            self.pin_wasNotSet = true
+            
+            let formattedString = NSMutableAttributedString()
+            formattedString.append(NSAttributedString(string: "For security, enter a PIN\n"))
+            let attrs:[String:AnyObject] = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(7/170))!]
+            let text = "Please enter a PIN"
+            formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:attrs))
+            self.keurigLabel.attributedText = formattedString
+            
+            self.pinString = ["-","-","-","-"];
+            self.pinString_validate = ["-","-","-","-"];
+            self.pinString_display = ["-","-","-","-"];
+            self.pinNumStringCount = 0;
+            
+            self.phoneNumberDisplay.text = String(self.pinString_display);
+            
+            self.keypadVersion = "PIN"
+            self.view.setNeedsDisplay()
+        }
+    }
+    
+    func pinEntry_notInDatabase_confirm () {
+        DispatchQueue.main.async {
+            print(" -> pinEntry_notInDatabase_confirm")
+            let formattedString = NSMutableAttributedString()
+            formattedString.append(NSAttributedString(string: "Great!  Now \n"))
+            let attrs:[String:AnyObject] = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(7/170))!]
+            var text = "confirm "
+            formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:attrs))
+            formattedString.append(NSAttributedString(string: "your "))
+            text = "PIN"
+            formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:attrs))
+            self.keurigLabel.attributedText = formattedString
+        }
+    }
+    
     func phoneExists_return(responseString: String) {
         if (responseString == "Phone Number DNE") {
             print("DNE");
@@ -1927,17 +2396,22 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             // // // repeat 3x total
         }
         else {
-            print("Exists");
-            // Epona
-            // Enter PIN
-            DispatchQueue.main.async {
-                self.view.setNeedsDisplay()
+            if (responseString == "PIN not present") {
+                self.pinEntry_notInDatabase()
             }
-            pinEntry()
-            // // Correct
-            // // // Create new customer and charge using provided info
-            // // Incorrect
-            // // // Ask for a re-entry
+            else {
+                print("Exists");
+                // Epona
+                // Enter PIN
+                DispatchQueue.main.async {
+                    self.view.setNeedsDisplay()
+                }
+                pinEntry()
+                // // Correct
+                // // // Create new customer and charge using provided info
+                // // Incorrect
+                // // // Ask for a re-entry
+            }
         }
     }
     
@@ -2022,9 +2496,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         let pinString_url = "&PIN=" + String(pinString)
         urlWithParams = pinCheckAddress + phoneString + pinString_url + version_url
         
-        
-        print(urlWithParams)
-        
         // Create NSURL Object
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
         let myUrl = NSURL(string: urlWithParams);
@@ -2081,14 +2552,9 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         let chargeUser_now = "&chargeNow=" + String(ccInfo_chargeUser)
         let companyString = "&companyName=" + defaults.string(forKey: "company")!
         urlWithParams = registerNewUserAddress + phoneString + pinString_url + version_url + token_url + fName_url + lName_url + chargeUser_now + companyString
-        print(">>>>>>>")
-        print("Payment Posting")
-        print(urlWithParams)
-        print(">>>>>>>")
         
         // Create NSURL Object
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
-        print(urlWithParams)
         let myUrl = NSURL(string: urlWithParams);
         
         // Creaste URL Request
@@ -2123,7 +2589,8 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                     //                    print(convertedJsonIntoDict)
                     if (String(describing: convertedJsonIntoDict["status"]!) == "succeeded") {
                         self.successfulPayment()
-                        self.keypadVersion = "phoneNumber";
+                        
+                        self.keypadVersion = "phoneNumber"
                     }
                     
                     // Get value by key

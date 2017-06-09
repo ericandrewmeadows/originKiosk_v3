@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		533EA9611E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */; };
+		5347C8971EE3902400EBE6B3 /* iPadLogs_upload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */; };
 		5355D9B41ED51B76008640BE /* libRscMgrUniv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5355D9B31ED51B76008640BE /* libRscMgrUniv.a */; };
 		5355D9B91ED51BD7008640BE /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5355D9B81ED51BD7008640BE /* ExternalAccessory.framework */; };
 		535C5A7B1E9403E400A902A6 /* setupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535C5A7A1E9403E400A902A6 /* setupViewController.swift */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Avenir-Next-LT-Pro-Bold_5182.ttf"; path = "../../Avenir-Next-LT-Pro-Bold_5182.ttf"; sourceTree = "<group>"; };
+		5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iPadLogs_upload.swift; sourceTree = "<group>"; };
 		5355D9B31ED51B76008640BE /* libRscMgrUniv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRscMgrUniv.a; sourceTree = "<group>"; };
 		5355D9B51ED51B89008640BE /* redparkSerial.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = redparkSerial.h; sourceTree = "<group>"; };
 		5355D9B61ED51B89008640BE /* RscMgr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RscMgr.h; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 				539C28041E67DC3300B0F9F6 /* Assets.xcassets */,
 				539C28061E67DC3300B0F9F6 /* LaunchScreen.storyboard */,
 				539C28091E67DC3300B0F9F6 /* Info.plist */,
+				5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */,
 			);
 			name = "Origin Kiosk";
 			path = "SnackBlend Kiosk";
@@ -387,6 +390,7 @@
 				53D8E90B1EA3115900E06BFE /* BluetoothTest.swift in Sources */,
 				539C28001E67DC3300B0F9F6 /* ViewController.swift in Sources */,
 				53A339421E7E73FD00EE23C9 /* DemoDay.swift in Sources */,
+				5347C8971EE3902400EBE6B3 /* iPadLogs_upload.swift in Sources */,
 				539C27FE1E67DC3300B0F9F6 /* AppDelegate.swift in Sources */,
 				53D8E9091EA3109E00E06BFE /* BluetoothSerial.swift in Sources */,
 				535C5A7B1E9403E400A902A6 /* setupViewController.swift in Sources */,

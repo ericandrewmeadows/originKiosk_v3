@@ -464,10 +464,10 @@
 
         $xml = file_get_contents(   "https://io.calmlee.com/receiptGenerator.php"
                                     ."?phoneNumber=".$phoneNumber
-                                    ."&brand=".$brand
+                                    ."&brand=".urlencode($brand)
                                     ."&last4=".$last4
                                     ."&chargeAmt=".$chargeAmt
-                                    ."&timeSeconds=".$timeSeconds);
+                                    ."&timeSeconds=".$timeSeconds );
         $receiptLink = "https://io.calmlee.com/receipts/".$phoneNumber."_".$timeSeconds.".html";
 
         $sid = 'ACce96ececbb8285c903180db35796f65b';

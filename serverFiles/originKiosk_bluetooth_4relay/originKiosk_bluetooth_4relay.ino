@@ -19,8 +19,8 @@ static float freezerTemp = 0;
 #define lockRelay 6
 
 // btSerial
-#define BT_rx 9 //2 -- Transmit
-#define BT_tx 8 //3 -- Receive
+#define BT_rx 9 // -- Transmit
+#define BT_tx 8 // -- Receive
 AltSoftSerial btSerial;
 String bt_rxString;
 char inputChar;

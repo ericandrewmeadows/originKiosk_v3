@@ -183,7 +183,7 @@ class setupViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
             // Check for error
             if error != nil
             {
-                print("error=\(error)")
+                print("error=\(String(describing: error))")
                 return
             }
             
@@ -199,7 +199,7 @@ class setupViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
         }
         
         task.resume()
-        sem.wait(timeout: .distantFuture)
+//        sem.wait(timeout: .distantFuture)
         return(returnStringArray)
     }
     
@@ -228,14 +228,14 @@ class setupViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
             // Check for error
             if error != nil
             {
-                print("error=\(error)")
+                print("error=\(String(describing: error))")
                 return
             }
             
             // Print out response string
             let responseString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
             //             print("responseString = \(responseString)")
-            let chargeResponse = String(describing: responseString!).components(separatedBy: ",")
+            _ = String(describing: responseString!).components(separatedBy: ",")
             
             
             // Convert server json response to NSDictionary
@@ -278,7 +278,7 @@ class setupViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
         }
         
         task.resume()
-        sem.wait(timeout: .distantFuture)
+//        sem.wait(timeout: .distantFuture)
         /* FINISHED TESTING */
     }
     

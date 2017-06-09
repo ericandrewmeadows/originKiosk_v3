@@ -74,6 +74,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let logFilePath = (documentsDirectory as NSString).appendingPathComponent(fileName)
         freopen(logFilePath.cString(using: String.Encoding.ascii)!, "a+", stderr)
         
+        // Dispatch async to upload file on load and delete old file
+        defaults.set(UIDevice.current.name, forKey: "company")
+        defaults.set("1.1", forKey: "version")
+        
+        let filemanager:FileManager = FileManager()
+        let files = filemanager.enumerator(atPath: documentsDirectory)
+        var logFile = ""
+        while let file = files?.nextObject() {
+            logFile = documentsDirectory + "/" + String(describing: file)
+            sendLogFile(dataFile_path: logFile)
+        }
+        
         return true
     }
 

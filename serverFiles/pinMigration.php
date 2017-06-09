@@ -9,6 +9,9 @@
 	// \Stripe\Stripe::setApiKey("sk_test_ze5Ft72xeahq59xhYqqb5BHE");
 	\Stripe\Stripe::setApiKey("sk_live_3p3kLuWKmiz6rG3hFXLcyyTJ");
 
+	// Twilio
+	require_once '/home/ubuntu/vendor/autoload.php'; // Loads the library
+
 	// Token is created using Stripe.js or Checkout!
 	// Get the payment token submitted by the form:
 	$phoneNumber = $_GET['phoneNumber'];
@@ -66,27 +69,27 @@
 	$customerId = $conn->query($sql)->fetch_object()->token;
 
 	// Store hashcode
-
-	if ($_GET['chargeNow'] == 1) {
+	// App should not launch pinMigration and userExists, but because chargeNow is not sent, this section needs to remain inactive
+	// if ($_GET['chargeNow'] == 1) {
 		
-		$basePrice = 2.99;				
-		$chargeAmt = getPaymentAmount($conn, $companyName, $basePrice);
+	// 	$basePrice = 2.99;				
+	// 	$chargeAmt = getPaymentAmount($conn, $companyName, $basePrice);
 		
-		// ---------- Free Smoothie Check ----------
-		if ($charged == 0) {
-			$giftOutput = checkFor_gifts($phoneNumber, $conn); // Automatically subtracts gifts and sends "FREE" receipt
-			if ($giftOutput != "error") {
-				print($giftOutput);
-				$charged = 1;
-			}
-		}
+	// 	// ---------- Free Smoothie Check ----------
+	// 	if ($charged == 0) {
+	// 		$giftOutput = checkFor_gifts($phoneNumber, $conn); // Automatically subtracts gifts and sends "FREE" receipt
+	// 		if ($giftOutput != "error") {
+	// 			print($giftOutput);
+	// 			$charged = 1;
+	// 		}
+	// 	}
 
-		// -------------- Charge user --------------
-		if ($charged == 0) {
-			chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
-			$charged = 1;
-		}
-	}
+	// 	// -------------- Charge user --------------
+	// 	if ($charged == 0) {
+	// 		chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
+	// 		$charged = 1;
+	// 	}
+	// }
 	$conn->close();
 
 ?>

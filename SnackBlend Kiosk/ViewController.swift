@@ -266,61 +266,64 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         self.checkMark.text = "✓"
         self.view.setNeedsDisplay()
         
-        DispatchQueue.main.async {
-            self.phoneNumberDisplay.isHidden = true
-//            self.payButton.isHidden = true
-            self.pinPadImage_view.isHidden = true
-            self.swipeImage_view.isHidden = true
-            self.keurigLabel.isHidden = true
-//            self.subscribeButton.isHidden = true
-            self.priceLabel.isHidden = true
-//            self.subscribeLabel.isHidden = true
-//            self.subscribeDetails.isHidden = true
-            self.buttonVideo.setTitle("Cancel", for: .normal)
-//            self.payButton.setTitle("Pay Now", for: .normal)
-            self.subscribeButton.isHidden = true
-            self.cardToken = ""
-            
-            
-            UIView.animate(withDuration: self.successTransition,
-                           animations: {
-                            self.shapeLayer.isHidden = false
-                            self.checkMark.isHidden = false
-                            self.paymentSuccessfulLabel.isHidden = false
-                            
-                            let animcolor = CABasicAnimation(keyPath: "fillColor")
-                            animcolor.fromValue = UIColor.clear.cgColor
-                            animcolor.toValue = UIColor(
-                                red: 75/255.0,
-                                green: 181/255.0,
-                                blue: 67/255.0,
-                                alpha: 1.0).cgColor
-                            animcolor.duration = self.successTransition
-                            animcolor.repeatCount = 0
-                            animcolor.autoreverses = false
-                            animcolor.isRemovedOnCompletion = false
-                            animcolor.fillMode = kCAFillModeForwards
-                            self.shapeLayer.add(animcolor, forKey: "fillColor")
-                            
-            })
-            
-            self.paymentSuccessfulLabel.textColor = .clear
-            self.paymentSuccessfulLabel.setTextAnimation(color: UIColor(
-                red: 75/255.0,
-                green: 181/255.0,
-                blue: 67/255.0,
-                alpha: 1.0),
-                                                         duration: self.successTransition)
-            
-            // Arduino
-            // Unlock Freezer
-            if (self.defaults.bool(forKey: "arduinoInstalled")) {
-                self.sendUnlockMessage()
-                _ = Timer.scheduledTimer(timeInterval: self.timeToRelock, target: self, selector:  #selector(ViewController.sendLockMessage), userInfo: nil, repeats: false)
+        let when = DispatchTime.now() + 0.1
+        DispatchQueue.main.asyncAfter(deadline: when) {
+            DispatchQueue.main.async {
+                self.phoneNumberDisplay.isHidden = true
+    //            self.payButton.isHidden = true
+                self.pinPadImage_view.isHidden = true
+                self.swipeImage_view.isHidden = true
+                self.keurigLabel.isHidden = true
+    //            self.subscribeButton.isHidden = true
+                self.priceLabel.isHidden = true
+    //            self.subscribeLabel.isHidden = true
+    //            self.subscribeDetails.isHidden = true
+                self.buttonVideo.setTitle("Cancel", for: .normal)
+    //            self.payButton.setTitle("Pay Now", for: .normal)
+                self.subscribeButton.isHidden = true
+                self.cardToken = ""
+                
+                
+                UIView.animate(withDuration: self.successTransition,
+                               animations: {
+                                self.shapeLayer.isHidden = false
+                                self.checkMark.isHidden = false
+                                self.paymentSuccessfulLabel.isHidden = false
+                                
+                                let animcolor = CABasicAnimation(keyPath: "fillColor")
+                                animcolor.fromValue = UIColor.clear.cgColor
+                                animcolor.toValue = UIColor(
+                                    red: 75/255.0,
+                                    green: 181/255.0,
+                                    blue: 67/255.0,
+                                    alpha: 1.0).cgColor
+                                animcolor.duration = self.successTransition
+                                animcolor.repeatCount = 0
+                                animcolor.autoreverses = false
+                                animcolor.isRemovedOnCompletion = false
+                                animcolor.fillMode = kCAFillModeForwards
+                                self.shapeLayer.add(animcolor, forKey: "fillColor")
+                                
+                })
+                
+                self.paymentSuccessfulLabel.textColor = .clear
+                self.paymentSuccessfulLabel.setTextAnimation(color: UIColor(
+                    red: 75/255.0,
+                    green: 181/255.0,
+                    blue: 67/255.0,
+                    alpha: 1.0),
+                                                             duration: self.successTransition)
+                
+                // Arduino
+                // Unlock Freezer
+                if (self.defaults.bool(forKey: "arduinoInstalled")) {
+                    self.sendUnlockMessage()
+                    _ = Timer.scheduledTimer(timeInterval: self.timeToRelock, target: self, selector:  #selector(ViewController.sendLockMessage), userInfo: nil, repeats: false)
+                }
+                
+                _ = Timer.scheduledTimer(timeInterval: self.successTransition, target: self, selector:  #selector(ViewController.hide_greenCircle_andCheck), userInfo: nil, repeats: false)
+                
             }
-            
-            _ = Timer.scheduledTimer(timeInterval: self.successTransition, target: self, selector:  #selector(ViewController.hide_greenCircle_andCheck), userInfo: nil, repeats: false)
-            
         }
     }
     
@@ -351,6 +354,25 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                 blue: 105/255.0,
                 alpha: 1.0).cgColor
             self.shapeLayer.isHidden = false
+            self.view.setNeedsDisplay()
+        }
+    }
+    
+    func undo_processingPaymentRequest() {
+//        self.subscribeButton.isHidden = false
+//        self.priceLabel.isHidden = false
+//        self.subscribeLabel.isHidden = false
+        //        self.subscribeDetails.isHidden = false
+        self.shapeLayer.removeAllAnimations()
+            DispatchQueue.main.async {
+            self.checkMark.isHidden = true
+            self.paymentSuccessfulLabel.isHidden = true
+            self.pinPadImage_view.isHidden = false
+            self.swipeImage_view.isHidden = false
+            self.keurigLabel.isHidden = false
+            self.shapeLayer.isHidden = true
+            self.paymentSuccessfulLabel.text = "Payment Successful"
+            self.checkMark.text = "✓"
             self.view.setNeedsDisplay()
         }
     }
@@ -527,16 +549,17 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             }
             if pinNumStringCount == pinLength {
                 
-                if (!pinRegistration && !pin_wasNotSet) {
+                if (!pinRegistration && !pin_wasNotSet && !localRegistration) {
                     pinString_validate = pinString;
                     
                     // Set both to each other
                     keypadVersion = "phoneNumber";
                 }
-                
                 let str_pinStringValidate = String(pinString_validate)
                 let str_pinString = String(pinString)
-                print((str_pinString != str_pinStringValidate) && pinRegistration)
+                NSLog("Original String  -  " + str_pinString)
+                NSLog("Validate String  -  " + str_pinStringValidate)
+
                 
                 if (String(pinString_validate) == "----") {
                     pinString_validate = pinString;
@@ -562,8 +585,9 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                     pinNumStringCount = 0;
                 }
                 else if ((String(pinString_validate) == String(pinString)) && (localRegistration)) {
+                    undo_processingPaymentRequest()
                     processingPaymentRequest()
-                    registerUser()
+                    let _ = registerUser()
                 }
                 else if ((String(pinString_validate) == String(pinString)) && pinRegistration) {
                     self.phoneNumberDisplay.isHidden = true
@@ -597,7 +621,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                         // Arthena
                     }
                     else {
-                        registerUser()
+                        let _ = registerUser()
                         print("\n-----\nReached somehow\n-----\n")
                     }
                     pinString_display =  ["-","-","-","-"];
@@ -731,13 +755,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
 
     private func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
         return UIInterfaceOrientationMask.landscapeLeft
-    }
-    
-    func setOrientation_landscapeLeft_andBrightnessFull_andNoLock () {
-        let value = UIInterfaceOrientation.landscapeLeft.rawValue
-        UIDevice.current.setValue(value, forKey: "orientation")
-        UIScreen.main.brightness = CGFloat(1.0)
-        UIApplication.shared.isIdleTimerDisabled = true
     }
     
     override func viewDidLoad() {
@@ -1310,8 +1327,8 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         serverComms_priceSettings()
         DispatchQueue.main.asyncAfter(deadline: .now() + 10.0, execute: {
             // Landscape Orientation - Required
-            self.setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
-            self.timer_setOrientation_landscapeLeft = Timer.scheduledTimer(timeInterval: self.timer_setOrientation_interval, target: self, selector: #selector(ViewController.setOrientation_landscapeLeft_andBrightnessFull_andNoLock), userInfo: nil, repeats: true)
+            setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
+            self.timer_setOrientation_landscapeLeft = Timer.scheduledTimer(timeInterval: self.timer_setOrientation_interval, target: self, selector: #selector(self.setOrientation_landscapeLeft_andBrightnessFull_andNoLock_local), userInfo: nil, repeats: true)
             
             //timer_acquireUnlockTimes
             self.serverComms_siteSpecificUnlockTimes()
@@ -1330,6 +1347,10 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             self.acquirePriceSettings_timer = Timer.scheduledTimer(timeInterval: TimeInterval(self.acquirePriceSettings_timeInterval), target: self, selector: #selector(ViewController.serverComms_priceSettings), userInfo: nil, repeats: true)
         })
         
+    }
+    
+    func setOrientation_landscapeLeft_andBrightnessFull_andNoLock_local () {
+        setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
     }
     
     override func didReceiveMemoryWarning() {
@@ -1383,7 +1404,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         bluetoothRx_array = (bluetoothRx_array as NSString).replacingOccurrences(of: "?", with: "")
         NSLog(bluetoothRx_array)
         
-        processIncomingMessage()
+        let _ = processIncomingMessage()
         
     }
     
@@ -2044,6 +2065,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     
     
     func processPayment(method: String) {
+        NSLog("Payment method - " + method)
         var urlWithParams = ""
         let versionString = "&version=" + defaults.string(forKey: "version")!
         // Add one parameter
@@ -2109,16 +2131,14 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             
             // Print out response string
             var responseString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)! as String
-            responseString = responseString.replacingOccurrences(of: "\n", with: "")
-//            print("responseString = \(responseString)")
+                responseString = responseString.replacingOccurrences(of: "\n", with: "")
+            NSLog(responseString)
             
             
             let chargeResponse = responseString.components(separatedBy: ",")
-            print(chargeResponse)
             
             if (chargeResponse[0] == "Customer not created") {
                 // Version 1.0
-                print("10.  pinString" + String(self.pinString) + "\n")
                 self.registrationRequired()
             }
             else if (chargeResponse[0] == "Needs registration") {
@@ -2146,13 +2166,16 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                 self.processPayment(method: "PIN")
             }
             else if (chargeResponse[0] == "User not created") { // Card provided, nothing else
+                self.undo_processingPaymentRequest()
                 self.cardToken = chargeResponse[1]
                 let cT = self.cardToken
                 
                 let codeToken_start = cT.substring(to:cT.index(cT.startIndex, offsetBy: 4));
                 
-                self.fName_url = "&firstName=" + String(chargeResponse[2])
-                self.lName_url = "&lastName=" + String(chargeResponse[3])
+                let firstName = String(chargeResponse[2])
+                let lastName = String(chargeResponse[3])
+                self.fName_url = "&firstName=" + firstName!
+                self.lName_url = "&lastName=" + lastName!
                 
                 self.swipeImage_view.isHidden = true
                 self.logoImage_view.isHidden = true
@@ -2161,8 +2184,15 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                 if (codeToken_start == "tok_") {
                     self.waitingForCC = false;
                 }
+                let waitForCC = String(self.waitingForCC)
+                var logString = "Obtained information: " + self.cardToken
+                logString += "," + firstName! + ","
+                logString += lastName! + ","
+                logString += waitForCC
+                NSLog(logString)
                 if (!self.waitingForCC) {
                     self.localRegistration = true;
+                    NSLog("Local Reg: " + String(self.localRegistration))
                     
                     let formattedString = NSMutableAttributedString()
                     let attrs:[String:AnyObject] = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(7/170))!]
@@ -2176,7 +2206,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                     self.view.setNeedsDisplay()
                 }
                 else {
-                    self.registerUser()
+                    let _ = self.registerUser()
                 }
                 self.phoneNumString = ["(", " ", " ", " ", ")", " ", " ", " ", " ", "-", " ", " ", " ", " "]
                 self.phoneNumString_exact = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
@@ -2517,7 +2547,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         task.resume()
         if (unitTesting == true) {
             // Code only executes when tests are running
-            semaphore.wait(timeout: DispatchTime.distantFuture)
+            let _ = semaphore.wait(timeout: DispatchTime.distantFuture)
         }
         return returnString
     }

@@ -1,92 +1,95 @@
 <?php
-    print("\n");
-    print("=============== POSTDATA ===============");
-    print("\n");
-    print_r($_POST);
+    $company = 'OriginDefault';
+    if (isset($_POST['company'])) {
+        $company = $_POST['company'];
+    }
+    $maxFileNum = 0;
+    if ($company != '') {
+        foreach (glob('/var/www/html/ipadLogs/'.$company.'*') as $file) {
+            $maxFileNum = (int)max($maxFileNum,(Int)explode(".csv",explode('_',$file)[1])[0]);
+        }
+        $maxFileNum += 1;
+    }
 
-
-    print("--------------- FILEDATA ---------------");
-    print("\n");
-
-    // print_r($_FILES);
-    $out_filename = "temp.csv";
+    $out_filename = '/var/www/html/ipadLogs/'.$company.'_'.$maxFileNum.'.csv';
+    $temp_filename = 'temp.txt';
 
     if ($_FILES["file"]["size"] > 0) {
 
-        if (move_uploaded_file($_FILES['file']['tmp_name'], $out_filename)) {
-            echo "File uploaded: ".$_FILES["file"]["name"]."\n"; 
-        }
+        if (move_uploaded_file($_FILES['file']['tmp_name'], $temp_filename)) {
+            
+            // For the new method
+            if ( file_exists( $temp_filename ) ) {
+                $txt_file    = file_get_contents($temp_filename);
+                $rows        = explode("\n", $txt_file);
+                array_shift($rows);
+            
+                $file_writtenTo = false;
 
-    }
-    
-    $txt_file    = file_get_contents($out_filename);
-    $rows        = explode("\n", $txt_file);
-    array_shift($rows);
+                foreach($rows as $row => $data)
+                {
+                    //get row data
+                    $time_data = explode(" ", $data);
+                    if (count($time_data) >= 2) {
+                        $date = $time_data[0];
+                        $time = $time_data[1];
 
-    $file_writtenTo = false;
+                        $msg_data = explode("] ", $data);
+                        if (count($msg_data) == 2) {
+                            $message = $msg_data[1];
+                            $outString = $date."<br>".$time."<br>".$message."\n";
 
-    foreach($rows as $row => $data)
-    {
-        //get row data
-        $time_data = explode(" ", $data);
-        if (count($time_data) >= 2) {
-            $date = $time_data[0];
-            $time = $time_data[1];
+                            // Write the contents to the file, 
+                            // using the FILE_APPEND flag to append the content to the end of the file
+                            // and the LOCK_EX flag to prevent anyone else writing to the file at the same time
+                            if ( $file_writtenTo ) {
+                                file_put_contents($out_filename, $outString, FILE_APPEND | LOCK_EX);
+                            }
+                            else {
+                                file_put_contents($out_filename, "", LOCK_EX);
+                                $file_writtenTo = true;
+                            }
 
-            $msg_data = explode("] ", $data);
-            if (count($msg_data) == 2) {
-                $message = $msg_data[1];
-                $outString = $date."<br>".$time."<br>".$message."\n";
-                echo($outString);
+                        }
+                    }
 
-                // Write the contents to the file, 
-                // using the FILE_APPEND flag to append the content to the end of the file
-                // and the LOCK_EX flag to prevent anyone else writing to the file at the same time
-                if ( $file_writtenTo ) {
-                    file_put_contents($out_filename, $outString, FILE_APPEND | LOCK_EX);
+                    
+                    // echo("\n");
                 }
-                else {
-                    file_put_contents($out_filename, "", LOCK_EX);
-                    $file_writtenTo = true;
-                }
+                print("Success");
 
+
+
+
+
+
+
+
+
+            	// MySQL Connection
+            	$servername = "localhost";
+            	$username = "root";
+            	$password = "root";
+            	$database = "snackblendKiosk";
+
+            	$conn = new mysqli($servername, $username, $password, $database);
+            	// Check connection
+            	if ($conn->connect_error) {
+            	    die("Connection failed: " . $conn->connect_error);
+            	}
+
+                $sql = 'LOAD DATA INFILE "detection.csv"
+                        INTO TABLE calldetections
+                        FIELDS TERMINATED BY ","
+                        OPTIONALLY ENCLOSED BY "\'" 
+                        LINES TERMINATED BY ",,,\r\n"
+                        IGNORE 1 LINES 
+                        (date, name, type, number, duration, addr, pin, city, state, country, lat, log)';
+
+                $conn->close();
             }
         }
-
-        
-        // echo("\n");
     }
-
-    print("================ FINISH ================<br>");
-
-
-
-
-
-
-
-
-	// MySQL Connection
-	$servername = "localhost";
-	$username = "root";
-	$password = "root";
-	$database = "snackblendKiosk";
-
-	$conn = new mysqli($servername, $username, $password, $database);
-	// Check connection
-	if ($conn->connect_error) {
-	    die("Connection failed: " . $conn->connect_error);
-	}
-
-    $sql = 'LOAD DATA INFILE "detection.csv"
-            INTO TABLE calldetections
-            FIELDS TERMINATED BY ","
-            OPTIONALLY ENCLOSED BY "\'" 
-            LINES TERMINATED BY ",,,\r\n"
-            IGNORE 1 LINES 
-            (date, name, type, number, duration, addr, pin, city, state, country, lat, log)';
-
-    $conn->close();
 
 	// $companyName = $_GET['companyName'];
  //    $ipadUpdateTime = time();

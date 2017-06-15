@@ -22,6 +22,7 @@
 		535FB51E1E7112DD00D28095 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535FB51D1E7112DD00D28095 /* QuartzCore.framework */; };
 		535FB5201E7112E500D28095 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535FB51F1E7112E500D28095 /* UIKit.framework */; };
 		535FB5221E7112EA00D28095 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535FB5211E7112EA00D28095 /* Foundation.framework */; };
+		538465551EF2E44900DBB02B /* displaySetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538465541EF2E44900DBB02B /* displaySetup.swift */; };
 		539C27FE1E67DC3300B0F9F6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C27FD1E67DC3300B0F9F6 /* AppDelegate.swift */; };
 		539C28001E67DC3300B0F9F6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C27FF1E67DC3300B0F9F6 /* ViewController.swift */; };
 		539C28031E67DC3300B0F9F6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 539C28011E67DC3300B0F9F6 /* Main.storyboard */; };
@@ -79,6 +80,7 @@
 		535FB51D1E7112DD00D28095 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		535FB51F1E7112E500D28095 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		535FB5211E7112EA00D28095 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		538465541EF2E44900DBB02B /* displaySetup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = displaySetup.swift; sourceTree = "<group>"; };
 		539C27FA1E67DC3300B0F9F6 /* originKiosk_v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = originKiosk_v2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		539C27FD1E67DC3300B0F9F6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		539C27FF1E67DC3300B0F9F6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -223,6 +225,7 @@
 				539C28061E67DC3300B0F9F6 /* LaunchScreen.storyboard */,
 				539C28091E67DC3300B0F9F6 /* Info.plist */,
 				5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */,
+				538465541EF2E44900DBB02B /* displaySetup.swift */,
 			);
 			name = "Origin Kiosk";
 			path = "SnackBlend Kiosk";
@@ -446,6 +449,7 @@
 				539C28001E67DC3300B0F9F6 /* ViewController.swift in Sources */,
 				53A339421E7E73FD00EE23C9 /* DemoDay.swift in Sources */,
 				5347C8971EE3902400EBE6B3 /* iPadLogs_upload.swift in Sources */,
+				538465551EF2E44900DBB02B /* displaySetup.swift in Sources */,
 				539C27FE1E67DC3300B0F9F6 /* AppDelegate.swift in Sources */,
 				53D8E9091EA3109E00E06BFE /* BluetoothSerial.swift in Sources */,
 				535C5A7B1E9403E400A902A6 /* setupViewController.swift in Sources */,
@@ -762,6 +766,7 @@
 				532C25031EEB1395005B250F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		539C27F51E67DC3300B0F9F6 /* Build configuration list for PBXProject "originKiosk_v2" */ = {
 			isa = XCConfigurationList;

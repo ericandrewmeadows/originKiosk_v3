@@ -13,6 +13,17 @@ let defaults = UserDefaults.standard
 let mainUrl = "https://io.calmlee.com/ipad_commands.php"
 
 func sendLogFile( dataFile_path: String ) {
+    
+    do {
+        let attr: NSDictionary? = try FileManager.default.attributesOfItem(atPath: dataFile_path) as NSDictionary
+        if let _attr = attr {
+            let fileSize = _attr.fileSize();
+            print(">> FS :" + String(fileSize) + " <<")
+        }
+    } catch {
+        print("ppp")
+    }
+    
     let semaphore = DispatchSemaphore(value: 0);
     
     let url:  NSURL? = NSURL(string: mainUrl)
@@ -56,6 +67,16 @@ func sendLogFile( dataFile_path: String ) {
                     
                     let responseString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
                     print("****** response data = " + (responseString! as String))
+                    
+                    if ((responseString! as String) == "Success") {
+                        // Remove the given file
+                        do {
+                            try FileManager.default.removeItem(atPath: dataFile_path)
+                        }
+                        catch let error as NSError {
+                            print("Ooops! Something went wrong: \(error)")
+                        }
+                    }
                     
 //                    let rArr = responseString?.componentsSeparatedByString(" = ")
 //                    if rArr!.count == 2 {

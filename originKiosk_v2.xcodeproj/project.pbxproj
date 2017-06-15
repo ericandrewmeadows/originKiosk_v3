@@ -36,6 +36,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		532C24FF1EEB1395005B250F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 539C27F21E67DC3300B0F9F6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 539C27F91E67DC3300B0F9F6;
+			remoteInfo = originKiosk_v2;
+		};
 		539C280F1E67DC3300B0F9F6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 539C27F21E67DC3300B0F9F6 /* Project object */;
@@ -53,6 +60,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		532C24FA1EEB1395005B250F /* Origin KioskTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Origin KioskTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Avenir-Next-LT-Pro-Bold_5182.ttf"; path = "../../Avenir-Next-LT-Pro-Bold_5182.ttf"; sourceTree = "<group>"; };
 		5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iPadLogs_upload.swift; sourceTree = "<group>"; };
 		5355D9B31ED51B76008640BE /* libRscMgrUniv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRscMgrUniv.a; sourceTree = "<group>"; };
@@ -91,6 +99,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		532C24F71EEB1395005B250F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		539C27F71E67DC3300B0F9F6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -189,6 +204,7 @@
 				539C27FA1E67DC3300B0F9F6 /* originKiosk_v2.app */,
 				539C280E1E67DC3300B0F9F6 /* originKiosk_v2Tests.xctest */,
 				539C28191E67DC3300B0F9F6 /* originKiosk_v2UITests.xctest */,
+				532C24FA1EEB1395005B250F /* Origin KioskTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -252,6 +268,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		532C24F91EEB1395005B250F /* Origin KioskTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 532C25011EEB1395005B250F /* Build configuration list for PBXNativeTarget "Origin KioskTests" */;
+			buildPhases = (
+				532C24F61EEB1395005B250F /* Sources */,
+				532C24F71EEB1395005B250F /* Frameworks */,
+				532C24F81EEB1395005B250F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				532C25001EEB1395005B250F /* PBXTargetDependency */,
+			);
+			name = "Origin KioskTests";
+			productName = "Origin KioskTests";
+			productReference = 532C24FA1EEB1395005B250F /* Origin KioskTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		539C27F91E67DC3300B0F9F6 /* originKiosk_v2 */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 539C28221E67DC3300B0F9F6 /* Build configuration list for PBXNativeTarget "originKiosk_v2" */;
@@ -311,10 +345,16 @@
 		539C27F21E67DC3300B0F9F6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0820;
+				LastSwiftUpdateCheck = 0830;
 				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = Calmlee;
 				TargetAttributes = {
+					532C24F91EEB1395005B250F = {
+						CreatedOnToolsVersion = 8.3.1;
+						DevelopmentTeam = 8KBRWM6HF4;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 539C27F91E67DC3300B0F9F6;
+					};
 					539C27F91E67DC3300B0F9F6 = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = 8KBRWM6HF4;
@@ -349,11 +389,19 @@
 				539C27F91E67DC3300B0F9F6 /* originKiosk_v2 */,
 				539C280D1E67DC3300B0F9F6 /* originKiosk_v2Tests */,
 				539C28181E67DC3300B0F9F6 /* originKiosk_v2UITests */,
+				532C24F91EEB1395005B250F /* Origin KioskTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		532C24F81EEB1395005B250F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		539C27F81E67DC3300B0F9F6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -383,6 +431,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		532C24F61EEB1395005B250F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		539C27F61E67DC3300B0F9F6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -416,6 +471,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		532C25001EEB1395005B250F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 539C27F91E67DC3300B0F9F6 /* originKiosk_v2 */;
+			targetProxy = 532C24FF1EEB1395005B250F /* PBXContainerItemProxy */;
+		};
 		539C28101E67DC3300B0F9F6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 539C27F91E67DC3300B0F9F6 /* originKiosk_v2 */;
@@ -448,6 +508,38 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		532C25021EEB1395005B250F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				DEVELOPMENT_TEAM = 8KBRWM6HF4;
+				INFOPLIST_FILE = "Origin KioskTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "CLApp.Origin-KioskTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/originKiosk_v2.app/originKiosk_v2";
+			};
+			name = Debug;
+		};
+		532C25031EEB1395005B250F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				DEVELOPMENT_TEAM = 8KBRWM6HF4;
+				INFOPLIST_FILE = "Origin KioskTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "CLApp.Origin-KioskTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/originKiosk_v2.app/originKiosk_v2";
+			};
+			name = Release;
+		};
 		539C28201E67DC3300B0F9F6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -663,6 +755,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		532C25011EEB1395005B250F /* Build configuration list for PBXNativeTarget "Origin KioskTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				532C25021EEB1395005B250F /* Debug */,
+				532C25031EEB1395005B250F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		539C27F51E67DC3300B0F9F6 /* Build configuration list for PBXProject "originKiosk_v2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

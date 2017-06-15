@@ -1,8 +1,22 @@
 <?php
+
+	ob_start();
+
 	require 'vendor/autoload.php';
 	require 'paymentFunctions.php';
 
 	require_once 'nameParser.php';
+
+	try {
+		$req_dump = print_r($_REQUEST, TRUE);
+		$fp = fopen('serverRequests.log', 'a');
+		fwrite($fp, "paymentPosting_GET.php");
+		fwrite($fp, $req_dump);
+		fclose($fp);
+	} catch (Exception $e) {
+		// skip
+	}
+
 	$parser = new FullNameParser();
 	// Set your secret key: remember to change this to your live secret key in production
 	// See your keys here: https://dashboard.stripe.com/account/apikeys
@@ -18,13 +32,18 @@
 	$lastName = $_GET['lastName'];
 	$companyName = $_GET['companyName'];
 
-	// Create a Customer:
-	$customer = \Stripe\Customer::create(array(
-	  "email" => $phoneNumber."@snackblend.com",
-	  "metadata" => array("phoneNumber" => $phoneNumber),
-	  "source" => $token
-	));
+	if (substr($token,0,4) == "tok_") {
+		// Create a Customer:
+		$customer = \Stripe\Customer::create(array(
+		  "email" => $phoneNumber."@snackblend.com",
+		  "metadata" => array("phoneNumber" => $phoneNumber),
+		  "source" => $token
+		));
 
+	}
+	else {
+		$customer = \Stripe\Customer::retrieve($token);
+	}
 	$customerId = $customer['id'];
 	$last4 = $customer['sources']['data'][0]['last4'];
 	$brand = $customer['sources']['data'][0]['brand'];
@@ -90,8 +109,17 @@
 	$conn->query($sql);
 
 	// Store hashcode
-
-	if ($_GET['chargeNow'] == 1) {
+	$charged = 0;
+	if (isset($_GET['subscribe'])) {
+		$subscribeNow = $_GET['subscribe'];
+		if ($subscribeNow == 1) {
+			$subscriptionPrice = 3.99;
+			$subscribeAmt = 12.00;
+			newSubscriber($subscribescribeAmt, $phoneNumber, $customerId, $conn, $subscriptionPrice);
+			$charged = 1;
+		}
+	}
+	if (($charged == 0) && ($_GET['chargeNow'] == 1)) {
 		
 		$basePrice = 2.99;				
 		$chargeAmt = getPaymentAmount($conn, $companyName, $basePrice);
@@ -99,5 +127,6 @@
 		chargeCustomer($chargeAmt, $companyName, $customerId, $conn, $phoneNumber);
 	}
 	$conn->close();
+	file_put_contents('outputLogs.txt',"-----\npaymentPosting_GET.php\n".ob_get_contents().PHP_EOL , FILE_APPEND | LOCK_EX);
 
 ?>

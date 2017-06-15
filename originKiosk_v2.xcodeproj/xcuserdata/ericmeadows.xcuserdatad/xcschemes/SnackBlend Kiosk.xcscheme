@@ -48,6 +48,16 @@
                ReferencedContainer = "container:originKiosk_v2.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "532C24F91EEB1395005B250F"
+               BuildableName = "Origin KioskTests.xctest"
+               BlueprintName = "Origin KioskTests"
+               ReferencedContainer = "container:originKiosk_v2.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

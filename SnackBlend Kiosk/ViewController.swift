@@ -28,6 +28,9 @@ let baudRate: Int32 = 9600      // baud rate
 
 class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate {
     
+    // Unit Testing
+    var unitTesting = false
+    
     // PIN was not set
     var pin_wasNotSet = false
     
@@ -414,7 +417,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             
         }) { (finished) in
             if finished {
-                
                 self.paymentReset()
                 self.resetKeurigLabel()
             }
@@ -1381,9 +1383,18 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         bluetoothRx_array = (bluetoothRx_array as NSString).replacingOccurrences(of: "?", with: "")
         NSLog(bluetoothRx_array)
         
+        processIncomingMessage()
+        
+    }
+    
+    // MARK: End of RscMgr functions
+    
+    func processIncomingMessage() -> String {
+        var tempString = ""
+        var start_startPos = 0
+        var finish_startPos = 0
+        
         if ((bluetoothRx_array.range(of:"</CCINFO>") != nil) && (bluetoothRx_array.range(of: "<CCINFO>") != nil)) {
-            var start_startPos = 0
-            var finish_startPos = 0
             if let range = bluetoothRx_array.range(of: "<CCINFO>") {
                 start_startPos = bluetoothRx_array.distance(from: bluetoothRx_array.startIndex,
                                                             to: range.lowerBound)
@@ -1401,17 +1412,20 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                 methodToExecute = "ccInfo"
                 ccInfo_chargeUser = 1;
                 
-                processPayment(method: methodToExecute)
+                tempString = bluetoothRx_array
+                
+                if (!unitTesting) {
+                    processPayment(method: methodToExecute)
+                }
                 
                 bluetoothRx_array = ""
             }
             else {
                 bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</CCINFO>")[1]
+                tempString = bluetoothRx_array
             }
         }
         else if ((bluetoothRx_array.range(of:"</LOCK>") != nil) && (bluetoothRx_array.range(of: "<LOCK>") != nil)) {
-            var start_startPos = 0
-            var finish_startPos = 0
             if let range = bluetoothRx_array.range(of: "<LOCK>") {
                 start_startPos = bluetoothRx_array.distance(from: bluetoothRx_array.startIndex,
                                                             to: range.lowerBound)
@@ -1425,17 +1439,19 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                 bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<LOCK>")[1]
                 bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</LOCK>")[0]
                 
-                serverComms_lockCommunication(lockString: bluetoothRx_array)
+                tempString = bluetoothRx_array
+                if (!unitTesting) {
+                    serverComms_lockCommunication(lockString: bluetoothRx_array)
+                }
                 
                 bluetoothRx_array = ""
             }
             else {
                 bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</LOCK>")[1]
+                tempString = bluetoothRx_array
             }
         }
         else if ((bluetoothRx_array.range(of:"</FREEZER>") != nil) && (bluetoothRx_array.range(of: "<FREEZER>") != nil)) {
-            var start_startPos = 0
-            var finish_startPos = 0
             if let range = bluetoothRx_array.range(of: "<FREEZER>") {
                 start_startPos = bluetoothRx_array.distance(from: bluetoothRx_array.startIndex,
                                                             to: range.lowerBound)
@@ -1444,22 +1460,24 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                 finish_startPos = bluetoothRx_array.distance(from: bluetoothRx_array.startIndex,
                                                              to: range.lowerBound)
             }
-
+            
             if (start_startPos < finish_startPos) {
                 bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<FREEZER>")[1]
                 bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</FREEZER>")[0]
                 
-                serverComms_freezerCommunication(freezerString: bluetoothRx_array)
+                tempString = bluetoothRx_array
+                if (!unitTesting) {
+                    serverComms_freezerCommunication(freezerString: bluetoothRx_array)
+                }
                 
                 bluetoothRx_array = ""
             }
             else {
                 bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</FREEZER>")[1]
+                tempString = bluetoothRx_array
             }
         }
         else if ((bluetoothRx_array.range(of:"</KEEPALIVE>") != nil) && (bluetoothRx_array.range(of: "<KEEPALIVE>") != nil)) {
-            var start_startPos = 0
-            var finish_startPos = 0
             if let range = bluetoothRx_array.range(of: "<KEEPALIVE>") {
                 start_startPos = bluetoothRx_array.distance(from: bluetoothRx_array.startIndex,
                                                             to: range.lowerBound)
@@ -1472,17 +1490,20 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             if (start_startPos < finish_startPos) {
                 bluetoothRx_array = bluetoothRx_array.components(separatedBy: "<KEEPALIVE>")[1]
                 bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</KEEPALIVE>")[0]
-                serverComms_keepAliveCommunication()
+                
+                tempString = bluetoothRx_array
+                if (!unitTesting) {
+                    serverComms_keepAliveCommunication()
+                }
                 bluetoothRx_array = ""
             }
             else {
                 bluetoothRx_array = bluetoothRx_array.components(separatedBy: "</KEEPALIVE>")[1]
+                tempString = bluetoothRx_array
             }
         }
-        
+        return tempString
     }
-    
-    // MARK: End of RscMgr functions
     
     // Arduino
     // MARK: - Bluetooth Connection Functions
@@ -1996,15 +2017,8 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                 }
                 
                 self.set_priceLabels()
-                
-//                if ( responseArray[0] == "Exists" ) {
-//                    if ( responseArray[1].characters.count > 0 ) {
-//                        
-//                    }
-//                }
             }
         }
-        
         task.resume()
     }
     
@@ -2019,7 +2033,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         else {
             self.noSubscription_priceLabel()
             self.removeSubview(tag: self.subscribeButton.tag)
-            
         }
     }
     
@@ -2031,11 +2044,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     
     
     func processPayment(method: String) {
-        // Process Payment - PPMT
-//        self.payButton.backgroundColor = .black
-//        self.payButton.setTitle("Wait", for: .normal)
-//        self.payButton.setTitleColor(.white, for: .normal)
-        
         var urlWithParams = ""
         let versionString = "&version=" + defaults.string(forKey: "version")!
         // Add one parameter
@@ -2050,7 +2058,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             let companyString = "&companyName=" + defaults.string(forKey: "company")!
             let subscribeString = "&subscribe=" + String(self.subscription)
             urlWithParams = paymentAddress + ccInfoString + companyString + versionString + chargeUser_now + subscribeString
-            // Arthena
             processingPaymentRequest()
         }
         else if (method == "PIN") { // Yields to "Needs Registration"
@@ -2059,7 +2066,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             let companyString = "&companyName=" + defaults.string(forKey: "company")!
             let subscribeString = "&subscribe=" + String(self.subscription)
             urlWithParams = paymentAddress + phoneString + companyString + versionString + pinString_url + subscribeString
-            // Arthena
             processingPaymentRequest()
         }
         else if (method == "pinMigration") {
@@ -2069,14 +2075,14 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             urlWithParams = pinMigrationAddress + phoneString + pinString_url + companyString
             processingPaymentRequest()
         }
-        else if (method == "phoneThenSwipeRegister") {
-            let phoneString = "?phoneNumber=" + String(phoneNumString_exact)
-            let pinString_url = "&PIN=" + String(pinString)
-            let companyString = "&companyName=" + defaults.string(forKey: "company")!
-            let tokenString_url = "&stripeToken=" + String(self.cardToken)
-            let subscribeString = "&subscribe=" + String(self.subscription)
-            urlWithParams = paymentAddress + phoneString + companyString + versionString + pinString_url + tokenString_url + subscribeString
-        }
+//        else if (method == "phoneThenSwipeRegister") {
+//            let phoneString = "?phoneNumber=" + String(phoneNumString_exact)
+//            let pinString_url = "&PIN=" + String(pinString)
+//            let companyString = "&companyName=" + defaults.string(forKey: "company")!
+//            let tokenString_url = "&stripeToken=" + String(self.cardToken)
+//            let subscribeString = "&subscribe=" + String(self.subscription)
+//            urlWithParams = paymentAddress + phoneString + companyString + versionString + pinString_url + tokenString_url + subscribeString
+//        }
         
         // Create NSURL Object
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
@@ -2197,21 +2203,14 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         
         task.resume()
         
-        if ((method == "ccInfo") && (waitingForCC)) {
-            methodToExecute = "phoneThenSwipeRegister"
-            // Epona658 - Unhide
-        }
-        
-        /* FINISHED TESTING */
+//        if ((method == "ccInfo") && (waitingForCC)) {
+//            methodToExecute = "phoneThenSwipeRegister"
+//        }
     }
     
     func payUsing_worldSelector () {
         self.processPayment(method: methodToExecute)
     }
-    
-    //    func gotoVideo_transition(sender: UIButton) {
-    //        self.performSegue(withIdentifier: "goto_videoTracking", sender: Any?.self)
-    //    }
     
     func gotoSetup (sender: UIButton) {
         if (sender.title(for: .normal) == "Setup") {
@@ -2254,13 +2253,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             var responseString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)! as String
             responseString = responseString.replacingOccurrences(of: "\n", with: "")
             self.phoneExists_return(responseString: responseString)
-            //            print("responseString = \(responseString)")
-            
-            
-//            let chargeResponse = responseString.components(separatedBy: ",")
-//            print(chargeResponse)
-            
-            // Epona
             }
         
         task.resume()
@@ -2311,18 +2303,11 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
     func phoneExists_return(responseString: String) {
         if (responseString == "Phone Number DNE") {
             print("DNE");
-            // Epona
-            // Register button
-            // if registered, PIN set <-- button action to continue through this
             pinRegistration = true;
             registerPin()
             DispatchQueue.main.async {
                 self.view.setNeedsDisplay()
             }
-            // Enter PIN
-            // Verify PIN
-            // // Not matching
-            // // // repeat 3x total
         }
         else {
             if (responseString == "PIN not present") {
@@ -2330,21 +2315,15 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             }
             else {
                 print("Exists");
-                // Epona
-                // Enter PIN
                 DispatchQueue.main.async {
                     self.view.setNeedsDisplay()
                 }
                 pinEntry()
-                // // Correct
-                // // // Create new customer and charge using provided info
-                // // Incorrect
-                // // // Ask for a re-entry
             }
         }
     }
     
-    func resetKeurigLabel() { // Epone9290
+    func resetKeurigLabel() {
         DispatchQueue.main.async {
             let formattedString = NSMutableAttributedString()
             formattedString.append(NSAttributedString(string: "Enter "))
@@ -2382,7 +2361,6 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             text = "Register" // "Swipe Credit Card "
             formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:attrs))
             self.keurigLabel.attributedText = formattedString
-            
             
             self.view.setNeedsDisplay()
             
@@ -2469,7 +2447,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         // Notify them of incorrect PIN & Remaining attempts
     }
     
-    func registerUser() {
+    func registerUser() -> String {
         //registerNewUserAddress
         var urlWithParams = ""
         let phoneString = "?phoneNumber=" + String(phoneNumString_exact)
@@ -2478,6 +2456,7 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         let chargeUser_now = "&chargeNow=" + String(ccInfo_chargeUser)
         let companyString = "&companyName=" + defaults.string(forKey: "company")!
         urlWithParams = registerNewUserAddress + phoneString + pinString_url + version_url + token_url + fName_url + lName_url + chargeUser_now + companyString
+        print(urlWithParams)
         
         // Create NSURL Object
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
@@ -2489,6 +2468,14 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
         // Set request HTTP method to GET. It could be POST as well
         request.httpMethod = "GET"
         
+        // Wait for completion
+        var returnString = "Failure"
+        var semaphore: DispatchSemaphore! = nil
+        if (unitTesting == true) {
+            // Code only executes when tests are running
+            semaphore = DispatchSemaphore(value: 0)
+        }
+        
         // Excute HTTP Request
         let task = URLSession.shared.dataTask(with: request as URLRequest) {
             data, response, error in
@@ -2498,6 +2485,9 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
             {
                 print("error=\(String(describing: error))")
                 return
+            }
+            else {
+                returnString = "Registered"
             }
             
             // Print out response string
@@ -2512,13 +2502,24 @@ class ViewController: UIViewController, BluetoothSerialDelegate, RscMgrDelegate 
                         self.successfulPayment()
                         
                         self.keypadVersion = "phoneNumber"
+                        returnString = "Successful"
                     }
                 }
             } catch let error as NSError {
                 print(error.localizedDescription)
             }
+            
+            if (self.unitTesting == true) {
+                // Code only executes when tests are running
+                semaphore.signal()
+            }
         }
         task.resume()
+        if (unitTesting == true) {
+            // Code only executes when tests are running
+            semaphore.wait(timeout: DispatchTime.distantFuture)
+        }
+        return returnString
     }
 }
 

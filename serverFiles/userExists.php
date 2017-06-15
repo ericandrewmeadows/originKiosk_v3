@@ -18,6 +18,7 @@
 	try {
 		$req_dump = print_r($_REQUEST, TRUE);
 		$fp = fopen('serverRequests.log', 'a');
+		fwrite($fp, "userExists.php");
 		fwrite($fp, $req_dump);
 		fclose($fp);
 	} catch (Exception $e) {
@@ -94,8 +95,8 @@
 									newSubscriber($subscribescribeAmt, $phoneNumber, $userToken, $conn, $subscriptionPrice);
 									$charged = 1;
 								}
-								$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
 							}
+							$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
 
 							// ---------- Free Smoothie Check ----------
 							if ($charged == 0) {
@@ -150,8 +151,8 @@
 								newSubscriber($subscribeAmt, $phoneNumber, $userToken, $conn, $subscriptionPrice);
 								$charged = 1;
 							}
-							$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
 						}
+						$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
 						if ($charged == 0) {
 							chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
 							$charged = 1;
@@ -199,10 +200,8 @@
 					$basePrice = 2.99;				
 					$chargeAmt = getPaymentAmount($conn, $companyName, $basePrice);
 
-					if (isset($_GET['subscribe'])) {
-						if ($phoneNumber != -1) {
-							$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
-						}
+					if ($phoneNumber != -1) {
+						$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
 					}
 
 					// ---------- Free Smoothie Check ----------
@@ -244,6 +243,9 @@
 
 			$basePrice = 2.99;				
 			$chargeAmt = getPaymentAmount($conn, $companyName, $basePrice);
+			if ($phoneNumber != -1) {
+				$chargeAmt = getSubscriptionPrice($phoneNumber, $chargeAmt, $conn);
+			}
 			// $chargeAmt = getPaymentAmount_new ($conn, $phoneNumber, $companyName, $basePrice);
 
 	        chargeCustomer($chargeAmt, $companyName, $userToken, $conn, $phoneNumber);
@@ -255,7 +257,7 @@
 	}
 	$conn->close();
 
-	file_put_contents('outputLogs.txt',"-----\n".ob_get_contents().PHP_EOL , FILE_APPEND | LOCK_EX);
+	file_put_contents('outputLogs.txt',"-----\nuserExists.php\n".ob_get_contents().PHP_EOL , FILE_APPEND | LOCK_EX);
 	ob_end_flush();
 
 ?>

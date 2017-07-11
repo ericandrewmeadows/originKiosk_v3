@@ -79,17 +79,20 @@ class paymentViewController: UIViewController, RscMgrDelegate {
         
         for uiElement in [phoneNumberDisplay, paymentSuccessfulLabel, checkMark, subscribeDetails, subscribeLabel, priceLabel, subscribeLabel,
                           instructionsText, enterYourPhoneNumber,
-                          instructionsLabel1,instructionsLabel2,instructionsLabel3,instructionsLabel4] {
+                          instructionsLabel1,instructionsLabel2,instructionsLabel3,instructionsLabel4,
+                          smsReceiptLabel] {
             view.addSubview(uiElement)
         }
         
-        for uiElement in [swipeImage_view, logoImage_view] {
+        for uiElement in [swipeImage_view, logoImage_view, receiptImage_view] {
             view.addSubview(uiElement)
         }
         
         for button in [button1,button2,button3,button4,button5,button6,button7,button8,button9,button0,pinpad_lowerLeft,pinpad_lowerRight,
                        clearPhoneButton,
-                       instructionsButton1,instructionsButton2,instructionsButton3,instructionsButton4] {
+                       instructionsButton1,instructionsButton2,instructionsButton3,instructionsButton4,
+                       receiptYes, receiptNo,
+                       logoButton] {
             button.addTarget(self, action: #selector(numpadPressed), for: .touchUpInside)
             view.addSubview(button)
         }
@@ -97,6 +100,8 @@ class paymentViewController: UIViewController, RscMgrDelegate {
         for layer in [priceLineLayer, abovePhoneLayer, belowPhoneLayer, leftRightDividerLineLayer] {
             self.view.layer.addSublayer(layer)
         }
+        
+        logoButton.addTarget(self, action: #selector(logoTouched), for: .touchUpInside)
         
         clearPhoneButton.addTarget(self, action: #selector(clearPhoneNumber), for: .touchUpInside)
         self.view.addSubview(clearPhoneButton)
@@ -135,6 +140,10 @@ class paymentViewController: UIViewController, RscMgrDelegate {
 //             acquirePriceSettings_timer = Timer.scheduledTimer(timeInterval: TimeInterval(acquirePriceSettings_timeInterval), target: self, selector: #selector(self.serverComms_priceSettings_local), userInfo: nil, repeats: true)
 //         })
         
+    }
+    
+    func logoTouched () {
+        print("Logo Touched")
     }
     
     func clearPhoneNumber () {

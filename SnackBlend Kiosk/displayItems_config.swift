@@ -11,6 +11,10 @@ import UIKit
 
 // Global Display Elements
 var logoImage_view = UIImageView()
+
+// Proposed Change
+let logoButton  = UIButton(type: .custom)
+
 var swipeImage_view = UIImageView()
 let instructionsText = UILabel()
 
@@ -453,14 +457,52 @@ func configPinPad(screenSize: CGRect) {
     instructionsLabel4.text = "Pour & enjoy"
     
     // Receipt Information
-    let receipt_imageName = "OriginLogo.png"
+    // Receipt Icon
+    let receipt_imageName = "receiptImage.png"
     let receiptImage = UIImage(named: receipt_imageName)!
     receiptImage_view = UIImageView(image: receiptImage)
-    receiptImage_view.frame = CGRect(x: screenSize.width * 3 / 32,
-                                     y: screenSize.height * 13 / 192,
-                                     width: screenSize.width * 211 / 512,
-                                     height: screenSize.height * 83 / 384)
+    receiptImage_view.frame = CGRect(x: screenSize.width * 29 / 128,
+                                     y: screenSize.height * 309 / 768,
+                                     width: screenSize.width * 75 / 512,
+                                     height: screenSize.width * 75 / 512)
     receiptImage_view.contentMode = .scaleAspectFit
+    
+    // Receipt Label
+    smsReceiptLabel.frame = CGRect(x: screenSize.width * 41 / 1024,
+                                   y: screenSize.height * 539 / 768,
+                                   width: screenSize.width * 133 / 256,
+                                   height: screenSize.height * 7 / 64)
+    smsReceiptLabel.textAlignment = NSTextAlignment.center
+    smsReceiptLabel.baselineAdjustment = UIBaselineAdjustment.alignCenters
+    smsReceiptLabel.font = UIFont(name: "HelveticaNeue-Bold", size: screenSize.height / 12)
+    smsReceiptLabel.numberOfLines = 0
+    smsReceiptLabel.frame.size.width = screenSize.width * 133 / 256
+    smsReceiptLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
+    smsReceiptLabel.text = "SMS Receipt?"
+    
+    // Receipts - Yes
+    receiptYes.frame = CGRect(x: screenSize.width * 149 / 1024,
+                              y: screenSize.height * 651 / 768,
+                              width: screenSize.width / 8,
+                              height: screenSize.width / 12)
+    receiptYes.layer.cornerRadius = screenSize.width * 15 / 1024
+    receiptYes.layer.borderWidth = screenSize.width * 3 / 512
+    receiptYes.layer.borderColor = UIColor.black.cgColor
+    receiptYes.setTitle("Yes", for: .normal)
+    receiptYes.setTitleColor(.black, for: .normal)
+    receiptYes.titleLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: screenSize.height * 3 / 64)
+    
+    // Receipts - No
+    receiptNo.frame = CGRect(x: screenSize.width * 337 / 1024,
+                             y: screenSize.height * 651 / 768,
+                             width: screenSize.width / 8,
+                             height: screenSize.width / 12)
+    receiptNo.layer.cornerRadius = screenSize.width * 15 / 1024
+    receiptNo.layer.borderWidth = screenSize.width * 3 / 512
+    receiptNo.layer.borderColor = UIColor.black.cgColor
+    receiptNo.setTitle("No", for: .normal)
+    receiptNo.setTitleColor(.black, for: .normal)
+    receiptNo.titleLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: screenSize.height * 3 / 64)
 
     
     // Phone Number - Separator Lines
@@ -504,6 +546,11 @@ func configPinPad(screenSize: CGRect) {
                                   width: screenSize.width * 211 / 512,
                                   height: screenSize.height * 83 / 384)
     logoImage_view.contentMode = .scaleAspectFit
+    logoImage_view.isHidden = true
+    
+    logoButton.setImage(UIImage(named: "OriginLogo.png"), for: .normal)
+    logoButton.frame = logoImage_view.frame
+    logoButton.contentMode = .scaleAspectFit
     
     // Line between Logo and Price
     let priceLinePath = UIBezierPath(rect: CGRect(x: screenSize.width * 101 / 1024,
@@ -620,6 +667,7 @@ func configPinPad(screenSize: CGRect) {
     abovePhoneLayer.isHidden = true
     belowPhoneLayer.isHidden = true
     phoneNumberDisplay.isHidden = true
+    clearPhoneButton.isHidden = true
     
     // Porter 3
 }

@@ -244,8 +244,8 @@ class setupViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
                     // Print out dictionary
                     print(convertedJsonIntoDict)
                     
-                    self.defaults.set(Int((convertedJsonIntoDict["company"] as? String)!)!,
-                                      forKey: "company")
+                    self.defaults.set(Int((convertedJsonIntoDict["location"] as? String)!)!,
+                                      forKey: "location")
                     
                     self.defaults.set(Int((convertedJsonIntoDict["employeeThresh"] as? String)!)!,
                                       forKey: "employeeThresh")

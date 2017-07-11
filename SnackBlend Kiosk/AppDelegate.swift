@@ -12,7 +12,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    let defaults = UserDefaults.standard
     
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         if let rootViewController = self.topViewControllerWithRootViewController(rootViewController: window?.rootViewController) {
@@ -41,50 +41,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-        // Kill ..
         NSSetUncaughtExceptionHandler { (exception) in
-            NSLog("butt")
+            NSLog("NSUnsetUncaughtExceptionHandler")
         }
         
         signal(SIGABRT) { (_) in
-            NSLog("butt1")
+            NSLog("SIGABRT")
         }
         signal(SIGILL) { (_) in
-            NSLog("butt2")
+            NSLog("SIGILL")
         }
         
         signal(SIGSEGV) { (_) in
-            NSLog("butt3")
+            NSLog("SIGSEGV")
         }
         signal(SIGFPE) { (_) in
-            NSLog("butt4")
+            NSLog("SIGFPE")
         }
         signal(SIGBUS) { (_) in
-            NSLog("butt5")
+            NSLog("SIGBUS")
         }
         
         signal(SIGPIPE) { (_) in
-            NSLog("butt6")
+            NSLog("SIGPIPE")
         }
-        // .. Kill
         
-        var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-        let documentsDirectory = paths[0]
-        let fileName = "\(Date()).log"
-        let logFilePath = (documentsDirectory as NSString).appendingPathComponent(fileName)
-        freopen(logFilePath.cString(using: String.Encoding.ascii)!, "a+", stderr)
-        
-        // Dispatch async to upload file on load and delete old file
-        defaults.set(UIDevice.current.name, forKey: "company")
-        defaults.set("1.1", forKey: "version")
-        
-        let filemanager:FileManager = FileManager()
-        let files = filemanager.enumerator(atPath: documentsDirectory)
-        var logFile = ""
-        while let file = files?.nextObject() {
-            logFile = documentsDirectory + "/" + String(describing: file)
-            sendLogFile(dataFile_path: logFile)
-        }
+        createLogs()
+        uploadLogs()
         
         return true
     }

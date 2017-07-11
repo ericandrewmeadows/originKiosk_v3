@@ -39,7 +39,7 @@ func sendLogFile( dataFile_path: String ) {
     if let imageData = NSData(contentsOfFile: dataFile_path) {
         
         let param = [
-            "company" : defaults.string(forKey: "company")!,
+            "location" : defaults.string(forKey: "location")!,
             "version" : defaults.string(forKey: "version")!
         ]
         

@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		070452F71F13F1CD00A4923A /* paymentFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070452F61F13F1CD00A4923A /* paymentFunctions.swift */; };
+		070452F91F13F4F600A4923A /* displayItems_config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070452F81F13F4F600A4923A /* displayItems_config.swift */; };
+		070452FD1F1416D300A4923A /* arduinoFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070452FC1F1416D300A4923A /* arduinoFunctions.swift */; };
+		077ED01A1EFACF130014459F /* fileManagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077ED0191EFACF130014459F /* fileManagement.swift */; };
 		533EA9611E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */; };
 		5347C8971EE3902400EBE6B3 /* iPadLogs_upload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */; };
 		5355D9B41ED51B76008640BE /* libRscMgrUniv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5355D9B31ED51B76008640BE /* libRscMgrUniv.a */; };
@@ -24,7 +28,7 @@
 		535FB5221E7112EA00D28095 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535FB5211E7112EA00D28095 /* Foundation.framework */; };
 		538465551EF2E44900DBB02B /* displaySetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538465541EF2E44900DBB02B /* displaySetup.swift */; };
 		539C27FE1E67DC3300B0F9F6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C27FD1E67DC3300B0F9F6 /* AppDelegate.swift */; };
-		539C28001E67DC3300B0F9F6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C27FF1E67DC3300B0F9F6 /* ViewController.swift */; };
+		539C28001E67DC3300B0F9F6 /* paymentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C27FF1E67DC3300B0F9F6 /* paymentViewController.swift */; };
 		539C28031E67DC3300B0F9F6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 539C28011E67DC3300B0F9F6 /* Main.storyboard */; };
 		539C28051E67DC3300B0F9F6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 539C28041E67DC3300B0F9F6 /* Assets.xcassets */; };
 		539C28081E67DC3300B0F9F6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 539C28061E67DC3300B0F9F6 /* LaunchScreen.storyboard */; };
@@ -33,7 +37,6 @@
 		539C282C1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 539C282B1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf */; };
 		53A339421E7E73FD00EE23C9 /* DemoDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A339411E7E73FD00EE23C9 /* DemoDay.swift */; };
 		53D8E9091EA3109E00E06BFE /* BluetoothSerial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D8E9081EA3109E00E06BFE /* BluetoothSerial.swift */; };
-		53D8E90B1EA3115900E06BFE /* BluetoothTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D8E90A1EA3115900E06BFE /* BluetoothTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +64,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		070452F61F13F1CD00A4923A /* paymentFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = paymentFunctions.swift; sourceTree = "<group>"; };
+		070452F81F13F4F600A4923A /* displayItems_config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = displayItems_config.swift; sourceTree = "<group>"; };
+		070452FC1F1416D300A4923A /* arduinoFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = arduinoFunctions.swift; sourceTree = "<group>"; };
+		077ED0191EFACF130014459F /* fileManagement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = fileManagement.swift; sourceTree = "<group>"; };
 		532C24FA1EEB1395005B250F /* Origin KioskTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Origin KioskTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Avenir-Next-LT-Pro-Bold_5182.ttf"; path = "../../Avenir-Next-LT-Pro-Bold_5182.ttf"; sourceTree = "<group>"; };
 		5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iPadLogs_upload.swift; sourceTree = "<group>"; };
@@ -83,7 +90,7 @@
 		538465541EF2E44900DBB02B /* displaySetup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = displaySetup.swift; sourceTree = "<group>"; };
 		539C27FA1E67DC3300B0F9F6 /* originKiosk_v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = originKiosk_v2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		539C27FD1E67DC3300B0F9F6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		539C27FF1E67DC3300B0F9F6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		539C27FF1E67DC3300B0F9F6 /* paymentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = paymentViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		539C28021E67DC3300B0F9F6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		539C28041E67DC3300B0F9F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		539C28071E67DC3300B0F9F6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -97,7 +104,6 @@
 		539C282B1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "GrandHotel-Regular.ttf"; path = "Resources/GrandHotel-Regular.ttf"; sourceTree = "<group>"; };
 		53A339411E7E73FD00EE23C9 /* DemoDay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DemoDay.swift; sourceTree = "<group>"; };
 		53D8E9081EA3109E00E06BFE /* BluetoothSerial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BluetoothSerial.swift; sourceTree = "<group>"; };
-		53D8E90A1EA3115900E06BFE /* BluetoothTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BluetoothTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -217,8 +223,6 @@
 				5376C1001E9D6A7500B4E278 /* Arduino Connection */,
 				53A3393C1E7E737A00EE23C9 /* Demo Day Menu */,
 				539C27FD1E67DC3300B0F9F6 /* AppDelegate.swift */,
-				53D8E90A1EA3115900E06BFE /* BluetoothTest.swift */,
-				539C27FF1E67DC3300B0F9F6 /* ViewController.swift */,
 				539C28011E67DC3300B0F9F6 /* Main.storyboard */,
 				535C5A7A1E9403E400A902A6 /* setupViewController.swift */,
 				539C28041E67DC3300B0F9F6 /* Assets.xcassets */,
@@ -226,6 +230,11 @@
 				539C28091E67DC3300B0F9F6 /* Info.plist */,
 				5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */,
 				538465541EF2E44900DBB02B /* displaySetup.swift */,
+				077ED0191EFACF130014459F /* fileManagement.swift */,
+				070452F61F13F1CD00A4923A /* paymentFunctions.swift */,
+				539C27FF1E67DC3300B0F9F6 /* paymentViewController.swift */,
+				070452F81F13F4F600A4923A /* displayItems_config.swift */,
+				070452FC1F1416D300A4923A /* arduinoFunctions.swift */,
 			);
 			name = "Origin Kiosk";
 			path = "SnackBlend Kiosk";
@@ -376,7 +385,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 539C27F51E67DC3300B0F9F6 /* Build configuration list for PBXProject "originKiosk_v2" */;
+			buildConfigurationList = 539C27F51E67DC3300B0F9F6 /* Build configuration list for PBXProject "originKiosk" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -445,14 +454,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				53D8E90B1EA3115900E06BFE /* BluetoothTest.swift in Sources */,
-				539C28001E67DC3300B0F9F6 /* ViewController.swift in Sources */,
+				070452FD1F1416D300A4923A /* arduinoFunctions.swift in Sources */,
+				070452F71F13F1CD00A4923A /* paymentFunctions.swift in Sources */,
+				539C28001E67DC3300B0F9F6 /* paymentViewController.swift in Sources */,
 				53A339421E7E73FD00EE23C9 /* DemoDay.swift in Sources */,
+				077ED01A1EFACF130014459F /* fileManagement.swift in Sources */,
 				5347C8971EE3902400EBE6B3 /* iPadLogs_upload.swift in Sources */,
 				538465551EF2E44900DBB02B /* displaySetup.swift in Sources */,
 				539C27FE1E67DC3300B0F9F6 /* AppDelegate.swift in Sources */,
 				53D8E9091EA3109E00E06BFE /* BluetoothSerial.swift in Sources */,
 				535C5A7B1E9403E400A902A6 /* setupViewController.swift in Sources */,
+				070452F91F13F4F600A4923A /* displayItems_config.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -665,7 +677,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "SwiftDemo-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
@@ -697,7 +709,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "SwiftDemo-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
@@ -768,7 +780,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		539C27F51E67DC3300B0F9F6 /* Build configuration list for PBXProject "originKiosk_v2" */ = {
+		539C27F51E67DC3300B0F9F6 /* Build configuration list for PBXProject "originKiosk" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				539C28201E67DC3300B0F9F6 /* Debug */,

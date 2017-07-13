@@ -11,6 +11,8 @@ import CoreBluetooth
 
 let baudRate: Int32 = 9600      // baud rate
 let screenSize: CGRect = UIScreen.main.bounds
+let arduinoFunctions = ArduinoFunctions()
+let paymentFunctions = PaymentFunctions()
 
 class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed to allow for functions to execute commands without reference to this VC
     
@@ -117,7 +119,7 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         set_priceLabels()
         
         if (lockState_transmitted) {
-            sendLockMessage()
+            arduinoFunctions.arduinoLock_lock()
         }
         
         view.setNeedsDisplay()
@@ -151,7 +153,7 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
     }
     
     func sendUnlockMessage_local () {
-        sendUnlockMessage()
+        arduinoFunctions.arduinoLock_unlock()
     }
     
     func receiptYesNo (sender: UIButton) {
@@ -178,20 +180,20 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
     
     func clearPhoneNumber_local () {
         // Reset arrays, call function to reset phone display
-        clearPhoneNumber()
+        paymentFunctions.clearPhoneNumber()
     }
     
     func serverComms_siteSpecificUnlockTimes_local () {
-        serverComms_siteSpecificUnlockTimes()
+        arduinoFunctions.serverComms_siteSpecificUnlockTimes()
     }
     func unlock_timeSpecific_local () {
         unlock_timeSpecific()
     }
     func serverComms_freezerSettings_local () {
-        serverComms_freezerSettings()
+        arduinoFunctions.serverComms_freezerSettings()
     }
     func serverComms_priceSettings_local () {
-        let subscriptionNeedsSet = serverComms_priceSettings()
+        let subscriptionNeedsSet = arduinoFunctions.serverComms_priceSettings()
         if (subscriptionNeedsSet) {
             self.view.addSubview(subscribeButton)
         }
@@ -214,11 +216,11 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
     }
     
     func successfulPayment_local () {
-        successfulPayment()
+        paymentFunctions.successfulPayment()
     }
     
     func unlockTimer_timeRemaining_local () {
-        unlockTimer_timeRemaining()
+        paymentFunctions.unlockTimer_timeRemaining()
     }
     
     func unsuccessfulPayment_local () {
@@ -228,7 +230,7 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
     }
     
     func numpadPressed_local(sender: UIButton) {
-        numpadPressed(sender: sender)
+        paymentFunctions.numpadPressed(sender: sender)
     }
     
     func unlock_timeSpecific() {
@@ -257,7 +259,7 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
                 if (intermediatelockState_transmitted == true) { // Locking is needed
                     NSLog("<LOCK_TIMESPECIFIC> = LOCK")
                     timeSpecificUnlocked = false
-                    sendLockMessage()
+                    arduinoFunctions.arduinoLock_lock()
                     set_priceLabels()
                     swipeImage_view.isHidden = false
                     instructionsText.isHidden = false
@@ -268,7 +270,7 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
                 else { // Unlocking is needed
                     NSLog("<LOCK_TIMESPECIFIC> = UNLOCK")
                     timeSpecificUnlocked = true
-                    sendUnlockMessage()
+                    arduinoFunctions.arduinoLock_unlock()
                     unlocked_priceLabel()
                 }
             }

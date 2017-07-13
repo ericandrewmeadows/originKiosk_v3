@@ -28,6 +28,36 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "539C280D1E67DC3300B0F9F6"
+               BuildableName = "originKiosk_v2Tests.xctest"
+               BlueprintName = "originKiosk_v2Tests"
+               ReferencedContainer = "container:originKiosk.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "539C28181E67DC3300B0F9F6"
+               BuildableName = "originKiosk_v2UITests.xctest"
+               BlueprintName = "originKiosk_v2UITests"
+               ReferencedContainer = "container:originKiosk.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "532C24F91EEB1395005B250F"
+               BuildableName = "Origin KioskTests.xctest"
+               BlueprintName = "Origin KioskTests"
+               ReferencedContainer = "container:originKiosk.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

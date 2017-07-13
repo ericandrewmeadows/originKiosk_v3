@@ -48,16 +48,16 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
                 tempString = arduinoRx_message
                 
                 if (!unitTesting) {
-                    let processStatus = processPayment(method: methodToExecute, arduinoRx_message: arduinoRx_message, ccInfo_chargeUser: 1, subscription: 0)
+                    let processStatus = paymentFunctions.processPayment(method: methodToExecute, arduinoRx_message: arduinoRx_message, ccInfo_chargeUser: 1, subscription: 0)
                     if (processStatus == "Successful") {
                         paymentOr_masterUnlock = true
-                        successfulPayment()
+                        paymentFunctions.successfulPayment()
                     }
                     else if (processStatus == "Swipe Again") {
                     }
                     else if (processStatus == "Failed") {
                         paymentOr_masterUnlock = false
-                        unsuccessfulPayment()
+                        paymentFunctions.unsuccessfulPayment()
                     }
                 }
                 
@@ -91,7 +91,7 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
                 
                 tempString = arduinoRx_message
                 if (!unitTesting) {
-                    serverComms_lockCommunication(lockString: arduinoRx_message)
+                    arduinoFunctions.serverComms_lockCommunication(lockString: arduinoRx_message)
                 }
                 
                 arduinoRx_message = ""
@@ -117,7 +117,7 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
                 
                 tempString = arduinoRx_message
                 if (!unitTesting) {
-                    serverComms_freezerCommunication(freezerString: arduinoRx_message)
+                    arduinoFunctions.serverComms_freezerCommunication(freezerString: arduinoRx_message)
                 }
                 
                 arduinoRx_message = ""
@@ -143,7 +143,7 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
                 
                 tempString = arduinoRx_message
                 if (!unitTesting) {
-                    serverComms_keepAliveCommunication()
+                    arduinoFunctions.serverComms_keepAliveCommunication()
                 }
                 arduinoRx_message = ""
             }

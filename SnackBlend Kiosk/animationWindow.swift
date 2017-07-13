@@ -9,7 +9,8 @@
 import Foundation
 import UIKit
 
-let π:CGFloat = CGFloat(M_PI)
+let π:CGFloat = CGFloat(Double.pi)
+let lockState_animation_timeInterval = 0.01
 
 @IBDesignable class CircularMeter: UIView {
     

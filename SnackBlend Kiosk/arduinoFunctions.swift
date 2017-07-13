@@ -8,21 +8,80 @@
 
 import Foundation
 
-func sendUnlockMessage(rscMgr: RscMgr) {
-    let unlockString = "UNLOCK\n"
-    rscMgr.write(unlockString)
-    lockState = false
-    serverComms_lockCommunication(lockString: "Sent: Unlock")
+// - Lock and Unlock Constants -
+let unlockString = "UNLOCK\n"
+let lockString = "LOCK\n"
+let lockState_verification_timeInterval = 0.01
+// Both variables declared to remove collision possibility - lock command is issued and verified
+var lockState_verification_locked = false
+var lockState_verification_unlocked = false
+var lockState_initialCommunication = false
+
+func sendUnlockMessage () {
+    if (!lockState_initialCommunication) {
+        serverComms_lockCommunication(lockString: "Sent: Unlock")
+        lockState_initialCommunication = true
+    }
+    if (lockState_verification_unlocked) {
+        lockState_initialCommunication = false
+    }
+    if (!lockState_verification_unlocked) {
+        rscMgr.write(unlockString)
+        lockState_transmitted = false
+        unlockCountdown_timer = Timer.scheduledTimer(timeInterval: lockState_verification_timeInterval,
+                                                     target: PaymentViewController.self,
+                                                     selector: #selector(PaymentViewController.unlockTimer_timeRemaining_local),
+                                                     userInfo: nil, repeats: false)
+    }
+    else {
+        lockState_initialCommunication = false
+    }
+    
+    
+//    unlockTime_remaining = unlockTime_max
+//    killUnlockTimer()
+//    setLockImage_unlocked()
+//    
+//    // When unlock is successful
+//    unlockCountdown_timer = Timer.scheduledTimer(timeInterval: unlockTimer_timeInterval,
+//                                                 target: PaymentViewController.self,
+//                                                 selector: #selector(PaymentViewController.unlockTimer_timeRemaining_local),
+//                                                 userInfo: nil, repeats: true)
 }
 
-func sendLockMessage(rscMgr: RscMgr) {
+func sendLockMessage () {
     if (paymentOr_masterUnlock == true) {
         paymentOr_masterUnlock = false
     }
-    let lockString = "LOCK\n"
     rscMgr.write(lockString)
-    lockState = true
+    lockState_transmitted = true
     serverComms_lockCommunication(lockString: "Sent: Lock")
+}
+
+// Unlock verification
+//"State: Unlocked, State: Locked, Sent: Unlock, Sent: Lock"
+var timeInterval_betweenLockingCommands = 0.1
+var reissueCommandTimer_lockMechanism: Timer?
+
+func verifyState_lock_locked () {
+    if (true && lockState_actual && lockState_transmitted) {
+        NSLog("<LOCK_VERIFICATION> = LOCKED : OK")
+        lockState_verification_locked = true
+    }
+    else {
+        NSLog("<LOCK_VERIFICATION> = LOCKED : NG")
+        lockState_verification_locked = false
+    }
+}
+func verifyState_lock_unlocked () {
+    if (!false && !lockState_actual && !lockState_transmitted) {
+        NSLog("<LOCK_VERIFICATION> = UNLOCKED : OK")
+        lockState_verification_unlocked = true
+    }
+    else {
+        NSLog("<LOCK_VERIFICATION> = UNLOCKED : NG")
+        lockState_verification_unlocked = false
+    }
 }
 
 // MARK: Dashboard and Server-Set Settings Functions
@@ -35,7 +94,6 @@ var acquirePriceSettings_timer: Timer?
 // Intervals
 let acquirePriceSettings_timeInterval = 15*60
 let acquireFreezerSettings_timeInterval = 15*60
-
 
 // Lock Messages - Server Communications
 func serverComms_lockCommunication( lockString: String ) {
@@ -50,8 +108,7 @@ func serverComms_lockCommunication( lockString: String ) {
     var urlWithParams = lockAddress + lockString_url + locationName_url
     urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
     
-    NSLog("serverComms_lockCommunication")
-    NSLog("--> " + urlWithParams)
+    NSLog("<URL_LOCK> = " + urlWithParams)
     let myUrl = NSURL(string: urlWithParams);
     
     // Creaste URL Request
@@ -151,7 +208,7 @@ func serverComms_freezerCommunication( freezerString: String ) {
 }
 
 // Freezer Messages - Server Communications
-func serverComms_siteSpecificUnlockTimes( ) {
+func serverComms_siteSpecificUnlockTimes() {
     
     // Create NSURL Object
     let locationName_url = "?locationName=" + defaults.string(forKey: "location")!
@@ -196,7 +253,7 @@ func serverComms_siteSpecificUnlockTimes( ) {
 }
 
 // Freezer Settings - Server Communications
-func serverComms_freezerSettings (rscMgr: RscMgr) {
+func serverComms_freezerSettings () {
     
     // Create NSURL Object
     let locationName_url = "?locationName=" + defaults.string(forKey: "location")!
@@ -235,7 +292,7 @@ func serverComms_freezerSettings (rscMgr: RscMgr) {
                     
                     // Send "FreezerSettings:freezerInterval,lowTemp,highTemp\n"
                     let commString = "FreezerSettings:" + freezerInterval + "," + lowTemp + "," + highTemp + "\n"
-                    NSLog(commString)
+                    NSLog("<ARDUINO_OUT> = " + commString)
                     rscMgr.write(commString)
                 }
             }

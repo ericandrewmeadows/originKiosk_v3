@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SnackBlend Kiosk/displayItems_config.swift"
-            timestampString = "521448636.681875"
+            timestampString = "521591622.928149"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "522"
-            endingLineNumber = "522"
-            landmarkName = "configPinPad(screenSize:)"
+            startingLineNumber = "502"
+            endingLineNumber = "502"
+            landmarkName = "configPinPad()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

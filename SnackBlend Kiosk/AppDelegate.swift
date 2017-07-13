@@ -10,9 +10,14 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    // Unit Testing
+    var unitTesting = false
 
     var window: UIWindow?
     let defaults = UserDefaults.standard
+    var paymentViewController = PaymentViewController()
+    var lightningSerialCable = LightningSerialCable()
     
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         if let rootViewController = self.topViewControllerWithRootViewController(rootViewController: window?.rootViewController) {
@@ -40,30 +45,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        lightningSerialCable.enableComms()
         
         NSSetUncaughtExceptionHandler { (exception) in
-            NSLog("NSUnsetUncaughtExceptionHandler")
+            NSLog("<EXCEPTION> = NSUnsetUncaughtExceptionHandler")
         }
         
         signal(SIGABRT) { (_) in
-            NSLog("SIGABRT")
+            NSLog("<EXCEPTION> = SIGABRT")
         }
         signal(SIGILL) { (_) in
-            NSLog("SIGILL")
+            NSLog("<EXCEPTION> = SIGILL")
         }
         
         signal(SIGSEGV) { (_) in
-            NSLog("SIGSEGV")
+            NSLog("<EXCEPTION> = SIGSEGV")
         }
         signal(SIGFPE) { (_) in
-            NSLog("SIGFPE")
+            NSLog("<EXCEPTION> = SIGFPE")
         }
         signal(SIGBUS) { (_) in
-            NSLog("SIGBUS")
+            NSLog("<EXCEPTION> = SIGBUS")
         }
         
         signal(SIGPIPE) { (_) in
-            NSLog("SIGPIPE")
+            NSLog("<EXCEPTION> = SIGPIPE")
         }
         
         createLogs()

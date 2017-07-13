@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0820"
+   LastUpgradeVersion = "0830"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -17,7 +17,7 @@
                BlueprintIdentifier = "539C27F91E67DC3300B0F9F6"
                BuildableName = "originKiosk_v2.app"
                BlueprintName = "originKiosk_v2"
-               ReferencedContainer = "container:originKiosk_v2.xcodeproj">
+               ReferencedContainer = "container:originKiosk.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -28,36 +28,6 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "539C280D1E67DC3300B0F9F6"
-               BuildableName = "originKiosk_v2Tests.xctest"
-               BlueprintName = "originKiosk_v2Tests"
-               ReferencedContainer = "container:originKiosk_v2.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "539C28181E67DC3300B0F9F6"
-               BuildableName = "originKiosk_v2UITests.xctest"
-               BlueprintName = "originKiosk_v2UITests"
-               ReferencedContainer = "container:originKiosk_v2.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "532C24F91EEB1395005B250F"
-               BuildableName = "Origin KioskTests.xctest"
-               BlueprintName = "Origin KioskTests"
-               ReferencedContainer = "container:originKiosk_v2.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
@@ -65,7 +35,7 @@
             BlueprintIdentifier = "539C27F91E67DC3300B0F9F6"
             BuildableName = "originKiosk_v2.app"
             BlueprintName = "originKiosk_v2"
-            ReferencedContainer = "container:originKiosk_v2.xcodeproj">
+            ReferencedContainer = "container:originKiosk.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -88,7 +58,7 @@
             BlueprintIdentifier = "539C27F91E67DC3300B0F9F6"
             BuildableName = "originKiosk_v2.app"
             BlueprintName = "originKiosk_v2"
-            ReferencedContainer = "container:originKiosk_v2.xcodeproj">
+            ReferencedContainer = "container:originKiosk.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -107,7 +77,7 @@
             BlueprintIdentifier = "539C27F91E67DC3300B0F9F6"
             BuildableName = "originKiosk_v2.app"
             BlueprintName = "originKiosk_v2"
-            ReferencedContainer = "container:originKiosk_v2.xcodeproj">
+            ReferencedContainer = "container:originKiosk.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

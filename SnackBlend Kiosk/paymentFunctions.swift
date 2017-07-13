@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 let paymentAddress = "https://io.calmlee.com/userExists.php"
 let phoneExistsAddress = "https://io.calmlee.com/phoneExists.php"
@@ -41,14 +42,18 @@ var payment_price1:             Float = 9.99
 var payment_price2:             Float = 0
 
 // Arduino Lock
-let timeToRelock = 20.0
+let unlockTime_max: CGFloat = 30.0
+var unlockTime_remaining: CGFloat = 0.0
+var unlockCountdown_timer: Timer?
 let successPayment_transition = 5.0
+let lockState_visualization_timeInterval = 0.01
 
 // Payment or Master Unlock
 var paymentOr_masterUnlock = false
 
 // Lock state
-var lockState = true
+var lockState_transmitted = false
+var lockState_actual = false
 
 // siteSpecificUnlockTimes
 var siteSpecificUnlockTimes = [[Int]]()
@@ -71,11 +76,19 @@ var waitingForCC = false
 var methodToExecute = ""
 var ccInfo_chargeUser = 0
 
+// Phone Number Information
+var phoneNumString: [Character] = ["(", " ", " ", " ", ")", " ", " ", " ", " ", "-", " ", " ", " ", " "]
+var phoneNumString_exact: [Character] = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+var phoneNumStringCount = 0
+
+// Master Unlock
+let masterUnlockString = "CC3423" // <- "DICE"
+var input_last6 = [" ", " ", " ", " ", " ", " "]
+
 // Server Payment Processing
 func processPayment(method: String, arduinoRx_message: String, ccInfo_chargeUser: Int, subscription: Int) -> String {
     
     var returnString = "Server Communication Error"
-    NSLog("Payment method - " + method)
     var urlWithParams = ""
     let versionString = "&version=" + defaults.string(forKey: "version")!
     
@@ -112,8 +125,7 @@ func processPayment(method: String, arduinoRx_message: String, ccInfo_chargeUser
             // Print out response string
             var responseString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)! as String
             responseString = responseString.replacingOccurrences(of: "\n", with: "")
-            NSLog(responseString)
-            
+            NSLog("<URL_PAYMENT_REPLY> = " + responseString)
             
             let chargeResponse = responseString.components(separatedBy: ",")
             
@@ -131,4 +143,93 @@ func processPayment(method: String, arduinoRx_message: String, ccInfo_chargeUser
     
     task.resume()
     return returnString
+}
+
+func numpadPressed (sender: UIButton) {
+    let inputVal = (sender.titleLabel?.text)!
+    if (inputVal != "x") {
+        phonePeriphery_visible()
+        if phoneNumStringCount < 10 {
+            phoneNumString_exact[phoneNumStringCount] = Character((sender.titleLabel?.text)!)
+            phoneNumStringCount += 1
+            if phoneNumStringCount <= 3 {
+                phoneNumString[phoneNumStringCount] = Character((sender.titleLabel?.text)!)
+            }
+            else if phoneNumStringCount <= 6 {
+                phoneNumString[phoneNumStringCount+2] = Character((sender.titleLabel?.text)!)
+            }
+            else if phoneNumStringCount <= 10 {
+                phoneNumString[phoneNumStringCount+3] = Character((sender.titleLabel?.text)!)
+            }
+        }
+        phoneNumberDisplay.text = String(phoneNumString)
+        
+        if (phoneNumStringCount == 10) {
+            showAndEnable_pinpad_lowerRight()
+        }
+        else {
+            hideAndDisable_pinpad_lowerRight()
+        }
+    }
+    else {
+        if phoneNumStringCount > 0 {
+            hideAndDisable_pinpad_lowerRight()
+            if phoneNumStringCount <= 3 {
+                phoneNumString[phoneNumStringCount] = " "
+            }
+            else if phoneNumStringCount <= 6 {
+                phoneNumString[phoneNumStringCount+2] = " "
+            }
+            else if phoneNumStringCount <= 10 {
+                phoneNumString[phoneNumStringCount+3] = " "
+            }
+            phoneNumStringCount -= 1
+            phoneNumString_exact[phoneNumStringCount] = " "
+            phoneNumberDisplay.text = String(phoneNumString)
+        }
+        if phoneNumStringCount == 0 {
+            phoneNumberDisplay.text = ""
+            phonePeriphery_hidden()
+        }
+    }
+}
+
+func clearPhoneNumber () {
+    phoneNumString = ["(", " ", " ", " ", ")", " ", " ", " ", " ", "-", " ", " ", " ", " "]
+    phoneNumString_exact = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    phoneNumberDisplay.text = " "
+    phoneNumStringCount = 0
+    phonePeriphery_hidden()
+}
+
+func successfulPayment () {
+//    unlockTime_remaining = unlockTime_max
+//    killUnlockTimer()
+//    setLockImage_unlocked()
+//    
+//    // When unlock is successful
+//    unlockCountdown_timer = Timer.scheduledTimer(timeInterval: unlockTimer_timeInterval,
+//                                                 target: PaymentViewController.self,
+//                                                 selector: #selector(PaymentViewController.unlockTimer_timeRemaining_local),
+//                                                 userInfo: nil, repeats: true)
+}
+func unsuccessfulPayment () {
+    // Placeholder
+}
+
+func unlockTimer_timeRemaining () {
+    unlockTime_remaining -= CGFloat(lockState_visualization_timeInterval)
+    if (unlockTime_remaining < 0.0) {
+        unlockTime_remaining = 0.0
+        killUnlockTimer()
+        setLockImage_locked()
+        // Execute relock function here
+        // This allows for multiple payments to go through and leave the freezer unlocked during these transactions
+    }
+    circularMeter.reloadData()
+}
+
+func killUnlockTimer () {
+    unlockCountdown_timer?.invalidate()
+    unlockCountdown_timer = nil
 }

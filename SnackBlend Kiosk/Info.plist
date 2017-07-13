@@ -26,6 +26,8 @@
 	<string>Real-time tracking of individuals in video scene</string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>seguisym.ttf</string>
+		<string>seguiemj.ttf</string>
 		<string>Avenir-Next-LT-Pro-Bold_5182.ttf</string>
 		<string>GrandHotel-Regular.ttf</string>
 	</array>
@@ -50,10 +52,10 @@
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
 	</array>
 </dict>
 </plist>

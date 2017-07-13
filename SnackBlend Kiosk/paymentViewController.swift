@@ -10,34 +10,23 @@ import UIKit
 import CoreBluetooth
 
 let baudRate: Int32 = 9600      // baud rate
+let screenSize: CGRect = UIScreen.main.bounds
 
-class paymentViewController: UIViewController, RscMgrDelegate {
+class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed to allow for functions to execute commands without reference to this VC
     
-    // Unit Testing
-    var unitTesting = false
-    
-    // RscMgr
-    var rscMgr:  RscMgr!     // RscMgr handles the serial communication
+//    // RscMgr
+//    var rscMgr:  RscMgr!     // RscMgr handles the serial communication
     
     // Regular Functionality
     override var prefersStatusBarHidden: Bool {
         return true
     }
     
-    var arduinoRx_message = String()
+//    var arduinoRx_message = String()
     
     
     // Keypad
-    var keypadVersion = "phoneNumber";
-    
-    // Phone Number Information
-    var phoneNumString: [Character] = ["(", " ", " ", " ", ")", " ", " ", " ", " ", "-", " ", " ", " ", " "]
-    var phoneNumString_exact: [Character] = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-    var phoneNumStringCount = 0
-    
-    // Master Unlock
-    let masterUnlockString = "CC062616"
-    var input_last8 = [" ", " ", " ", " ", " ", " ", " ", " "]
+    var keypadVersion = "phoneNumber"
     
     let disabledColor = UIColor(
         red: 240/255.0,
@@ -46,7 +35,6 @@ class paymentViewController: UIViewController, RscMgrDelegate {
         alpha: 1.0)
     let enabledColor = UIColor.black
     
-    let screenSize: CGRect = UIScreen.main.bounds
     var initialLoad = false
     
     
@@ -56,44 +44,45 @@ class paymentViewController: UIViewController, RscMgrDelegate {
         
         setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
         
-        // rscMgr
-        rscMgr = RscMgr()
-        rscMgr.setDelegate(self)
-        rscMgr.enableExternalLogging(true)
+//        // rscMgr
+//        rscMgr = RscMgr()
+//        rscMgr.setDelegate(self)
+//        rscMgr.enableExternalLogging(true)
         
         // Software revision
         let nsObject: AnyObject? = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as AnyObject
-        print(nsObject as! String)
+        print("Software version:  " + (nsObject as! String))
         
         defaults.set("3.0.0", forKey: "version")
         
         // Company name is device name <- Ease of setup of multiple devices
         defaults.set(UIDevice.current.name, forKey: "location")
         
-        configPinPad(screenSize: self.screenSize)
+        configPinPad()
         
         // Subscription setup
         subscribeButton.addTarget(self, action: #selector(processSubscription), for: .touchUpInside)
         
-        view.layer.addSublayer(shapeLayer)
+        for layer in [successfulPayment_circle,processingPayment_circle] {
+            view.layer.addSublayer(layer)
+        }
         
-        for uiElement in [phoneNumberDisplay, paymentSuccessfulLabel, checkMark, subscribeDetails, subscribeLabel, priceLabel, subscribeLabel,
+        for uiElement in [phoneNumberDisplay, subscribeDetails, subscribeLabel, priceLabel, subscribeLabel,
                           instructionsText, enterYourPhoneNumber,
                           instructionsLabel1,instructionsLabel2,instructionsLabel3,instructionsLabel4,
+                          processingPayment_label,processingPayment_processingIcon,
+                          successfulPayment_label,successfulPayment_checkMark,
                           smsReceiptLabel] {
             view.addSubview(uiElement)
         }
         
-        for uiElement in [swipeImage_view, logoImage_view, receiptImage_view] {
+        for uiElement in [swipeImage_view, logoImage_view, receiptImage_view, backArrowImage_view] {
             view.addSubview(uiElement)
         }
-        
         for button in [button1,button2,button3,button4,button5,button6,button7,button8,button9,button0,pinpad_lowerLeft,pinpad_lowerRight,
                        clearPhoneButton,
-                       instructionsButton1,instructionsButton2,instructionsButton3,instructionsButton4,
-                       receiptYes, receiptNo,
-                       logoButton] {
-            button.addTarget(self, action: #selector(numpadPressed), for: .touchUpInside)
+                       receiptYes, receiptNo] {
+            button.addTarget(self, action: #selector(numpadPressed_local), for: .touchUpInside)
             view.addSubview(button)
         }
         
@@ -101,15 +90,34 @@ class paymentViewController: UIViewController, RscMgrDelegate {
             self.view.layer.addSublayer(layer)
         }
         
-        logoButton.addTarget(self, action: #selector(logoTouched), for: .touchUpInside)
+        for subView in [circularMeter] {
+            self.view.addSubview(subView)
+        }
         
-        clearPhoneButton.addTarget(self, action: #selector(clearPhoneNumber), for: .touchUpInside)
+        for button in [instructionsButton1,instructionsButton2,instructionsButton3,instructionsButton4,
+                       logoButton] {
+                        view.addSubview(button)
+        }
+        
+        logoButton.addTarget(self, action: #selector(menuItemsTouched), for: .touchUpInside)
+        var tagNum = 0
+        logoButton.tag = tagNum
+        for button in [instructionsButton1,instructionsButton2,instructionsButton3,instructionsButton4] {
+            button.addTarget(self, action: #selector(menuItemsTouched), for: .touchUpInside)
+            tagNum += 1
+            button.tag = tagNum
+        }
+        for button in [receiptYes, receiptNo] {
+            button.addTarget(self, action: #selector(receiptYesNo), for: .touchUpInside)
+        }
+        
+        clearPhoneButton.addTarget(self, action: #selector(clearPhoneNumber_local), for: .touchUpInside)
         self.view.addSubview(clearPhoneButton)
         
         set_priceLabels()
         
-        if (lockState) {
-            sendLockMessage(rscMgr: rscMgr)
+        if (lockState_transmitted) {
+            sendLockMessage()
         }
         
         view.setNeedsDisplay()
@@ -142,12 +150,35 @@ class paymentViewController: UIViewController, RscMgrDelegate {
         
     }
     
-    func logoTouched () {
-        print("Logo Touched")
+    func sendUnlockMessage_local () {
+        sendUnlockMessage()
     }
     
-    func clearPhoneNumber () {
+    func receiptYesNo (sender: UIButton) {
+        // sender.backgroundColor = UIColor.black
+    }
+    
+    func menuItemsTouched (sender: UIButton) {
+        print("Logo Touched - " + String(sender.tag))
+        var inputVal = " "
+        if (sender.tag == 0) {
+            inputVal = "C"
+            // successfulPayment_local()
+            processingPayment_local()
+        }
+        else {
+            inputVal = String(sender.tag)
+        }
+        input_last6[0] = inputVal
+        input_last6 = input_last6.shiftRight()
+        let printString = input_last6.joined(separator: "")
+        print(printString + " == " + masterUnlockString + " = " + String(printString == masterUnlockString))
+        // When true, issue unlock
+    }
+    
+    func clearPhoneNumber_local () {
         // Reset arrays, call function to reset phone display
+        clearPhoneNumber()
     }
     
     func serverComms_siteSpecificUnlockTimes_local () {
@@ -157,7 +188,7 @@ class paymentViewController: UIViewController, RscMgrDelegate {
         unlock_timeSpecific()
     }
     func serverComms_freezerSettings_local () {
-        serverComms_freezerSettings(rscMgr: rscMgr)
+        serverComms_freezerSettings()
     }
     func serverComms_priceSettings_local () {
         let subscriptionNeedsSet = serverComms_priceSettings()
@@ -174,20 +205,34 @@ class paymentViewController: UIViewController, RscMgrDelegate {
     func resetPhoneNumber() {
     }
     
-    func successfulPayment () {
+    func processingPayment_local () {
+        processingPayment_timer = Timer.scheduledTimer(timeInterval: processingPayment_timeInterval, target: self, selector: #selector(processingPayment_displayUpdate_local), userInfo: nil, repeats: true)
     }
     
-    func unsuccessfulPayment () {
+    func processingPayment_displayUpdate_local () {
+        processingPayment_displayUpdate()
+    }
+    
+    func successfulPayment_local () {
+        successfulPayment()
+    }
+    
+    func unlockTimer_timeRemaining_local () {
+        unlockTimer_timeRemaining()
+    }
+    
+    func unsuccessfulPayment_local () {
     }
     
     func hide_greenCircle_andCheck () {
     }
     
-    func numpadPressed(sender: UIButton) {
+    func numpadPressed_local(sender: UIButton) {
+        numpadPressed(sender: sender)
     }
     
     func unlock_timeSpecific() {
-        var intermediateLockState = true
+        var intermediatelockState_transmitted = true
         let hours = Calendar.current.component(.hour, from: Date())
         let minutes = Calendar.current.component(.minute, from: Date())
         let overallMinutes = hours * 60 + minutes
@@ -199,20 +244,20 @@ class paymentViewController: UIViewController, RscMgrDelegate {
             
             // Loops through all time bookends, and only engages one un/lock command
             if ((( overallMinutes >= startM ) && ( overallMinutes <= endM ))) {
-                intermediateLockState = intermediateLockState && false
+                intermediatelockState_transmitted = intermediatelockState_transmitted && false
             }
             if ((( overallMinutes < startM ) || ( overallMinutes > endM ))) {
-                intermediateLockState = intermediateLockState && true
+                intermediatelockState_transmitted = intermediatelockState_transmitted && true
             }
         }
         // Prevent interrupts due to payment or master unlocking
         if (paymentOr_masterUnlock == false) {
             // Verify if a lock or unlock command is needed
-            if (intermediateLockState != lockState) {
-                if (intermediateLockState == true) { // Locking is needed
-                    NSLog("<+> timeSpecific Lock")
+            if (intermediatelockState_transmitted != lockState_transmitted) {
+                if (intermediatelockState_transmitted == true) { // Locking is needed
+                    NSLog("<LOCK_TIMESPECIFIC> = LOCK")
                     timeSpecificUnlocked = false
-                    sendLockMessage(rscMgr: rscMgr)
+                    sendLockMessage()
                     set_priceLabels()
                     swipeImage_view.isHidden = false
                     instructionsText.isHidden = false
@@ -221,9 +266,9 @@ class paymentViewController: UIViewController, RscMgrDelegate {
                     paymentReset()
                 }
                 else { // Unlocking is needed
-                    NSLog("< > timeSpecific Unlock")
+                    NSLog("<LOCK_TIMESPECIFIC> = UNLOCK")
                     timeSpecificUnlocked = true
-                    sendUnlockMessage(rscMgr: rscMgr)
+                    sendUnlockMessage()
                     unlocked_priceLabel()
                 }
             }
@@ -269,184 +314,6 @@ class paymentViewController: UIViewController, RscMgrDelegate {
         // Dispose of any resources that can be recreated.
     }
     
-    // MARK: Begin RscMgr functions
-    
-    // serial cable connection detected
-    func cableConnected(_ protocolString: String!) {
-        rscMgr.open()
-        rscMgr.setBaud(baudRate)
-    }
-    
-    // serial cable disconnection detected
-    func cableDisconnected() {
-        // Could display something that relays it's in error
-    }
-    
-    // a change has been made to the port configuration; needed to conform to RscMgrDelegate protocol
-    func portStatusChanged() {
-        
-    }
-    
-    func extractAfterStart ( arduinoRx_message: String, startString: String ) -> String {
-        var arduinoRx_message = arduinoRx_message
-        if (arduinoRx_message.range(of:startString) == nil) {
-            return "error"
-        }
-        
-        if ((arduinoRx_message.components(separatedBy: startString).count) == 1) {
-            arduinoRx_message = ""
-        }
-        else {
-            arduinoRx_message = arduinoRx_message.components(separatedBy: startString)[1]
-        }
-        return arduinoRx_message
-    }
-    
-    // data is ready to read
-    func readBytesAvailable(_ length: UInt32) {
-        
-        let data: Data = rscMgr.getDataFromBytesAvailable()   // note: may also process text using rscMgr.getStringFromBytesAvailable()
-        let message = String(data: data, encoding: String.Encoding.utf8)!
-        
-        // This causes large log files
-        // print(message)
-        
-        arduinoRx_message += message
-        arduinoRx_message = (arduinoRx_message as NSString).replacingOccurrences(of: "?", with: "")
-        NSLog(arduinoRx_message)
-        
-        let _ = processIncomingMessage()
-        
-    }
-    
-    // MARK: End of RscMgr functions
-    
-    func processIncomingMessage() -> String {
-        var tempString = ""
-        var start_startPos = 0
-        var finish_startPos = 0
-        
-        if ((arduinoRx_message.range(of:"</CCINFO>") != nil) && (arduinoRx_message.range(of: "<CCINFO>") != nil)) {
-            if let range = arduinoRx_message.range(of: "<CCINFO>") {
-                start_startPos = arduinoRx_message.distance(from: arduinoRx_message.startIndex,
-                                                            to: range.lowerBound)
-            }
-            if let range = arduinoRx_message.range(of: "</CCINFO>") {
-                finish_startPos = arduinoRx_message.distance(from: arduinoRx_message.startIndex,
-                                                             to: range.lowerBound)
-            }
-            
-            if (start_startPos < finish_startPos) {
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "<CCINFO>")[1]
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "</CCINFO>")[0]
-                
-                arduinoRx_message = arduinoRx_message.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
-                methodToExecute = "ccInfo"
-                ccInfo_chargeUser = 1;
-                
-                tempString = arduinoRx_message
-                
-                if (!unitTesting) {
-                    let processStatus = processPayment(method: methodToExecute, arduinoRx_message: arduinoRx_message, ccInfo_chargeUser: 1, subscription: 0)
-                    if (processStatus == "Successful") {
-                        paymentOr_masterUnlock = true
-                        self.successfulPayment()
-                    }
-                    else if (processStatus == "Swipe Again") {
-                    }
-                    else if (processStatus == "Failed") {
-                        paymentOr_masterUnlock = false
-                        self.unsuccessfulPayment()
-                    }
-                }
-                
-                arduinoRx_message = ""
-            }
-            else {
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "</CCINFO>")[1]
-                tempString = arduinoRx_message
-            }
-        }
-        else if ((arduinoRx_message.range(of:"</LOCK>") != nil) && (arduinoRx_message.range(of: "<LOCK>") != nil)) {
-            if let range = arduinoRx_message.range(of: "<LOCK>") {
-                start_startPos = arduinoRx_message.distance(from: arduinoRx_message.startIndex,
-                                                            to: range.lowerBound)
-            }
-            if let range = arduinoRx_message.range(of: "</LOCK>") {
-                finish_startPos = arduinoRx_message.distance(from: arduinoRx_message.startIndex,
-                                                             to: range.lowerBound)
-            }
-            
-            if (start_startPos < finish_startPos) {
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "<LOCK>")[1]
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "</LOCK>")[0]
-                
-                tempString = arduinoRx_message
-                if (!unitTesting) {
-                    serverComms_lockCommunication(lockString: arduinoRx_message)
-                }
-                
-                arduinoRx_message = ""
-            }
-            else {
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "</LOCK>")[1]
-                tempString = arduinoRx_message
-            }
-        }
-        else if ((arduinoRx_message.range(of:"</FREEZER>") != nil) && (arduinoRx_message.range(of: "<FREEZER>") != nil)) {
-            if let range = arduinoRx_message.range(of: "<FREEZER>") {
-                start_startPos = arduinoRx_message.distance(from: arduinoRx_message.startIndex,
-                                                            to: range.lowerBound)
-            }
-            if let range = arduinoRx_message.range(of: "</FREEZER>") {
-                finish_startPos = arduinoRx_message.distance(from: arduinoRx_message.startIndex,
-                                                             to: range.lowerBound)
-            }
-            
-            if (start_startPos < finish_startPos) {
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "<FREEZER>")[1]
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "</FREEZER>")[0]
-                
-                tempString = arduinoRx_message
-                if (!unitTesting) {
-                    serverComms_freezerCommunication(freezerString: arduinoRx_message)
-                }
-                
-                arduinoRx_message = ""
-            }
-            else {
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "</FREEZER>")[1]
-                tempString = arduinoRx_message
-            }
-        }
-        else if ((arduinoRx_message.range(of:"</KEEPALIVE>") != nil) && (arduinoRx_message.range(of: "<KEEPALIVE>") != nil)) {
-            if let range = arduinoRx_message.range(of: "<KEEPALIVE>") {
-                start_startPos = arduinoRx_message.distance(from: arduinoRx_message.startIndex,
-                                                            to: range.lowerBound)
-            }
-            if let range = arduinoRx_message.range(of: "</KEEPALIVE>") {
-                finish_startPos = arduinoRx_message.distance(from: arduinoRx_message.startIndex,
-                                                             to: range.lowerBound)
-            }
-            
-            if (start_startPos < finish_startPos) {
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "<KEEPALIVE>")[1]
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "</KEEPALIVE>")[0]
-                
-                tempString = arduinoRx_message
-                if (!unitTesting) {
-                    serverComms_keepAliveCommunication()
-                }
-                arduinoRx_message = ""
-            }
-            else {
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "</KEEPALIVE>")[1]
-                tempString = arduinoRx_message
-            }
-        }
-        return tempString
-    }
-    
     func paymentReset () {
     }
     
@@ -456,7 +323,7 @@ class paymentViewController: UIViewController, RscMgrDelegate {
     func noSubscription_priceLabel() {
         let string = "$" + String(format: "%.2f", payment_price1)
         let attributedString = NSMutableAttributedString(string: string as String)
-        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: self.screenSize.height*(12/170))!] as [String : Any]
+        let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: screenSize.height*(12/170))!] as [String : Any]
         attributedString.addAttributes(secondAttributes, range: NSMakeRange(0, string.characters.count))
         priceLabel.attributedText = attributedString
         self.view.setNeedsDisplay()
@@ -503,69 +370,56 @@ class paymentViewController: UIViewController, RscMgrDelegate {
     func registerUser() -> String {
         return ""
     }
-}
-
-extension String {
     
-    subscript (r: CountableClosedRange<Int>) -> String {
-        get {
-            let startIndex =  self.index(self.startIndex, offsetBy: r.lowerBound)
-            let endIndex = self.index(startIndex, offsetBy: r.upperBound - r.lowerBound)
-            return self[startIndex...endIndex]
-        }
-    }
-}
-
-extension UILabel {
-    /**
-     Set Text With animation
-     
-     - parameter text:     String?
-     - parameter duration: NSTimeInterval?
-     */
-    public func setTextAnimation(text: String? = nil, color: UIColor? = nil, duration: TimeInterval?, completion:(()->())? = nil) {
-        UIView.transition(with: self, duration: duration ?? 0.3, options: .transitionCrossDissolve, animations: { () -> Void in
-            self.text = text ?? self.text
-            self.textColor = color ?? self.textColor
-        }) { (finish) in
-            if finish { completion?() }
-        }
-    }
-}
-
-extension NSMutableAttributedString {
-    func bold(_ text:String) -> NSMutableAttributedString {
-        let attrs:[String:AnyObject] = [NSFontAttributeName : UIFont(name: "AvenirNext-Medium", size: 12)!]
-        let boldString = NSMutableAttributedString(string:"\(text)", attributes:attrs)
-        self.append(boldString)
-        return self
-    }
-    
-    func normal(_ text:String)->NSMutableAttributedString {
-        let normal =  NSAttributedString(string: text)
-        self.append(normal)
-        return self
-    }
-}
-
-extension String {
-    func substring(from: Int) -> String? {
-        guard from < self.characters.count else { return nil }
-        let fromIndex = index(self.startIndex, offsetBy: from)
-        return substring(from: fromIndex)
-    }
-}
-
-extension Array {
-    
-    func shiftRight( amount: Int = 1) -> [Element] {
-        var amount = amount
-        assert(-count...count ~= amount, "Shift amount out of bounds")
-        if amount < 0 { amount += count }  // this needs to be >= 0
-        return Array(self[amount ..< count] + self[0 ..< amount])
-    }
-    
-    mutating func shiftRightInPlace(amount: Int = 1) {
-        self = shiftRight(amount: amount)
-    }
+//    // MARK: Begin RscMgr functions
+//    
+//    // serial cable connection detected
+//    func cableConnected(_ protocolString: String!) {
+//        rscMgr.open()
+//        rscMgr.setBaud(baudRate)
+//    }
+//    
+//    // serial cable disconnection detected
+//    func cableDisconnected() {
+//        // Could display something that relays it's in error
+//    }
+//    
+//    // a change has been made to the port configuration; needed to conform to RscMgrDelegate protocol
+//    func portStatusChanged() {
+//        
+//    }
+//    
+//    //    func extractAfterStart ( arduinoRx_message: String, startString: String ) -> String {
+//    //        var arduinoRx_message = arduinoRx_message
+//    //        if (arduinoRx_message.range(of:startString) == nil) {
+//    //            return "error"
+//    //        }
+//    //
+//    //        if ((arduinoRx_message.components(separatedBy: startString).count) == 1) {
+//    //            arduinoRx_message = ""
+//    //        }
+//    //        else {
+//    //            arduinoRx_message = arduinoRx_message.components(separatedBy: startString)[1]
+//    //        }
+//    //        return arduinoRx_message
+//    //    }
+//    
+//    // data is ready to read
+//    func readBytesAvailable(_ length: UInt32) {
+//        
+//        let data: Data = rscMgr.getDataFromBytesAvailable()   // note: may also process text using rscMgr.getStringFromBytesAvailable()
+//        let message = String(data: data, encoding: String.Encoding.utf8)!
+//        
+//        // This causes large log files
+//        // print(message)
+//        
+//        arduinoRx_message += message
+//        arduinoRx_message = (arduinoRx_message as NSString).replacingOccurrences(of: "?", with: "")
+//        NSLog("<ARDUINO_IN> = " + arduinoRx_message)
+//        
+//        let _ = processIncomingMessage()
+//        
+//    }
+//    
+//    // MARK: End of RscMgr functions
 }

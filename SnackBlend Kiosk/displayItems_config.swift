@@ -11,8 +11,30 @@ import UIKit
 
 // Global Display Elements
 var logoImage_view = UIImageView()
+var circularMeter = CircularMeter()
+var lockUnlockImage_view = UIImageView()
+var backArrowImage_view = UIImageView()
 
-// Proposed Change
+// Payment Status Visual Elements
+// Processing
+// Processing Icon
+let processingIcon_maxCount = 3
+var processingIcon_count = 0
+let processingPayment_circle = CAShapeLayer()
+let processingPayment_processingIcon = UILabel()
+let processingPayment_processingIcon_string = NSMutableAttributedString()
+let processingPayment_textAttrs:[String:AnyObject] = [NSFontAttributeName : UIFont(name: "SegoeUISymbol", size: processingPayment_processingIcon.frame.height * 2 / 3)!]
+let processingText = "\u{2022}\u{2022}\u{2022}"
+// Labels
+let processingPayment_label = UILabel()
+var processingPayment_timer: Timer?
+let processingPayment_timeInterval = 0.25
+// Successful
+let successfulPayment_circle = CAShapeLayer()
+let successfulPayment_checkMark = UILabel()
+let successfulPayment_label = UILabel()
+
+// Logo - Functions as a non-changing button
 let logoButton  = UIButton(type: .custom)
 
 var swipeImage_view = UIImageView()
@@ -36,7 +58,6 @@ let circle1 = CAShapeLayer()
 var swipeImage = UIImage()
 var pinPadImage = UIImage()
 
-let shapeLayer = CAShapeLayer()
 let priceLineLayer = CAShapeLayer()
 var clearPhoneButton = UIButton()
 let checkMark = UILabel()
@@ -69,54 +90,9 @@ var smsReceiptLabel = UILabel()
 var receiptYes = UIButton()
 var receiptNo = UIButton()
 
-func configPinPad(screenSize: CGRect) {
+func configPinPad() {
     
-    
-    // Hide until successful payment
-    shapeLayer.isHidden = true
-    checkMark.isHidden = true
-    paymentSuccessfulLabel.isHidden = true
-    
-    // Payment Successful - Label
-    let circle_x = screenSize.width / 4
-    let circle_r = screenSize.height / 16
-    let circle_y = screenSize.height * 2 / 3 - circle_r
-    
-    let circlePath = UIBezierPath(
-        arcCenter: CGPoint(x: circle_x,
-                           y: circle_y),
-        radius: circle_r,
-        startAngle: CGFloat(0), endAngle:CGFloat(Double.pi * 2), clockwise: true)
-    shapeLayer.path = circlePath.cgPath
-    
-    shapeLayer.fillColor = UIColor.clear.cgColor
-    shapeLayer.strokeColor = shapeLayer.fillColor
-    shapeLayer.lineWidth = 3.0
-    
-    // Check Mark icon
-    checkMark.frame = CGRect(x: circle_x - circle_r,
-                             y: circle_y - circle_r,
-                             width: circle_r * 2,
-                             height: circle_r * 2)
-    checkMark.textAlignment = NSTextAlignment.center
-    checkMark.baselineAdjustment = UIBaselineAdjustment.alignCenters
-    checkMark.font = UIFont(name: "Arial", size: screenSize.height*(1/12))
-    checkMark.textColor = UIColor.white
-    checkMark.numberOfLines = 0
-    checkMark.lineBreakMode = NSLineBreakMode.byWordWrapping
-    checkMark.text = "✓"
-    
-    // Payment Successful - Label
-    paymentSuccessfulLabel.frame = CGRect(x: screenSize.width / 16,
-                                               y: screenSize.height*(3/4 - 1/12),
-                                               width: screenSize.width * 3 / 8,
-                                               height: screenSize.height*(1/6))
-    paymentSuccessfulLabel.textAlignment = NSTextAlignment.center
-    paymentSuccessfulLabel.baselineAdjustment = UIBaselineAdjustment.alignCenters
-    paymentSuccessfulLabel.font = UIFont(name: "Arial", size: screenSize.height*(7/160))
-    paymentSuccessfulLabel.numberOfLines = 0
-    paymentSuccessfulLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
-    paymentSuccessfulLabel.text = "Payment Successful"
+    // Pin Pad for Phone Number
     // Buttons
     let num_w = screenSize.width * 35 / 256
     let num_h = screenSize.height * 35 / 384
@@ -302,8 +278,8 @@ func configPinPad(screenSize: CGRect) {
                                     height: button1.frame.height)
     pinpad_lowerRight.setTitle("Submit", for: .normal)
     pinpad_lowerRight.setTitleColor(.white, for: .normal)
-    pinpad_lowerRight.titleLabel?.font = UIFont.boldSystemFont(ofSize: button1.frame.height/3)
     pinpad_lowerRight.backgroundColor = UIColor(red: 29.0/255.0, green: 177.0/255.0, blue: 0.0/255.0, alpha: 1.0)
+    pinpad_lowerRight.titleLabel?.font = UIFont.boldSystemFont(ofSize: button1.frame.height/3)
     pinpad_lowerRight.layer.cornerRadius = button1.layer.cornerRadius
     pinpad_lowerRight.clipsToBounds = true
     addLeftBorder(button: pinpad_lowerRight)
@@ -334,8 +310,8 @@ func configPinPad(screenSize: CGRect) {
     phoneNumberDisplay.numberOfLines = 0
     phoneNumberDisplay.frame.size.width = screenSize.width / 2
     phoneNumberDisplay.lineBreakMode = NSLineBreakMode.byWordWrapping
-    phoneNumberDisplay.text = "(937) 776-1657"
-    // phoneNumberDisplay.text = " "
+    // phoneNumberDisplay.text = "(937) 776-1657"
+    phoneNumberDisplay.text = " "
     
     // Cancel Circle
     clearPhoneButton = UIButton(type: .custom)
@@ -490,6 +466,8 @@ func configPinPad(screenSize: CGRect) {
     receiptYes.layer.borderColor = UIColor.black.cgColor
     receiptYes.setTitle("Yes", for: .normal)
     receiptYes.setTitleColor(.black, for: .normal)
+    receiptYes.setTitleColor(.white, for: .highlighted)
+    receiptYes.setBackgroundColor(color: .black, forState: .highlighted)
     receiptYes.titleLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: screenSize.height * 3 / 64)
     
     // Receipts - No
@@ -502,6 +480,8 @@ func configPinPad(screenSize: CGRect) {
     receiptNo.layer.borderColor = UIColor.black.cgColor
     receiptNo.setTitle("No", for: .normal)
     receiptNo.setTitleColor(.black, for: .normal)
+    receiptNo.setTitleColor(.white, for: .highlighted)
+    receiptNo.setBackgroundColor(color: .black, forState: .highlighted)
     receiptNo.titleLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: screenSize.height * 3 / 64)
 
     
@@ -537,9 +517,28 @@ func configPinPad(screenSize: CGRect) {
     leftRightDividerLineLayer.fillColor = UIColor.black.cgColor
     dividerPath.stroke()
     
+    // Unlock Meter View
+    circularMeter.frame = CGRect(x: screenSize.width * 377 / 512,
+                                 y: screenSize.height * 71 / 768,
+                                 width: screenSize.width / 8,
+                                 height: screenSize.width / 8)
+    circularMeter.backgroundColor = UIColor.white
+    
+    lockUnlockImage_view.frame = CGRect(x: circularMeter.bounds.width / 4,
+                                        y: circularMeter.bounds.height / 4,
+                                        width: circularMeter.bounds.width / 2,
+                                        height: circularMeter.bounds.height / 2)
+    circularMeter.addSubview(lockUnlockImage_view)
+    
+    // Back Navigation Arrow
+    backArrowImage_view.frame = CGRect(x: screenSize.width * 25 / 1024,
+                                       y: screenSize.height * 197 / 384,
+                                       width: screenSize.width * 3 / 64,
+                                       height: screenSize.width * 3 / 64)
+    backArrowImage_view.image = UIImage(named: "backArrow")
+    
     // Logo Icon
-    let imageName = "OriginLogo.png"
-    let logoImage = UIImage(named: imageName)!
+    let logoImage = UIImage(named: "OriginLogo")!
     logoImage_view = UIImageView(image: logoImage)
     logoImage_view.frame = CGRect(x: screenSize.width * 3 / 32,
                                   y: screenSize.height * 13 / 192,
@@ -585,10 +584,93 @@ func configPinPad(screenSize: CGRect) {
     
     let formattedString = NSMutableAttributedString()
     let attrs:[String:AnyObject] = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: screenSize.height / 16)!]
-    let text = "Swipe Credit Card" // "Swipe Credit Card "
+    let text = "Swipe Credit Card"
     formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:attrs))
     instructionsText.attributedText = formattedString
     
+    // Payment Processing Status
+    // - Circles -
+    let circle_r = screenSize.width * 75 / 1024
+    let circle_x = screenSize.width * 29 / 128 + circle_r
+    let circle_y = screenSize.height * 309 / 768 + circle_r
+    
+    let circlePath = UIBezierPath(
+        arcCenter: CGPoint(x: circle_x,
+                           y: circle_y),
+        radius: circle_r,
+        startAngle: CGFloat(0), endAngle:CGFloat(2 * π), clockwise: true)
+    
+    // Successful Payment
+    // Circle
+    successfulPayment_circle.path = circlePath.cgPath
+    
+    successfulPayment_circle.fillColor = UIColor(red: 50/255.0, green: 205/255.0, blue: 50/255.0, alpha: 1.0).cgColor
+    successfulPayment_circle.strokeColor = successfulPayment_circle.fillColor
+    successfulPayment_circle.lineWidth = 3.0
+    
+    // - Check Mark -
+    successfulPayment_checkMark.frame = CGRect(x: circle_x - circle_r,
+                                               y: circle_y - circle_r,
+                                               width: circle_r * 2,
+                                               height: circle_r * 2)
+    successfulPayment_checkMark.textAlignment = NSTextAlignment.center
+    successfulPayment_checkMark.baselineAdjustment = UIBaselineAdjustment.alignCenters
+    successfulPayment_checkMark.font = UIFont(name: "SegoeUISymbol", size: successfulPayment_checkMark.frame.height * 2 / 3) // SegoeUISymbol | SegoeUIEmoji
+    successfulPayment_checkMark.textColor = UIColor.white
+    successfulPayment_checkMark.numberOfLines = 0
+    successfulPayment_checkMark.lineBreakMode = NSLineBreakMode.byWordWrapping
+    successfulPayment_checkMark.text = "\u{2714}"//"✓"
+    
+    // - Label -
+    successfulPayment_label.frame = CGRect(x: screenSize.width * 51 / 1024,
+                                           y: screenSize.height * 125 / 192,
+                                           width: screenSize.width / 2,
+                                           height: screenSize.height / 4)
+    successfulPayment_label.textAlignment = NSTextAlignment.center
+    successfulPayment_label.baselineAdjustment = UIBaselineAdjustment.alignCenters
+    successfulPayment_label.font = UIFont(name: "AvenirNext-Bold", size: screenSize.height / 12)
+    successfulPayment_label.numberOfLines = 0
+    successfulPayment_label.lineBreakMode = NSLineBreakMode.byWordWrapping
+    successfulPayment_label.text = "Successful Payment"
+    successfulPayment_label.sizeThatFits(CGSize(width: successfulPayment_label.frame.width,
+                                                height: successfulPayment_label.frame.height))
+    
+    // Processing
+    // Circle
+    processingPayment_circle.path = circlePath.cgPath
+    
+    processingPayment_circle.fillColor = UIColor(red: 169/255.0, green: 169/255.0, blue: 169/255.0, alpha: 1.0).cgColor
+    processingPayment_circle.strokeColor = processingPayment_circle.fillColor
+    processingPayment_circle.lineWidth = 3.0
+    
+    // - Check Mark -
+    processingPayment_processingIcon.frame = CGRect(x: circle_x - circle_r,
+                                               y: circle_y - circle_r * 9 / 8,
+                                               width: circle_r * 2,
+                                               height: circle_r * 2)
+    processingPayment_processingIcon.textAlignment = NSTextAlignment.center
+    processingPayment_processingIcon.baselineAdjustment = UIBaselineAdjustment.alignCenters
+    // processingPayment_processingIcon.font = UIFont(name: "SegoeUISymbol", size: processingPayment_processingIcon.frame.height * 2 / 3) // SegoeUISymbol | SegoeUIEmoji
+    // processingPayment_processingIcon.textColor = UIColor.white
+    processingPayment_processingIcon.numberOfLines = 0
+    processingPayment_processingIcon.lineBreakMode = NSLineBreakMode.byWordWrapping
+    // processingPayment_processingIcon.text = ""
+    processingPayment_processingIcon_string.append(NSMutableAttributedString(string: processingText, attributes: processingPayment_textAttrs))
+    
+    // - Label -
+    processingPayment_label.frame = CGRect(x: screenSize.width * 51 / 1024,
+                                           y: screenSize.height * 125 / 192,
+                                           width: screenSize.width / 2,
+                                           height: screenSize.height / 4)
+    processingPayment_label.textAlignment = NSTextAlignment.center
+    processingPayment_label.baselineAdjustment = UIBaselineAdjustment.alignCenters
+    processingPayment_label.font = UIFont(name: "AvenirNext-Bold", size: screenSize.height / 12)
+    processingPayment_label.numberOfLines = 0
+    processingPayment_label.lineBreakMode = NSLineBreakMode.byWordWrapping
+    processingPayment_label.text = "Processing"
+    processingPayment_label.sizeThatFits(CGSize(width: processingPayment_label.frame.width,
+                                                height: processingPayment_label.frame.height))
+
     // Payment Display Information
     priceLabel.frame = CGRect(x: screenSize.width * 51 / 1024,
                               y: screenSize.height * 21 / 64,
@@ -653,23 +735,144 @@ func configPinPad(screenSize: CGRect) {
     subscribeButton.isHidden = false
     
     
-    // Porter1
+    // Porter
+    hideScreen_paymentSwipe()
+    hideScreen_phonePinPad()
+    hideScreen_smsReceipt()
+    hideScreen_paymentSuccessful()
+    hideScreen_paymentProcessing()
+}
+
+// - Hide/Show Screen Functions -
+//   > Credit Card Swipe <
+func hideScreen_paymentSwipe () {
     instructionsText.isHidden = true
     priceLineLayer.isHidden = true
     priceLabel.isHidden = true
     swipeImage_view.isHidden = true
-    
-    // Porter2
-    for button in [button1,button2,button3,button4,button5,button6,button7,button8,button9,button0,pinpad_lowerLeft,pinpad_lowerRight] {
+}
+func showScreen_paymentSwipe () {
+    instructionsText.isHidden = false
+    priceLineLayer.isHidden = false
+    priceLabel.isHidden = false
+    swipeImage_view.isHidden = false
+}
+
+//   > Phone Pin Pad <
+func hideScreen_phonePinPad () {
+    enterYourPhoneNumber.isHidden = true
+    phoneNumpad_hidden()
+    backArrowImage_view.isHidden = true
+    phonePeriphery_hidden()
+}
+func showScreen_phonePinPad () {
+    enterYourPhoneNumber.isHidden = false
+    phoneNumpad_visible()
+    backArrowImage_view.isHidden = false
+    phonePeriphery_hidden()
+}
+
+//   > SMS Receipt <
+func hideScreen_smsReceipt () {
+    smsReceiptLabel.isHidden = true
+    receiptImage_view.isHidden = true
+    receiptYes.isHidden = true
+    receiptNo.isHidden = true
+}
+func showScreen_smsReceipt () {
+    smsReceiptLabel.isHidden = false
+    receiptImage_view.isHidden = false
+    receiptYes.isHidden = false
+    receiptNo.isHidden = false
+}
+
+//   > Payments <
+//     : Successful :
+func hideScreen_paymentSuccessful () {
+    successfulPayment_circle.isHidden = true
+    successfulPayment_checkMark.isHidden = true
+    successfulPayment_label.isHidden = true
+}
+func showScreen_paymentSuccessful () {
+    successfulPayment_circle.isHidden = false
+    successfulPayment_checkMark.isHidden = false
+    successfulPayment_label.isHidden = false
+}
+
+//     : Processing :
+func hideScreen_paymentProcessing () {
+    processingPayment_circle.isHidden = true
+    processingPayment_processingIcon.isHidden = true
+    processingPayment_label.isHidden = true
+}
+func showScreen_paymentProcessing () {
+    processingPayment_circle.isHidden = false
+    processingPayment_processingIcon.isHidden = false
+    processingPayment_label.isHidden = false
+}
+
+
+// Hide/Show Pin Pad
+func phoneNumpad_visible() {
+    enterYourPhoneNumber.isHidden = false
+    for button in [button1,button2,button3,button4,button5,button6,button7,button8,button9,button0] {
+        button.isHidden = false
+    }
+}
+
+func phoneNumpad_hidden() {
+    enterYourPhoneNumber.isHidden = true
+    for button in [button1,button2,button3,button4,button5,button6,button7,button8,button9,button0] {
         button.isHidden = true
     }
-    enterYourPhoneNumber.isHidden = true
+}
+
+func phonePeriphery_visible() {
+    phoneNumberDisplay.isHidden = false
+    abovePhoneLayer.isHidden = false
+    belowPhoneLayer.isHidden = false
+    clearPhoneButton.isHidden = false
+    showAndEnable_pinpad_lowerPeriphery()
+}
+
+func phonePeriphery_hidden() {
+    phoneNumberDisplay.isHidden = true
     abovePhoneLayer.isHidden = true
     belowPhoneLayer.isHidden = true
-    phoneNumberDisplay.isHidden = true
     clearPhoneButton.isHidden = true
-    
-    // Porter 3
+    hideAndDisable_pinpad_lowerPeriphery()
+}
+
+func showAndEnable_pinpad_lowerPeriphery () {
+    showAndEnable_pinpad_lowerLeft()
+    showAndEnable_pinpad_lowerRight()
+}
+
+func showAndEnable_pinpad_lowerLeft () {
+    pinpad_lowerLeft.setImage(#imageLiteral(resourceName: "delButton_image"), for: .normal)
+    pinpad_lowerLeft.isEnabled = true
+}
+
+func showAndEnable_pinpad_lowerRight () {
+    pinpad_lowerRight.setTitleColor(.white, for: .normal)
+    pinpad_lowerRight.backgroundColor = UIColor(red: 29.0/255.0, green: 177.0/255.0, blue: 0.0/255.0, alpha: 1.0)
+    pinpad_lowerRight.isEnabled = true
+}
+
+func hideAndDisable_pinpad_lowerPeriphery () {
+    hideAndDisable_pinpad_lowerLeft()
+    hideAndDisable_pinpad_lowerRight()
+}
+
+func hideAndDisable_pinpad_lowerLeft () {
+    pinpad_lowerLeft.setImage(nil, for: .normal)
+    pinpad_lowerLeft.isEnabled = false
+}
+
+func hideAndDisable_pinpad_lowerRight () {
+    pinpad_lowerRight.setTitleColor(.clear, for: .normal)
+    pinpad_lowerRight.backgroundColor = UIColor.clear
+    pinpad_lowerRight.isEnabled = false
 }
 
 // border
@@ -716,4 +919,33 @@ func addRightBorder(button: UIButton) {
                                 height: button.frame.size.width)
     bottomBorder.backgroundColor = border_c
     button.layer.addSublayer(bottomBorder)
+}
+
+func setLockImage_unlocked () {
+    lockUnlockImage_view.image = UIImage(named: "unlockLockImage_unlocked")
+}
+
+func setLockImage_locked () {
+    lockUnlockImage_view.image = nil
+    // lockUnlockImage_view.image = UIImage(named: "unlockLockImage_locked")
+}
+
+func processingPayment_displayUpdate () {
+    if (processingIcon_count < processingIcon_maxCount) {
+        processingIcon_count += 1
+    }
+    else {
+        processingIcon_count = 0
+    }
+    // processingPayment_processingIcon.text = String(repeating: "\u{2022}", count: processingIcon_count)
+    var range = NSRange(location: 0, length: processingIcon_count)
+    processingPayment_processingIcon_string.addAttribute(NSForegroundColorAttributeName, value: UIColor.white, range: range)
+    range = NSRange(location: processingIcon_count, length: processingIcon_maxCount - processingIcon_count)
+    processingPayment_processingIcon_string.addAttribute(NSForegroundColorAttributeName, value: UIColor.clear, range: range)
+    processingPayment_processingIcon.attributedText = processingPayment_processingIcon_string
+}
+
+func processingPayment_displayUpdate_kill () {
+    processingPayment_timer?.invalidate()
+    processingPayment_timer = nil
 }

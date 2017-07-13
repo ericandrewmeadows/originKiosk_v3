@@ -11,11 +11,15 @@
 		070452F91F13F4F600A4923A /* displayItems_config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070452F81F13F4F600A4923A /* displayItems_config.swift */; };
 		070452FD1F1416D300A4923A /* arduinoFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070452FC1F1416D300A4923A /* arduinoFunctions.swift */; };
 		077ED01A1EFACF130014459F /* fileManagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077ED0191EFACF130014459F /* fileManagement.swift */; };
+		07914E081F15740C004E6383 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07914E071F15740C004E6383 /* extensions.swift */; };
+		07914E0A1F15EA84004E6383 /* animationWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07914E091F15EA84004E6383 /* animationWindow.swift */; };
+		07914E0F1F16CDA3004E6383 /* seguiemj.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 07914E0E1F16CDA3004E6383 /* seguiemj.ttf */; };
+		07914E111F16CF69004E6383 /* seguisym.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 07914E101F16CF69004E6383 /* seguisym.ttf */; };
+		532EF7AA1F17D87900CF13C0 /* lightningSerialCable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532EF7A91F17D87900CF13C0 /* lightningSerialCable.swift */; };
 		533EA9611E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */; };
 		5347C8971EE3902400EBE6B3 /* iPadLogs_upload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */; };
 		5355D9B41ED51B76008640BE /* libRscMgrUniv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5355D9B31ED51B76008640BE /* libRscMgrUniv.a */; };
 		5355D9B91ED51BD7008640BE /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5355D9B81ED51BD7008640BE /* ExternalAccessory.framework */; };
-		535C5A7B1E9403E400A902A6 /* setupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535C5A7A1E9403E400A902A6 /* setupViewController.swift */; };
 		535FB5101E71129E00D28095 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535FB50F1E71129E00D28095 /* Accelerate.framework */; };
 		535FB5121E7112A500D28095 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535FB5111E7112A500D28095 /* AssetsLibrary.framework */; };
 		535FB5141E7112AB00D28095 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 535FB5131E7112AB00D28095 /* AVFoundation.framework */; };
@@ -35,8 +39,6 @@
 		539C28131E67DC3300B0F9F6 /* SnackBlend_KioskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C28121E67DC3300B0F9F6 /* SnackBlend_KioskTests.swift */; };
 		539C281E1E67DC3300B0F9F6 /* SnackBlend_KioskUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C281D1E67DC3300B0F9F6 /* SnackBlend_KioskUITests.swift */; };
 		539C282C1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 539C282B1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf */; };
-		53A339421E7E73FD00EE23C9 /* DemoDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A339411E7E73FD00EE23C9 /* DemoDay.swift */; };
-		53D8E9091EA3109E00E06BFE /* BluetoothSerial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D8E9081EA3109E00E06BFE /* BluetoothSerial.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,7 +70,12 @@
 		070452F81F13F4F600A4923A /* displayItems_config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = displayItems_config.swift; sourceTree = "<group>"; };
 		070452FC1F1416D300A4923A /* arduinoFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = arduinoFunctions.swift; sourceTree = "<group>"; };
 		077ED0191EFACF130014459F /* fileManagement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = fileManagement.swift; sourceTree = "<group>"; };
+		07914E071F15740C004E6383 /* extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
+		07914E091F15EA84004E6383 /* animationWindow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = animationWindow.swift; sourceTree = "<group>"; };
+		07914E0E1F16CDA3004E6383 /* seguiemj.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = seguiemj.ttf; sourceTree = "<group>"; };
+		07914E101F16CF69004E6383 /* seguisym.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = seguisym.ttf; sourceTree = "<group>"; };
 		532C24FA1EEB1395005B250F /* Origin KioskTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Origin KioskTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		532EF7A91F17D87900CF13C0 /* lightningSerialCable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = lightningSerialCable.swift; sourceTree = "<group>"; };
 		533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Avenir-Next-LT-Pro-Bold_5182.ttf"; path = "../../Avenir-Next-LT-Pro-Bold_5182.ttf"; sourceTree = "<group>"; };
 		5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iPadLogs_upload.swift; sourceTree = "<group>"; };
 		5355D9B31ED51B76008640BE /* libRscMgrUniv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRscMgrUniv.a; sourceTree = "<group>"; };
@@ -76,7 +83,6 @@
 		5355D9B61ED51B89008640BE /* RscMgr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RscMgr.h; sourceTree = "<group>"; };
 		5355D9B71ED51B89008640BE /* SwiftDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwiftDemo-Bridging-Header.h"; sourceTree = "<group>"; };
 		5355D9B81ED51BD7008640BE /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
-		535C5A7A1E9403E400A902A6 /* setupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = setupViewController.swift; sourceTree = "<group>"; };
 		535FB50F1E71129E00D28095 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		535FB5111E7112A500D28095 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		535FB5131E7112AB00D28095 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -102,8 +108,6 @@
 		539C281D1E67DC3300B0F9F6 /* SnackBlend_KioskUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnackBlend_KioskUITests.swift; sourceTree = "<group>"; };
 		539C281F1E67DC3300B0F9F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		539C282B1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "GrandHotel-Regular.ttf"; path = "Resources/GrandHotel-Regular.ttf"; sourceTree = "<group>"; };
-		53A339411E7E73FD00EE23C9 /* DemoDay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DemoDay.swift; sourceTree = "<group>"; };
-		53D8E9081EA3109E00E06BFE /* BluetoothSerial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BluetoothSerial.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,6 +154,34 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		07914E0B1F15EAD4004E6383 /* Display Functions */ = {
+			isa = PBXGroup;
+			children = (
+				07914E091F15EA84004E6383 /* animationWindow.swift */,
+				538465541EF2E44900DBB02B /* displaySetup.swift */,
+				070452F81F13F4F600A4923A /* displayItems_config.swift */,
+			);
+			name = "Display Functions";
+			sourceTree = "<group>";
+		};
+		07914E0C1F15EAF2004E6383 /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				539C27FF1E67DC3300B0F9F6 /* paymentViewController.swift */,
+			);
+			name = "View Controllers";
+			sourceTree = "<group>";
+		};
+		07914E0D1F15EAFE004E6383 /* Payment Functions */ = {
+			isa = PBXGroup;
+			children = (
+				070452FC1F1416D300A4923A /* arduinoFunctions.swift */,
+				070452F61F13F1CD00A4923A /* paymentFunctions.swift */,
+				532EF7A91F17D87900CF13C0 /* lightningSerialCable.swift */,
+			);
+			name = "Payment Functions";
+			sourceTree = "<group>";
+		};
 		5355D9B11ED51B51008640BE /* lib */ = {
 			isa = PBXGroup;
 			children = (
@@ -186,12 +218,17 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		5376C1001E9D6A7500B4E278 /* Arduino Connection */ = {
+		5376C1001E9D6A7500B4E278 /* Non-payment Functions */ = {
 			isa = PBXGroup;
 			children = (
-				53D8E9081EA3109E00E06BFE /* BluetoothSerial.swift */,
+				533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */,
+				07914E0E1F16CDA3004E6383 /* seguiemj.ttf */,
+				07914E101F16CF69004E6383 /* seguisym.ttf */,
+				07914E071F15740C004E6383 /* extensions.swift */,
+				077ED0191EFACF130014459F /* fileManagement.swift */,
+				5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */,
 			);
-			name = "Arduino Connection";
+			name = "Non-payment Functions";
 			sourceTree = "<group>";
 		};
 		539C27F11E67DC3300B0F9F6 = {
@@ -220,21 +257,15 @@
 		539C27FC1E67DC3300B0F9F6 /* Origin Kiosk */ = {
 			isa = PBXGroup;
 			children = (
-				5376C1001E9D6A7500B4E278 /* Arduino Connection */,
-				53A3393C1E7E737A00EE23C9 /* Demo Day Menu */,
+				539C28041E67DC3300B0F9F6 /* Assets.xcassets */,
 				539C27FD1E67DC3300B0F9F6 /* AppDelegate.swift */,
 				539C28011E67DC3300B0F9F6 /* Main.storyboard */,
-				535C5A7A1E9403E400A902A6 /* setupViewController.swift */,
-				539C28041E67DC3300B0F9F6 /* Assets.xcassets */,
-				539C28061E67DC3300B0F9F6 /* LaunchScreen.storyboard */,
 				539C28091E67DC3300B0F9F6 /* Info.plist */,
-				5347C8961EE3902400EBE6B3 /* iPadLogs_upload.swift */,
-				538465541EF2E44900DBB02B /* displaySetup.swift */,
-				077ED0191EFACF130014459F /* fileManagement.swift */,
-				070452F61F13F1CD00A4923A /* paymentFunctions.swift */,
-				539C27FF1E67DC3300B0F9F6 /* paymentViewController.swift */,
-				070452F81F13F4F600A4923A /* displayItems_config.swift */,
-				070452FC1F1416D300A4923A /* arduinoFunctions.swift */,
+				539C28061E67DC3300B0F9F6 /* LaunchScreen.storyboard */,
+				07914E0D1F15EAFE004E6383 /* Payment Functions */,
+				07914E0C1F15EAF2004E6383 /* View Controllers */,
+				07914E0B1F15EAD4004E6383 /* Display Functions */,
+				5376C1001E9D6A7500B4E278 /* Non-payment Functions */,
 			);
 			name = "Origin Kiosk";
 			path = "SnackBlend Kiosk";
@@ -266,15 +297,6 @@
 				5355D9B11ED51B51008640BE /* lib */,
 			);
 			name = Resources;
-			sourceTree = "<group>";
-		};
-		53A3393C1E7E737A00EE23C9 /* Demo Day Menu */ = {
-			isa = PBXGroup;
-			children = (
-				533EA9601E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf */,
-				53A339411E7E73FD00EE23C9 /* DemoDay.swift */,
-			);
-			name = "Demo Day Menu";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -419,10 +441,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				539C28081E67DC3300B0F9F6 /* LaunchScreen.storyboard in Resources */,
+				07914E111F16CF69004E6383 /* seguisym.ttf in Resources */,
 				539C282C1E67E2D700B0F9F6 /* GrandHotel-Regular.ttf in Resources */,
 				539C28051E67DC3300B0F9F6 /* Assets.xcassets in Resources */,
 				533EA9611E804A9200BEF40C /* Avenir-Next-LT-Pro-Bold_5182.ttf in Resources */,
 				539C28031E67DC3300B0F9F6 /* Main.storyboard in Resources */,
+				07914E0F1F16CDA3004E6383 /* seguiemj.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -457,14 +481,14 @@
 				070452FD1F1416D300A4923A /* arduinoFunctions.swift in Sources */,
 				070452F71F13F1CD00A4923A /* paymentFunctions.swift in Sources */,
 				539C28001E67DC3300B0F9F6 /* paymentViewController.swift in Sources */,
-				53A339421E7E73FD00EE23C9 /* DemoDay.swift in Sources */,
+				07914E0A1F15EA84004E6383 /* animationWindow.swift in Sources */,
 				077ED01A1EFACF130014459F /* fileManagement.swift in Sources */,
 				5347C8971EE3902400EBE6B3 /* iPadLogs_upload.swift in Sources */,
 				538465551EF2E44900DBB02B /* displaySetup.swift in Sources */,
 				539C27FE1E67DC3300B0F9F6 /* AppDelegate.swift in Sources */,
-				53D8E9091EA3109E00E06BFE /* BluetoothSerial.swift in Sources */,
-				535C5A7B1E9403E400A902A6 /* setupViewController.swift in Sources */,
+				532EF7AA1F17D87900CF13C0 /* lightningSerialCable.swift in Sources */,
 				070452F91F13F4F600A4923A /* displayItems_config.swift in Sources */,
+				07914E081F15740C004E6383 /* extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

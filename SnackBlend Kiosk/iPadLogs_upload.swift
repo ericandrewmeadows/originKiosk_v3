@@ -21,7 +21,7 @@ func sendLogFile( dataFile_path: String ) {
             print(">> FS :" + String(fileSize) + " <<")
         }
     } catch {
-        print("ppp")
+        print("File Error")
     }
     
     let semaphore = DispatchSemaphore(value: 0);
@@ -50,23 +50,13 @@ func sendLogFile( dataFile_path: String ) {
             completionHandler: {
                 (data, response, error) -> Void in
                 if let data = data {
-                    print(">>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<")
-                    
-                    print("******* response = \(String(describing: response))")
-                    
-                    print("STATUS CODE!!!  >>")
                     if let httpResponse = response as? HTTPURLResponse {
-                        print(httpResponse.statusCode == 200)
                         if (httpResponse.statusCode == 200) {
-                            print("woot")
+                            // can delete log file (? or delete below); 200 = OK transmission
                         }
                     }
-                    print("STATUS CODE!!!  <<")
-                    
-                    print(data.count)
                     
                     let responseString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
-                    print("****** response data = " + (responseString! as String))
                     
                     if ((responseString! as String) == "Success") {
                         // Remove the given file
@@ -77,16 +67,6 @@ func sendLogFile( dataFile_path: String ) {
                             print("Ooops! Something went wrong: \(error)")
                         }
                     }
-                    
-//                    let rArr = responseString?.componentsSeparatedByString(" = ")
-//                    if rArr!.count == 2 {
-//                        print(rArr![1].stringByReplacingOccurrencesOfString("/r/n", withString: ""))
-//                        self.mSQL_num = Int(rArr![1].stringByReplacingOccurrencesOfString("/r/n", withString: ""))!
-//                    }
-                    
-                    print(">>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<")
-                    
-//                    DispatchQueue.main
                     
                 } else if let error = error {
                     print(error.localizedDescription)
@@ -122,9 +102,7 @@ func generateBoundaryString() -> String {
 }
 
 func createBodyWithParameters(parameters: [String: String]?, filePathKey: String?, imageDataKey: NSData, boundary: String) -> NSData {
-    print("======")
-    print(imageDataKey)
-    print("======")
+    
     let body = NSMutableData();
     
     if parameters != nil {
@@ -136,7 +114,6 @@ func createBodyWithParameters(parameters: [String: String]?, filePathKey: String
     }
     
     let filename = "testing.csv"
-    
     let mimetype = "text/csv"
     
     body.appendString(string: "--\(boundary)\r\n")
@@ -148,5 +125,4 @@ func createBodyWithParameters(parameters: [String: String]?, filePathKey: String
     body.appendString(string: "--\(boundary)--\r\n")
     
     return body
-    
 }

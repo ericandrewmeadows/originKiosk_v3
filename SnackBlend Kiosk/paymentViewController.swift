@@ -13,6 +13,13 @@ let baudRate: Int32 = 9600      // baud rate
 let screenSize: CGRect = UIScreen.main.bounds
 let arduinoFunctions = ArduinoFunctions()
 let paymentFunctions = PaymentFunctions()
+let displayItems = DisplayItems()
+let paymentViewController = PaymentViewController()
+let displaySetup = DisplaySetup()
+
+// For Unit Testing Only
+var killProcessing_forceSuccessful_timer: Timer?
+var killProcessing_forceSuccessful_timeInterval = 1.0
 
 class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed to allow for functions to execute commands without reference to this VC
     
@@ -39,12 +46,10 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
     
     var initialLoad = false
     
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
+        displaySetup.setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
         
 //        // rscMgr
 //        rscMgr = RscMgr()
@@ -60,10 +65,15 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         // Company name is device name <- Ease of setup of multiple devices
         defaults.set(UIDevice.current.name, forKey: "location")
         
-        configPinPad()
+        displayItems.configPinPad()
         
         // Subscription setup
         subscribeButton.addTarget(self, action: #selector(processSubscription), for: .touchUpInside)
+        
+        
+        // Add layers to View Controller View
+        view.addSubview(backArrow_button)
+        backArrow_button.addTarget(paymentFunctions.self, action: #selector(paymentFunctions.smsReceipt_goToMain), for: .touchUpInside)
         
         for layer in [successfulPayment_circle,processingPayment_circle] {
             view.layer.addSublayer(layer)
@@ -74,17 +84,24 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
                           instructionsLabel1,instructionsLabel2,instructionsLabel3,instructionsLabel4,
                           processingPayment_label,processingPayment_processingIcon,
                           successfulPayment_label,successfulPayment_checkMark,
-                          smsReceiptLabel] {
+                          smsReceiptLabel,instructionsLabel] {
             view.addSubview(uiElement)
         }
         
-        for uiElement in [swipeImage_view, logoImage_view, receiptImage_view, backArrowImage_view] {
+        for uiElement in [swipeImage_view, logoImage_view, receiptImage_view, instructionsImage_view] {
             view.addSubview(uiElement)
         }
-        for button in [button1,button2,button3,button4,button5,button6,button7,button8,button9,button0,pinpad_lowerLeft,pinpad_lowerRight,
-                       clearPhoneButton,
-                       receiptYes, receiptNo] {
-            button.addTarget(self, action: #selector(numpadPressed_local), for: .touchUpInside)
+        for button in [button1,button2,button3,button4,button5,button6,button7,button8,button9,button0,pinpad_lowerLeft,
+                       clearPhoneButton] {
+            button.addTarget(paymentFunctions.self, action: #selector(paymentFunctions.numpadPressed), for: .touchUpInside)
+            view.addSubview(button)
+        }
+        
+        pinpad_lowerRight.addTarget(paymentFunctions.self, action: #selector(paymentFunctions.phoneNumber_submit), for: .touchUpInside)
+        view.addSubview(pinpad_lowerRight)
+        
+        for button in [receiptYes, receiptNo] {
+            button.addTarget(paymentFunctions.self, action: #selector(paymentFunctions.receiptYesNo), for: .touchUpInside)
             view.addSubview(button)
         }
         
@@ -98,7 +115,7 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         
         for button in [instructionsButton1,instructionsButton2,instructionsButton3,instructionsButton4,
                        logoButton] {
-                        view.addSubview(button)
+            view.addSubview(button)
         }
         
         logoButton.addTarget(self, action: #selector(menuItemsTouched), for: .touchUpInside)
@@ -108,9 +125,6 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
             button.addTarget(self, action: #selector(menuItemsTouched), for: .touchUpInside)
             tagNum += 1
             button.tag = tagNum
-        }
-        for button in [receiptYes, receiptNo] {
-            button.addTarget(self, action: #selector(receiptYesNo), for: .touchUpInside)
         }
         
         clearPhoneButton.addTarget(self, action: #selector(clearPhoneNumber_local), for: .touchUpInside)
@@ -130,8 +144,8 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         serverComms_priceSettings_local()
 //         DispatchQueue.main.asyncAfter(deadline: .now() + 10.0, execute: {
 //             // Landscape Orientation - Required
-//             setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
-//             timer_setOrientation_landscapeLeft = Timer.scheduledTimer(timeInterval: timer_setOrientation_interval, target: self, selector: #selector(self.setOrientation_landscapeLeft_andBrightnessFull_andNoLock_local), userInfo: nil, repeats: true)
+//             displaySetup.setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
+//             timer_setOrientation_landscapeLeft = Timer.scheduledTimer(timeInterval: timer_setOrientation_interval, target: displaySetup.self, selector: #selector(displaySetup.setOrientation_landscapeLeft_andBrightnessFull_andNoLock_local), userInfo: nil, repeats: true)
 
 //             //timer_acquireUnlockTimes
 //             self.serverComms_siteSpecificUnlockTimes_local()
@@ -152,12 +166,8 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         
     }
     
-    func sendUnlockMessage_local () {
-        arduinoFunctions.arduinoLock_unlock()
-    }
-    
-    func receiptYesNo (sender: UIButton) {
-        // sender.backgroundColor = UIColor.black
+    func killProcessing_forceSuccessful () {
+        displayItems.transition_paymentProcessing_to_paymentSuccessful()
     }
     
     func menuItemsTouched (sender: UIButton) {
@@ -165,8 +175,37 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         var inputVal = " "
         if (sender.tag == 0) {
             inputVal = "C"
-            // successfulPayment_local()
-            processingPayment_local()
+            // Porter
+            displayItems.hideScreen_paymentSwipe()
+            displayItems.showScreen_paymentProcessing()
+            processingPayment_timer = Timer.scheduledTimer(timeInterval: processingPayment_timeInterval,
+                                                           target: displayItems.self,
+                                                           selector: #selector(displayItems.processingPayment_displayUpdate),
+                                                           userInfo: nil, repeats: true)
+            if (unitTesting) {
+                killProcessing_forceSuccessful_timer = Timer.scheduledTimer(timeInterval: TimeInterval(killProcessing_forceSuccessful_timeInterval),
+                                                                            target: self,
+                                                                            selector: #selector(killProcessing_forceSuccessful),
+                                                                            userInfo: nil, repeats: false)
+            }
+            
+            // Check (paymentSwipe) = OK
+//            displayItems.showScreen_paymentSwipe()
+            // Check (paymentProcessing) = OK
+//            displayItems.showScreen_paymentProcessing()
+//            processingPayment_timer = Timer.scheduledTimer(timeInterval: processingPayment_timeInterval,
+//                                                           target: displayItems.self,
+//                                                           selector: #selector(displayItems.processingPayment_displayUpdate),
+//                                                           userInfo: nil, repeats: true)
+            // Check (paymentSuccessful) = OK
+//            displayItems.showScreen_paymentSuccessful()
+            // Check SMS Receipt
+//            displayItems.showScreen_smsReceipt()
+            // Check Phone Pin Pad
+//            displayItems.showScreen_phonePinPad()
+            // Check (unlockingConfirmed)
+//            lockState_verification_unlocked = true
+//            arduinoFunctions.arduinoLock_unlock()
         }
         else {
             inputVal = String(sender.tag)
@@ -200,37 +239,10 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         self.set_priceLabels()
     }
     
-    func setOrientation_landscapeLeft_andBrightnessFull_andNoLock_local () {
-        setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
-    }
-    
     func resetPhoneNumber() {
     }
     
-    func processingPayment_local () {
-        processingPayment_timer = Timer.scheduledTimer(timeInterval: processingPayment_timeInterval, target: self, selector: #selector(processingPayment_displayUpdate_local), userInfo: nil, repeats: true)
-    }
-    
-    func processingPayment_displayUpdate_local () {
-        processingPayment_displayUpdate()
-    }
-    
-    func successfulPayment_local () {
-        paymentFunctions.successfulPayment()
-    }
-    
-    func unlockTimer_timeRemaining_local () {
-        paymentFunctions.unlockTimer_timeRemaining()
-    }
-    
-    func unsuccessfulPayment_local () {
-    }
-    
     func hide_greenCircle_andCheck () {
-    }
-    
-    func numpadPressed_local(sender: UIButton) {
-        paymentFunctions.numpadPressed(sender: sender)
     }
     
     func unlock_timeSpecific() {
@@ -263,7 +275,6 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
                     set_priceLabels()
                     swipeImage_view.isHidden = false
                     instructionsText.isHidden = false
-                    hidePinPad_false()
                     set_priceLabels()
                     paymentReset()
                 }
@@ -275,36 +286,6 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
                 }
             }
         }
-    }
-    
-    func hidePinPad_true() {
-        button1.isHidden = true
-        button2.isHidden = true
-        button3.isHidden = true
-        button4.isHidden = true
-        button5.isHidden = true
-        button6.isHidden = true
-        button7.isHidden = true
-        button8.isHidden = true
-        button9.isHidden = true
-        button0.isHidden = true
-        pinpad_lowerLeft.isHidden = true
-        pinpad_lowerRight.isHidden = true
-    }
-    
-    func hidePinPad_false() {
-        button1.isHidden = false
-        button2.isHidden = false
-        button3.isHidden = false
-        button4.isHidden = false
-        button5.isHidden = false
-        button6.isHidden = false
-        button7.isHidden = false
-        button8.isHidden = false
-        button9.isHidden = false
-        button0.isHidden = false
-        pinpad_lowerLeft.isHidden = false
-        pinpad_lowerRight.isHidden = false
     }
     
     private func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {

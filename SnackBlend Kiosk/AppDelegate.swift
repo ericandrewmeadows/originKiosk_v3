@@ -12,7 +12,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // Unit Testing
-    var unitTesting = false
+    var unitTesting = true
 
     var window: UIWindow?
     let defaults = UserDefaults.standard

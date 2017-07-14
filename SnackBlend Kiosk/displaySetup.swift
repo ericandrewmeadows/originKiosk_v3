@@ -9,9 +9,11 @@
 import Foundation
 import UIKit
 
-func setOrientation_landscapeLeft_andBrightnessFull_andNoLock () {
-    let value = UIInterfaceOrientation.landscapeLeft.rawValue
-    UIDevice.current.setValue(value, forKey: "orientation")
-    UIScreen.main.brightness = CGFloat(1.0)
-    UIApplication.shared.isIdleTimerDisabled = true
+class DisplaySetup: NSObject {
+    func setOrientation_landscapeLeft_andBrightnessFull_andNoLock () {
+        let value = UIInterfaceOrientation.landscapeLeft.rawValue
+        UIDevice.current.setValue(value, forKey: "orientation")
+        UIScreen.main.brightness = CGFloat(1.0)
+        UIApplication.shared.isIdleTimerDisabled = true
+    }
 }

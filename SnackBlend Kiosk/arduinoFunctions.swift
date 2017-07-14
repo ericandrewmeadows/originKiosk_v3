@@ -20,6 +20,10 @@ var lockState_sequenceStarted_unlocked = false
 var lockState_repeatLockComms_unlocked_timer: Timer?
 let lockState_repeatLockComms_timeInterval = 0.1
 
+var restartArduinoComms_timeInterval = 1.0
+var freezerSettings_timer: Timer?
+
+
 class ArduinoFunctions: NSObject {
     
     // Locking Functions - with Challenge & Response verification
@@ -29,20 +33,25 @@ class ArduinoFunctions: NSObject {
             lockState_sequenceStarted_unlocked = true
             unlockTime_remaining = unlockTime_max
             paymentFunctions.killUnlockTimer()
-            sendLockMessage_unlock()
+            if (rscMgr.getModemStatus() != 0) {
+                sendLockMessage_unlock()
+            }
             lockMessage_loop_unlock()
         }
         else {
             lockState_repeatLockComms_unlocked_timer = nil
             if (!lockState_verification_unlocked) { // Unlock Sent & Unverified -> Send Unlock => Verify
-                sendLockMessage_unlock()
+                if (rscMgr.getModemStatus() != 0) {
+                    sendLockMessage_unlock()
+                }
                 lockMessage_loop_unlock()
             }
             else { // Unlock Verified
                 lockState_sequenceStarted_unlocked = false
+                displayItems.setLockImage_unlocked()
                 unlockCountdown_timer = Timer.scheduledTimer(timeInterval: lockState_animation_timeInterval,
-                                                             target: PaymentViewController.self,
-                                                             selector: #selector(PaymentViewController.unlockTimer_timeRemaining_local),
+                                                             target: paymentFunctions.self,
+                                                             selector: #selector(paymentFunctions.unlockTimer_timeRemaining),
                                                              userInfo: nil, repeats: true)
             }
         }
@@ -52,11 +61,13 @@ class ArduinoFunctions: NSObject {
         if (!lockState_sequenceStarted_unlocked) {
             lockState_repeatLockComms_unlocked_timer = nil
             if (!lockState_verification_locked) { // Lock Sent & Unverified -> Send Unlock => Verify
-                sendLockMessage_lock()
+                if (rscMgr.getModemStatus() != 0) {
+                    sendLockMessage_lock()
+                }
                 lockMessage_loop_lock()
             }
             else { // Lock Verified
-                setLockImage_locked()
+                displayItems.setLockImage_locked()
             }
         }
     }
@@ -321,7 +332,15 @@ class ArduinoFunctions: NSObject {
                         // Send "FreezerSettings:freezerInterval,lowTemp,highTemp\n"
                         let commString = "FreezerSettings:" + freezerInterval + "," + lowTemp + "," + highTemp + "\n"
                         NSLog("<ARDUINO_OUT> = " + commString)
-                        rscMgr.write(commString)
+                        if (rscMgr.getModemStatus() != 0) {
+                            rscMgr.write(commString)
+                        }
+                        else {
+                            freezerSettings_timer = Timer.scheduledTimer(timeInterval: restartArduinoComms_timeInterval,
+                                                                         target: ArduinoFunctions.self,
+                                                                         selector: #selector(ArduinoFunctions.serverComms_freezerSettings),
+                                                                         userInfo: nil, repeats: true)
+                        }
                     }
                 }
             }

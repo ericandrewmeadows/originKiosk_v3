@@ -87,7 +87,7 @@ var input_last6 = [" ", " ", " ", " ", " ", " "]
 
 class PaymentFunctions: NSObject {
     // Server Payment Processing
-    func processPayment(method: String, arduinoRx_message: String, ccInfo_chargeUser: Int, subscription: Int) -> String {
+    func processPayment(method: String, arduinoRx_message: String, ccInfo_chargeUser: Int, subscription: Int) {
         
         var returnString = "Server Communication Error"
         var urlWithParams = ""
@@ -128,28 +128,38 @@ class PaymentFunctions: NSObject {
                 responseString = responseString.replacingOccurrences(of: "\n", with: "")
                 NSLog("<URL_PAYMENT_REPLY> = " + responseString)
                 
-                let chargeResponse = responseString.components(separatedBy: ",")
+                let processStatus = responseString.components(separatedBy: ",")[0]
                 
-                if (chargeResponse[0] == "Successful") {
-                    returnString = "Successful"
+                if (processStatus == "Successful") {
+                    paymentOr_masterUnlock = true
+                    displayItems.transition_paymentProcessing_to_paymentSuccessful()
                 }
-                else if (chargeResponse[0] == "Swipe Again") {
-                    returnString = "Swipe Again"
+                else if (processStatus == "Swipe Again") {
                 }
-                else if (chargeResponse[0] == "Failed") {
-                    returnString = "Failed"
+                else if (processStatus == "Failed") {
+                    paymentOr_masterUnlock = false
+                    paymentFunctions.unsuccessfulPayment()
                 }
             }
         }
         
         task.resume()
-        return returnString
+    }
+    
+    func receiptYesNo (sender: UIButton) {
+        displayItems.hideScreen_smsReceipt()
+        if (sender.titleLabel!.text! == "Yes") {
+            displayItems.transition_smsReceipt_to_phonePinPad()
+        }
+        else {
+            displayItems.transition_smsReceipt_to_unlocked()
+        }
     }
 
     func numpadPressed (sender: UIButton) {
         let inputVal = (sender.titleLabel?.text)!
         if (inputVal != "x") {
-            phonePeriphery_visible()
+            displayItems.phonePeriphery_visible()
             if phoneNumStringCount < 10 {
                 phoneNumString_exact[phoneNumStringCount] = Character((sender.titleLabel?.text)!)
                 phoneNumStringCount += 1
@@ -166,15 +176,15 @@ class PaymentFunctions: NSObject {
             phoneNumberDisplay.text = String(phoneNumString)
             
             if (phoneNumStringCount == 10) {
-                showAndEnable_pinpad_lowerRight()
+                displayItems.showAndEnable_pinpad_lowerRight()
             }
             else {
-                hideAndDisable_pinpad_lowerRight()
+                displayItems.hideAndDisable_pinpad_lowerRight()
             }
         }
         else {
             if phoneNumStringCount > 0 {
-                hideAndDisable_pinpad_lowerRight()
+                displayItems.hideAndDisable_pinpad_lowerRight()
                 if phoneNumStringCount <= 3 {
                     phoneNumString[phoneNumStringCount] = " "
                 }
@@ -190,8 +200,18 @@ class PaymentFunctions: NSObject {
             }
             if phoneNumStringCount == 0 {
                 phoneNumberDisplay.text = ""
-                phonePeriphery_hidden()
+                displayItems.phonePeriphery_hidden()
             }
+        }
+    }
+    
+    func phoneNumber_submit (sender: UIButton) {
+        let inputVal = (sender.titleLabel?.text)!
+        if (inputVal == "Submit") {
+            // Porter
+            // Also call the function to send a receipt to a phone number, asynchronously
+            displayItems.transition_phonePinPad_to_unlocked()
+            return
         }
     }
 
@@ -200,7 +220,12 @@ class PaymentFunctions: NSObject {
         phoneNumString_exact = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
         phoneNumberDisplay.text = " "
         phoneNumStringCount = 0
-        phonePeriphery_hidden()
+        displayItems.phonePeriphery_hidden()
+    }
+    
+    func smsReceipt_goToMain() {
+        displayItems.hideScreen_phonePinPad()
+        displayItems.showScreen_smsReceipt()
     }
 
     func successfulPayment () {
@@ -216,7 +241,7 @@ class PaymentFunctions: NSObject {
         if (unlockTime_remaining < 0.0) {
             unlockTime_remaining = 0.0
             killUnlockTimer()
-            setLockImage_locked()
+            displayItems.setLockImage_locked()
             arduinoFunctions.arduinoLock_lock()
             // Execute relock function here
             // This allows for multiple payments to go through and leave the freezer unlocked during these transactions

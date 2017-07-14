@@ -48,17 +48,7 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
                 tempString = arduinoRx_message
                 
                 if (!unitTesting) {
-                    let processStatus = paymentFunctions.processPayment(method: methodToExecute, arduinoRx_message: arduinoRx_message, ccInfo_chargeUser: 1, subscription: 0)
-                    if (processStatus == "Successful") {
-                        paymentOr_masterUnlock = true
-                        paymentFunctions.successfulPayment()
-                    }
-                    else if (processStatus == "Swipe Again") {
-                    }
-                    else if (processStatus == "Failed") {
-                        paymentOr_masterUnlock = false
-                        paymentFunctions.unsuccessfulPayment()
-                    }
+                    paymentFunctions.processPayment(method: methodToExecute, arduinoRx_message: arduinoRx_message, ccInfo_chargeUser: 1, subscription: 0)
                 }
                 
                 arduinoRx_message = ""

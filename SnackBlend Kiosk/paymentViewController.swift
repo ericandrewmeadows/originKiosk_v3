@@ -297,6 +297,9 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         // Dispose of any resources that can be recreated.
     }
     
+    func paymentReset () {
+    }
+    
     func subscription_priceLabel() {
     }
     
@@ -336,6 +339,12 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         if let viewWithTag = self.view.viewWithTag(tag) {
             viewWithTag.removeFromSuperview()
         }
+    }
+    
+    func phoneExists() {
+    }
+    
+    func phoneExists_return(responseString: String) {
     }
     
     func resetinstructionsText() {

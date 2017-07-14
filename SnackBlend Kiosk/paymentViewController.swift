@@ -84,11 +84,12 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
                           instructionsLabel1,instructionsLabel2,instructionsLabel3,instructionsLabel4,
                           processingPayment_label,processingPayment_processingIcon,
                           successfulPayment_label,successfulPayment_checkMark,
-                          smsReceiptLabel,instructionsLabel] {
+                          smsReceiptLabel,instructionsLabel,receiptSentLabel] {
             view.addSubview(uiElement)
         }
         
-        for uiElement in [swipeImage_view, logoImage_view, receiptImage_view, instructionsImage_view] {
+        for uiElement in [swipeImage_view, logoImage_view, receiptImage_view, instructionsImage_view,
+                          receiptSent_receiptImage_view, receiptSent_sentArrowImage_view, receiptSent_phoneImage_view] {
             view.addSubview(uiElement)
         }
         for button in [button1,button2,button3,button4,button5,button6,button7,button8,button9,button0,pinpad_lowerLeft,
@@ -127,7 +128,7 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
             button.tag = tagNum
         }
         
-        clearPhoneButton.addTarget(self, action: #selector(clearPhoneNumber_local), for: .touchUpInside)
+        clearPhoneButton.addTarget(paymentFunctions.self, action: #selector(paymentFunctions.clearPhoneNumber), for: .touchUpInside)
         self.view.addSubview(clearPhoneButton)
         
         set_priceLabels()
@@ -175,37 +176,36 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         var inputVal = " "
         if (sender.tag == 0) {
             inputVal = "C"
-            // Porter
-            displayItems.hideScreen_paymentSwipe()
-            displayItems.showScreen_paymentProcessing()
-            processingPayment_timer = Timer.scheduledTimer(timeInterval: processingPayment_timeInterval,
-                                                           target: displayItems.self,
-                                                           selector: #selector(displayItems.processingPayment_displayUpdate),
-                                                           userInfo: nil, repeats: true)
             if (unitTesting) {
+                displayItems.hideScreen_paymentSwipe()
+                displayItems.showScreen_paymentProcessing()
+                processingPayment_timer = Timer.scheduledTimer(timeInterval: processingPayment_timeInterval,
+                                                               target: displayItems.self,
+                                                               selector: #selector(displayItems.processingPayment_displayUpdate),
+                                                               userInfo: nil, repeats: true)
                 killProcessing_forceSuccessful_timer = Timer.scheduledTimer(timeInterval: TimeInterval(killProcessing_forceSuccessful_timeInterval),
                                                                             target: self,
                                                                             selector: #selector(killProcessing_forceSuccessful),
                                                                             userInfo: nil, repeats: false)
+                
+                // Check (paymentSwipe) = OK
+                //            displayItems.showScreen_paymentSwipe()
+                // Check (paymentProcessing) = OK
+                //            displayItems.showScreen_paymentProcessing()
+                //            processingPayment_timer = Timer.scheduledTimer(timeInterval: processingPayment_timeInterval,
+                //                                                           target: displayItems.self,
+                //                                                           selector: #selector(displayItems.processingPayment_displayUpdate),
+                //                                                           userInfo: nil, repeats: true)
+                // Check (paymentSuccessful) = OK
+                //            displayItems.showScreen_paymentSuccessful()
+                // Check SMS Receipt
+                //            displayItems.showScreen_smsReceipt()
+                // Check Phone Pin Pad
+                //            displayItems.showScreen_phonePinPad()
+                // Check (unlockingConfirmed)
+                //            lockState_verification_unlocked = true
+                //            arduinoFunctions.arduinoLock_unlock()
             }
-            
-            // Check (paymentSwipe) = OK
-//            displayItems.showScreen_paymentSwipe()
-            // Check (paymentProcessing) = OK
-//            displayItems.showScreen_paymentProcessing()
-//            processingPayment_timer = Timer.scheduledTimer(timeInterval: processingPayment_timeInterval,
-//                                                           target: displayItems.self,
-//                                                           selector: #selector(displayItems.processingPayment_displayUpdate),
-//                                                           userInfo: nil, repeats: true)
-            // Check (paymentSuccessful) = OK
-//            displayItems.showScreen_paymentSuccessful()
-            // Check SMS Receipt
-//            displayItems.showScreen_smsReceipt()
-            // Check Phone Pin Pad
-//            displayItems.showScreen_phonePinPad()
-            // Check (unlockingConfirmed)
-//            lockState_verification_unlocked = true
-//            arduinoFunctions.arduinoLock_unlock()
         }
         else {
             inputVal = String(sender.tag)
@@ -214,14 +214,17 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         input_last6 = input_last6.shiftRight()
         let printString = input_last6.joined(separator: "")
         print(printString + " == " + masterUnlockString + " = " + String(printString == masterUnlockString))
-        // When true, issue unlock
+        
+        // Beckinsale
+        // Need to hook together the Master Unlock
+        // When true, issue unlock & transition UI screens
     }
     
-    func clearPhoneNumber_local () {
-        // Reset arrays, call function to reset phone display
-        paymentFunctions.clearPhoneNumber()
-    }
+    // Beckinsale
+//    if the user is taking too long to enter their phone number (they are haven't touched a phone number within 5 seconds), it will automatically skip the receipt [adding this tomorrow]
     
+    // Beckinsale
+    // Convert the timers using these functions to eliminate these functions
     func serverComms_siteSpecificUnlockTimes_local () {
         arduinoFunctions.serverComms_siteSpecificUnlockTimes()
     }
@@ -240,9 +243,6 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
     }
     
     func resetPhoneNumber() {
-    }
-    
-    func hide_greenCircle_andCheck () {
     }
     
     func unlock_timeSpecific() {
@@ -297,9 +297,6 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         // Dispose of any resources that can be recreated.
     }
     
-    func paymentReset () {
-    }
-    
     func subscription_priceLabel() {
     }
     
@@ -339,12 +336,6 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         if let viewWithTag = self.view.viewWithTag(tag) {
             viewWithTag.removeFromSuperview()
         }
-    }
-    
-    func phoneExists() {
-    }
-    
-    func phoneExists_return(responseString: String) {
     }
     
     func resetinstructionsText() {

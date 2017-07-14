@@ -93,7 +93,7 @@ var instructionsLabel = UILabel()
 var instructionsImage_sequence_number = 0
 let instructionsImage_sequence_maxCount = 4
 var instructionsImage_sequence_timer: Timer?
-let instructionsImage_sequence_timeInterval = 11.0 / 10.0
+let instructionsImage_sequence_timeInterval = 1.5
 let instructionsImage_sequence_timeInterval_final = 3.0
 
 // Screen - Receipt Sent via SMS
@@ -102,7 +102,7 @@ var receiptSent_sentArrowImage_view = UIImageView()
 var receiptSent_phoneImage_view = UIImageView()
 var receiptSentLabel = UILabel()
 var receiptSentScene_timer: Timer?
-var receiptSentScene_timeInterval = 2.0
+var receiptSentScene_timeInterval = 3.0
 
 // Screen - SMS Receipt
 var receiptImage_view = UIImageView()
@@ -529,12 +529,18 @@ class DisplayItems: NSObject {
         instructionsLabel.text = "Follow Instructions"
         
         // Screen - Receipt Sent via SMS
-//        var receiptSent_receiptImage_view = UIImageView()
-//        var receiptSent_sentArrowImage_view = UIImageView()
-//        var receiptSent_phoneImage_view = UIImageView()
-//        var receiptSentLabel = UILabel()
-//        var receiptSentScene_timer: Timer?
-//        var receiptSentScene_timeInterval = 2.0
+        // SMS Receipt Sent Label
+        receiptSentLabel.frame = CGRect(x: screenSize.width / 20,
+                                        y: screenSize.height * 103 / 128,
+                                        width: screenSize.width / 2,
+                                        height: screenSize.height * 65 / 768)
+        receiptSentLabel.textAlignment = NSTextAlignment.center
+        receiptSentLabel.baselineAdjustment = UIBaselineAdjustment.alignCenters
+        receiptSentLabel.font = UIFont(name: "HelveticaNeue-Bold", size: screenSize.height / 16)
+        receiptSentLabel.numberOfLines = 0
+        receiptSentLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
+        receiptSentLabel.text = "SMS Receipt Sent"
+        
         // Receipt Being Sent Image
         receiptSent_receiptImage_view.frame = CGRect(x: screenSize.width * 119 / 1024,
                                                      y: screenSize.height * 57 / 128,
@@ -548,23 +554,16 @@ class DisplayItems: NSObject {
                                                        y: screenSize.height * 393 / 768,
                                                        width: screenSize.width * 3 / 64,
                                                        height: screenSize.width * 3 / 64)
-        receiptSent_receiptImage_view.image = UIImage(named: "forwardArrow")
-        receiptSent_receiptImage_view.contentMode = .scaleAspectFit
+        receiptSent_sentArrowImage_view.image = UIImage(named: "forwardArrow")
+        receiptSent_sentArrowImage_view.contentMode = .scaleAspectFit
         
         // Phone Receiving SMS Image
-        
-        
-//        backArrow_button.frame = CGRect(x: screenSize.width * 25 / 1024,
-//                                        y: screenSize.height * 197 / 384,
-//                                        width: screenSize.width * 3 / 64,
-//                                        height: screenSize.width * 3 / 64)
-//        backArrow_button.layer.cornerRadius = button1.layer.cornerRadius
-//        backArrow_button.contentMode = .scaleAspectFit
-//        backArrow_button.setImage(#imageLiteral(resourceName: "backArrow"), for: .normal)
-//        backArrow_button.clipsToBounds = true
-//        backArrow_button.backgroundColor = UIColor.white
-        
-        
+        receiptSent_phoneImage_view.frame = CGRect(x: screenSize.width * 87 / 256,
+                                                   y: screenSize.height * 19 / 48,
+                                                   width: screenSize.width * 3 / 16,
+                                                   height: screenSize.width * 3 / 16)
+        receiptSent_phoneImage_view.image = UIImage(named: "phone_smsReceived")
+        receiptSent_phoneImage_view.contentMode = .scaleAspectFit
 
         // Phone Number - Separator Lines
         // Above Line
@@ -659,9 +658,9 @@ class DisplayItems: NSObject {
         
         // Instructions Text - Label
         instructionsText.frame = CGRect(x: screenSize.width / 20,
-                                        y: screenSize.height * 103 / 128,
+                                        y: screenSize.height * 589 / 768,
                                         width: screenSize.width / 2,
-                                        height: screenSize.height * 65 / 768)
+                                        height: screenSize.height * 5 / 24)
         instructionsText.textAlignment = NSTextAlignment.center
         instructionsText.baselineAdjustment = UIBaselineAdjustment.alignCenters
         instructionsText.font = UIFont(name: "Arial", size: screenSize.height / 16)
@@ -670,7 +669,7 @@ class DisplayItems: NSObject {
         
         let formattedString = NSMutableAttributedString()
         let attrs:[String:AnyObject] = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: screenSize.height / 16)!]
-        let text = "Swipe Credit Card"
+        let text = "Swipe Credit Card\nto start"
         formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:attrs))
         instructionsText.attributedText = formattedString
         
@@ -826,6 +825,7 @@ class DisplayItems: NSObject {
         hideScreen_paymentSuccessful()
         hideScreen_paymentProcessing()
         hideScreen_instructionsSequence()
+        hideScreen_receiptSent()
     }
 
     // - Hide/Show Screen Functions -
@@ -841,6 +841,20 @@ class DisplayItems: NSObject {
         priceLineLayer.isHidden = false
         priceLabel.isHidden = false
         swipeImage_view.isHidden = false
+    }
+    
+    // SMS Receipt Sent
+    func hideScreen_receiptSent () {
+        receiptSentLabel.isHidden = true
+        receiptSent_receiptImage_view.isHidden = true
+        receiptSent_sentArrowImage_view.isHidden = true
+        receiptSent_phoneImage_view.isHidden = true
+    }
+    func showScreen_receiptSent () {
+        receiptSentLabel.isHidden = false
+        receiptSent_receiptImage_view.isHidden = false
+        receiptSent_sentArrowImage_view.isHidden = false
+        receiptSent_phoneImage_view.isHidden = false
     }
     
     //   > Instructions Sequence <
@@ -864,7 +878,12 @@ class DisplayItems: NSObject {
         enterYourPhoneNumber.isHidden = false
         phoneNumpad_visible()
         backArrow_button.isHidden = false
-        phonePeriphery_hidden()
+        if (phoneNumStringCount > 0) {
+            phonePeriphery_visible()
+        }
+        else {
+            phonePeriphery_hidden()
+        }
     }
 
     //   > SMS Receipt <
@@ -934,17 +953,32 @@ class DisplayItems: NSObject {
         hideScreen_smsReceipt()
         showScreen_phonePinPad()
     }
-    func transition_smsReceipt_to_unlocked () {
+    // Porter
+    func transition_phonePinPad_to_smsReceiptSent () {
+        hideScreen_phonePinPad()
+        showScreen_receiptSent()
+        receiptSentScene_timer = Timer.scheduledTimer(timeInterval: receiptSentScene_timeInterval,
+                                                      target: self,
+                                                      selector: #selector(transition_smsReceiptYes_to_unlocked),
+                                                      userInfo: nil, repeats: false)
+    }
+    func transition_smsReceiptYes_to_unlocked () { // User selected "Yes" & completed
+        hideScreen_receiptSent()
+        if (unitTesting) {
+            lockState_verification_unlocked = true
+        }
+        arduinoFunctions.arduinoLock_unlock()
+        showScreen_instructionsSequence()
+        instructionsImage_displayUpdate()
+    }
+    func transition_smsReceiptNo_to_unlocked () { // User selected "No" & then we transition to Unlocking
         hideScreen_smsReceipt()
         if (unitTesting) {
             lockState_verification_unlocked = true
         }
         arduinoFunctions.arduinoLock_unlock()
-        // Porter
-        // Instructions Sequence
-        
-        instructionsImage_displayUpdate()
         showScreen_instructionsSequence()
+        instructionsImage_displayUpdate()
     }
     func transition_instructionsSequence_to_paymentSwipe() {
         hideScreen_instructionsSequence()

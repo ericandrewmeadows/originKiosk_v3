@@ -89,7 +89,6 @@ class PaymentFunctions: NSObject {
     // Server Payment Processing
     func processPayment(method: String, arduinoRx_message: String, ccInfo_chargeUser: Int, subscription: Int) {
         
-        var returnString = "Server Communication Error"
         var urlWithParams = ""
         let versionString = "&version=" + defaults.string(forKey: "version")!
         
@@ -149,10 +148,12 @@ class PaymentFunctions: NSObject {
     func receiptYesNo (sender: UIButton) {
         displayItems.hideScreen_smsReceipt()
         if (sender.titleLabel!.text! == "Yes") {
+            // Beckinsale
+            // Need to transmit information to server to transmit text from Twilio
             displayItems.transition_smsReceipt_to_phonePinPad()
         }
         else {
-            displayItems.transition_smsReceipt_to_unlocked()
+            displayItems.transition_smsReceiptNo_to_unlocked()
         }
     }
 
@@ -210,8 +211,8 @@ class PaymentFunctions: NSObject {
         if (inputVal == "Submit") {
             // Porter
             // Also call the function to send a receipt to a phone number, asynchronously
-            displayItems.transition_phonePinPad_to_unlocked()
-            return
+//            displayItems.transition_phonePinPad_to_unlocked()
+            displayItems.transition_phonePinPad_to_smsReceiptSent()
         }
     }
 

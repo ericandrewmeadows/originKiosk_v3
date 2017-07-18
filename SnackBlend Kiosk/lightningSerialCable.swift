@@ -13,10 +13,10 @@ var rscMgr:  RscMgr!     // RscMgr handles the serial communication
 let appDelegate = UIApplication.shared.delegate as! AppDelegate
 let unitTesting = appDelegate.unitTesting
 let arduinoTesting = appDelegate.arduinoTesting
+var arduinoRx_message = String()
 
 class LightningSerialCable: NSObject, RscMgrDelegate {
     
-    var arduinoRx_message = String()
     func enableComms() {
         rscMgr = RscMgr()
         
@@ -47,44 +47,26 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
             }
             
             if (start_startPos < finish_startPos) {
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "<CCINFO>")[1]
-                arduinoRx_message = arduinoRx_message.components(separatedBy: "</CCINFO>")[0]
-//                tempString = arduinoRx_message
-                arduinoRx_message = String(arduinoRx_message)\
-                arduinoRx_message = arduinoRx_message.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
-                NSLog("CCINFO........................")
-//                NSLog("UNCHANGED")
-//                NSLog(tempString)
-//                let urlwithPercentEscapes = arduinoRx_message.addingPercentEncoding( withAllowedCharacters: NSCharacterSet.urlQueryAllowed)
-//                NSLog("Test 1")
-//                NSLog(urlwithPercentEscapes!)
-//                NSLog(".urlPathAllowed")
-//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlPathAllowed)!)
-//                NSLog(".urlQueryAllowed")
-//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!)
-//                NSLog(".urlHostAllowed")
-//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlHostAllowed)!)
-//                NSLog(".urlUserAllowed")
-//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed)!)
-//                NSLog(".urlFragmentAllowed")
-//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlFragmentAllowed)!)
-//                NSLog(".urlPasswordAllowed")
-//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlPasswordAllowed)!)
+//                NSLog("...CCINFO...")
+                arduinoRx_message = String(arduinoRx_message.components(separatedBy: "<CCINFO>")[1])
+//                NSLog(arduinoRx_message)
+                arduinoRx_message = String(arduinoRx_message.components(separatedBy: "</CCINFO>")[0])
+//                NSLog(arduinoRx_message)
+                defaults.set(arduinoRx_message, forKey: "arduinoRx_message")
+                tempString = String(arduinoRx_message)
                 
-//                arduinoRx_message = arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlPathAllowed)!
+                arduinoRx_message = arduinoRx_message.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
+                NSLog(arduinoRx_message)
+//                NSLog("...CCINFO...")
+                
                 methodToExecute = "ccInfo"
                 ccInfo_chargeUser = 1;
                 
                 
-                NSLog(arduinoRx_message)
-//                arduinoRx_message = arduinoRx_message.cString(using: String.Encoding.utf8)
-                NSLog(arduinoRx_message)
-                
                 if (!unitTesting || arduinoTesting) {
-                    NSLog("........processPayment........")
-//                    paymentFunctions.processPayment(method: methodToExecute, arduinoRx_message: arduinoRx_message, ccInfo_chargeUser: 1, subscription: 0)
+                    NSLog(arduinoRx_message)
+                    paymentFunctions.processPayment(method: methodToExecute, arduinoRx_message: tempString, ccInfo_chargeUser: 1, subscription: 0)
                 }
-                NSLog("CCINFO........................")
                 
                 arduinoRx_message = ""
             }

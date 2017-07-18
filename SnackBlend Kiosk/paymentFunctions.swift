@@ -90,6 +90,7 @@ var input_last6 = [" ", " ", " ", " ", " ", " "]
 class PaymentFunctions: NSObject {
     // Server Payment Processing
     func processPayment(method: String, arduinoRx_message: String, ccInfo_chargeUser: Int, subscription: Int) {
+        var arduinoRx_message = arduinoRx_message
         
         displayItems.hideScreen_paymentSwipe()
         displayItems.showScreen_paymentProcessing()
@@ -100,6 +101,16 @@ class PaymentFunctions: NSObject {
         
         var urlWithParams = ""
         let versionString = "&version=" + defaults.string(forKey: "version")!
+        
+        NSLog("..")
+        NSLog(arduinoRx_message)
+        NSLog("..")
+        
+        arduinoRx_message = arduinoRx_message.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+        
+        NSLog("..")
+        NSLog(arduinoRx_message)
+        NSLog("..")
         
         // V3 Payment Communications Structure
         if (method == "ccInfo") {

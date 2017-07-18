@@ -50,6 +50,13 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        var cardString = "B4257870083000198^MEADOWS/ERIC^1907201015550000000000228000000;4257870083000198=19072010155500002280"
+//        var cardString = defaults.string(forKey: "arduinoRx_message")
+//        print("=====")
+//        print(cardString)
+//        print(cardString?.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!)
+//        print("=====")
+        
         displaySetup.setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
         
 //        // rscMgr

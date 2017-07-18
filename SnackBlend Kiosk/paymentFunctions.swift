@@ -88,9 +88,15 @@ let masterUnlockString = "CC3423" // <- "DICE"
 var input_last6 = [" ", " ", " ", " ", " ", " "]
 
 class PaymentFunctions: NSObject {
+    func generateBoundaryString() -> String {
+        return "Boundary-\(NSUUID().uuidString)"
+    }
+    
     // Server Payment Processing
     func processPayment(method: String, arduinoRx_message: String, ccInfo_chargeUser: Int, subscription: Int) {
         var arduinoRx_message = arduinoRx_message
+        arduinoRx_message = arduinoRx_message.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+        NSLog("-->1")
         
         displayItems.hideScreen_paymentSwipe()
         displayItems.showScreen_paymentProcessing()
@@ -99,38 +105,46 @@ class PaymentFunctions: NSObject {
                                                        selector: #selector(displayItems.processingPayment_displayUpdate),
                                                        userInfo: nil, repeats: true)
         
-        var urlWithParams = ""
-        let versionString = "&version=" + defaults.string(forKey: "version")!
         
-        NSLog("..")
-        NSLog(arduinoRx_message)
-        NSLog("..")
+        // Beckinsale
+        NSLog("-->2")
+        let url:  NSURL? = NSURL(string: paymentAddress)
         
-        arduinoRx_message = arduinoRx_message.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+        let request = NSMutableURLRequest(url:url! as URL)
+        request.httpMethod = "POST"
+        let postString = "ccInfo=\(arduinoRx_message)&version=\(defaults.string(forKey: "version")!)&locationName=\(defaults.string(forKey: "location")!)"
+        NSLog(postString)
+        request.httpBody = postString.data(using: String.Encoding.utf8)
+//        request.httpBody = createBodyWithParameters(parameters: param, filePathKey: nil, imageDataKey: data!, boundary: boundary) as Data
         
-        NSLog("..")
-        NSLog(arduinoRx_message)
-        NSLog("..")
+        NSLog("-->3")
+        // Beckinsale
         
-        // V3 Payment Communications Structure
-        if (method == "ccInfo") {
-            let ccInfoString = "?ccInfo=" + arduinoRx_message
-            let locationString = "&locationName=" + defaults.string(forKey: "location")!
-            urlWithParams = paymentAddress + ccInfoString + locationString + versionString
-            if (unitTesting) {
-                urlWithParams += "&unitTesting=1"
-            }
-        }
         
-        // Create NSURL Object
-        urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
-        let myUrl = NSURL(string: urlWithParams);
-        
-        // Creaste URL Request
-        let request = NSMutableURLRequest(url:myUrl! as URL);
-        
-        // Set request HTTP method to GET. It could be POST as well
-        request.httpMethod = "GET"
+//        var urlWithParams = ""
+//        let versionString = "&version=" + defaults.string(forKey: "version")!
+//        
+//        arduinoRx_message = arduinoRx_message.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+//        
+//        // V3 Payment Communications Structure
+//        if (method == "ccInfo") {
+//            let ccInfoString = "?ccInfo=" + arduinoRx_message
+//            let locationString = "&locationName=" + defaults.string(forKey: "location")!
+//            urlWithParams = paymentAddress + ccInfoString + locationString + versionString
+//            if (unitTesting) {
+//                urlWithParams += "&unitTesting=1"
+//            }
+//        }
+//        
+//        // Create NSURL Object
+//        urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+//        let myUrl = NSURL(string: urlWithParams);
+//        
+//        // Creaste URL Request
+//        let request = NSMutableURLRequest(url:myUrl! as URL);
+//        
+//        // Set request HTTP method to GET. It could be POST as well
+//        request.httpMethod = "GET"
         
         // Execute HTTP Request
         let task = URLSession.shared.dataTask(with: request as URLRequest) {

@@ -16,6 +16,7 @@ let paymentFunctions = PaymentFunctions()
 let displayItems = DisplayItems()
 let paymentViewController = PaymentViewController()
 let displaySetup = DisplaySetup()
+var lightningCableConnected = false
 
 // For Unit Testing Only
 var killProcessing_forceSuccessful_timer: Timer?
@@ -75,7 +76,7 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         view.addSubview(backArrow_button)
         backArrow_button.addTarget(paymentFunctions.self, action: #selector(paymentFunctions.smsReceipt_goToMain), for: .touchUpInside)
         
-        for layer in [successfulPayment_circle,processingPayment_circle] {
+        for layer in [processingPayment_circle] {
             view.layer.addSublayer(layer)
         }
         
@@ -83,13 +84,15 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
                           instructionsText, enterYourPhoneNumber,
                           instructionsLabel1,instructionsLabel2,instructionsLabel3,instructionsLabel4,
                           processingPayment_label,processingPayment_processingIcon,
-                          successfulPayment_label,successfulPayment_checkMark,
+                          successfulPayment_label, declinedPayment_label, invalidPayment_label,
                           smsReceiptLabel,instructionsLabel,receiptSentLabel] {
             view.addSubview(uiElement)
         }
         
         for uiElement in [swipeImage_view, logoImage_view, receiptImage_view, instructionsImage_view,
-                          receiptSent_receiptImage_view, receiptSent_sentArrowImage_view, receiptSent_phoneImage_view] {
+                          receiptSent_receiptImage_view, receiptSent_sentArrowImage_view, receiptSent_phoneImage_view,
+                          successfulPaymentImage_view, declinedPaymentImage_view, invalidPaymentImage_view,
+                          lightningCableConnectionImage_view] {
             view.addSubview(uiElement)
         }
         for button in [button1,button2,button3,button4,button5,button6,button7,button8,button9,button0,pinpad_lowerLeft,
@@ -133,39 +136,52 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         
         set_priceLabels()
         
-        if (lockState_transmitted) {
-            arduinoFunctions.arduinoLock_lock()
-        }
-        
-        view.setNeedsDisplay()
+        arduinoFunctions.arduinoLock_lock()
         
         // Do any additional setup after loading the view, typically from a nib.
         self.initialLoad = true
         
-        serverComms_priceSettings_local()
-//         DispatchQueue.main.asyncAfter(deadline: .now() + 10.0, execute: {
+        arduinoFunctions.serverComms_priceSettings()
+         DispatchQueue.main.asyncAfter(deadline: .now() + 10.0, execute: {
 //             // Landscape Orientation - Required
-//             displaySetup.setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
-//             timer_setOrientation_landscapeLeft = Timer.scheduledTimer(timeInterval: timer_setOrientation_interval, target: displaySetup.self, selector: #selector(displaySetup.setOrientation_landscapeLeft_andBrightnessFull_andNoLock_local), userInfo: nil, repeats: true)
+             displaySetup.setOrientation_landscapeLeft_andBrightnessFull_andNoLock()
+            arduinoFunctions.timer_setOrientation_landscapeLeft = Timer.scheduledTimer(timeInterval: timer_setOrientation_interval,
+                                                                                       target: displaySetup.self,
+                                                                                       selector: #selector(displaySetup.setOrientation_landscapeLeft_andBrightnessFull_andNoLock),
+                                                                                       userInfo: nil, repeats: true)
 
 //             //timer_acquireUnlockTimes
-//             self.serverComms_siteSpecificUnlockTimes_local()
-//             timer_acquireUnlockTimes = Timer.scheduledTimer(timeInterval: timeSpecificUnlockStatus_interval, target: self, selector: #selector(self.serverComms_siteSpecificUnlockTimes_local), userInfo: nil, repeats: true)
+             self.serverComms_siteSpecificUnlockTimes_local()
+             arduinoFunctions.timer_acquireUnlockTimes = Timer.scheduledTimer(timeInterval: timeSpecificUnlockStatus_interval,
+                                                                              target: arduinoFunctions,
+                                                                              selector: #selector(arduinoFunctions.serverComms_siteSpecificUnlockTimes),
+                                                                              userInfo: nil, repeats: true)
 
 //             // Time-specific Locking
 //             self.unlock_timeSpecific()
 //             timer_hourSpecific = Timer.scheduledTimer(timeInterval: unlock_TimeSpecific_interval, target: self, selector: #selector(self.unlock_timeSpecific), userInfo: nil, repeats: true)
 
 //             // Freezer Settings
-//             self.serverComms_freezerSettings_local()
-//             acquireFreezerSettings_timer = Timer.scheduledTimer(timeInterval: TimeInterval(acquireFreezerSettings_timeInterval), target: self, selector: #selector(self.serverComms_freezerSettings_local), userInfo: nil, repeats: true)
+        arduinoFunctions.serverComms_freezerSettings()
+            arduinoFunctions.acquireFreezerSettings_timer = Timer.scheduledTimer(timeInterval: TimeInterval(arduinoFunctions.acquireFreezerSettings_timeInterval),
+                                                                                 target: arduinoFunctions,
+                                                                                 selector: #selector(arduinoFunctions.serverComms_freezerSettings),
+                                                                                 userInfo: nil, repeats: true)
 
 //             // Price Settings
-//             self.serverComms_priceSettings_local()
-//             acquirePriceSettings_timer = Timer.scheduledTimer(timeInterval: TimeInterval(acquirePriceSettings_timeInterval), target: self, selector: #selector(self.serverComms_priceSettings_local), userInfo: nil, repeats: true)
-//         })
+            arduinoFunctions.acquirePriceSettings_timer = Timer.scheduledTimer(timeInterval: TimeInterval(arduinoFunctions.acquirePriceSettings_timeInterval),
+                                                                           target: arduinoFunctions,
+                                                                           selector: #selector(arduinoFunctions.serverComms_priceSettings),
+                                                                           userInfo: nil, repeats: true)
+         })
         
     }
+    
+//    func lightningCable_status () {
+//        if (lightningCableConnected) {
+//            
+//        }
+//    }
     
     func killProcessing_forceSuccessful () {
         displayItems.transition_paymentProcessing_to_paymentSuccessful()
@@ -175,18 +191,16 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         print("Logo Touched - " + String(sender.tag))
         var inputVal = " "
         if (sender.tag == 0) {
-            inputVal = "C"
             if (unitTesting) {
-                displayItems.hideScreen_paymentSwipe()
-                displayItems.showScreen_paymentProcessing()
-                processingPayment_timer = Timer.scheduledTimer(timeInterval: processingPayment_timeInterval,
-                                                               target: displayItems.self,
-                                                               selector: #selector(displayItems.processingPayment_displayUpdate),
-                                                               userInfo: nil, repeats: true)
-                killProcessing_forceSuccessful_timer = Timer.scheduledTimer(timeInterval: TimeInterval(killProcessing_forceSuccessful_timeInterval),
-                                                                            target: self,
-                                                                            selector: #selector(killProcessing_forceSuccessful),
-                                                                            userInfo: nil, repeats: false)
+                
+                let ccString = "%B4257870083000198^MEADOWS/ERIC^1907201015550000000000228000000?;4257870083000198=19072010155500002280?"
+                methodToExecute = "ccInfo"
+                paymentFunctions.processPayment(method: methodToExecute, arduinoRx_message: ccString, ccInfo_chargeUser: 1, subscription: 0)
+                
+//                killProcessing_forceSuccessful_timer = Timer.scheduledTimer(timeInterval: TimeInterval(killProcessing_forceSuccessful_timeInterval),
+//                                                                            target: self,
+//                                                                            selector: #selector(killProcessing_forceSuccessful),
+//                                                                            userInfo: nil, repeats: false)
                 
                 // Check (paymentSwipe) = OK
                 //            displayItems.showScreen_paymentSwipe()
@@ -206,6 +220,9 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
                 //            lockState_verification_unlocked = true
                 //            arduinoFunctions.arduinoLock_unlock()
             }
+            else {
+                inputVal = "C"
+            }
         }
         else {
             inputVal = String(sender.tag)
@@ -218,6 +235,30 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         // Beckinsale
         // Need to hook together the Master Unlock
         // When true, issue unlock & transition UI screens
+        if (!unitTesting) {
+            if (input_last6.joined(separator: "") == masterUnlockString) {
+                lockState_unlock_transmitted = false
+                lockState_verification_unlocked = false
+                NSLog("............MASTER_UNLOCK")
+                displayItems.hideScreen_paymentSwipe()
+                displayItems.hideScreen_phonePinPad()
+                displayItems.hideScreen_smsReceipt()
+                displayItems.hideScreen_paymentSuccessful()
+                displayItems.hideScreen_paymentProcessing()
+                displayItems.hideScreen_paymentInvalid()
+                displayItems.hideScreen_paymentDeclined()
+                displayItems.hideScreen_instructionsSequence()
+                displayItems.hideScreen_receiptSent()
+                lockState_repeatLockComms_locked_timer?.invalidate()
+                lockState_repeatLockComms_locked_timer = nil
+                lockState_repeatLockComms_unlocked_timer?.invalidate()
+                lockState_repeatLockComms_unlocked_timer = nil
+                
+                arduinoFunctions.arduinoLock_unlock()
+                displayItems.showScreen_instructionsSequence()
+                displayItems.instructionsImage_displayUpdate()
+            }
+        }
     }
     
     // Beckinsale
@@ -233,16 +274,6 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
     }
     func serverComms_freezerSettings_local () {
         arduinoFunctions.serverComms_freezerSettings()
-    }
-    func serverComms_priceSettings_local () {
-        let subscriptionNeedsSet = arduinoFunctions.serverComms_priceSettings()
-        if (subscriptionNeedsSet) {
-            self.view.addSubview(subscribeButton)
-        }
-        self.set_priceLabels()
-    }
-    
-    func resetPhoneNumber() {
     }
     
     func unlock_timeSpecific() {
@@ -267,10 +298,14 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         // Prevent interrupts due to payment or master unlocking
         if (paymentOr_masterUnlock == false) {
             // Verify if a lock or unlock command is needed
-            if (intermediatelockState_transmitted != lockState_transmitted) {
+            if (intermediatelockState_transmitted != lockState_actual) {
                 if (intermediatelockState_transmitted == true) { // Locking is needed
                     NSLog("<LOCK_TIMESPECIFIC> = LOCK")
                     timeSpecificUnlocked = false
+                    lockState_repeatLockComms_locked_timer?.invalidate()
+                    lockState_repeatLockComms_locked_timer = nil
+                    lockState_repeatLockComms_unlocked_timer?.invalidate()
+                    lockState_repeatLockComms_unlocked_timer = nil
                     arduinoFunctions.arduinoLock_lock()
                     set_priceLabels()
                     swipeImage_view.isHidden = false
@@ -301,6 +336,7 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
     }
     
     func subscription_priceLabel() {
+        self.view.addSubview(subscribeButton)
     }
     
     func noSubscription_priceLabel() {
@@ -309,7 +345,6 @@ class PaymentViewController: UIViewController { //, RscMgrDelegate { // Removed 
         let secondAttributes = [NSFontAttributeName : UIFont(name: "AvenirNext-Bold", size: screenSize.height*(12/170))!] as [String : Any]
         attributedString.addAttributes(secondAttributes, range: NSMakeRange(0, string.characters.count))
         priceLabel.attributedText = attributedString
-        self.view.setNeedsDisplay()
     }
     
     func unlocked_priceLabel() {

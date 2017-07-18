@@ -15,9 +15,11 @@ let lockString = "LOCK\n"
 var lockState_verification_locked = false
 var lockState_verification_unlocked = false
 
-var lockState_sequenceStarted_unlocked = false
+//var lockState_sequenceStarted_unlocked = false
+//var lockState_sequenceStarted_locked = false
 
 var lockState_repeatLockComms_unlocked_timer: Timer?
+var lockState_repeatLockComms_locked_timer: Timer?
 let lockState_repeatLockComms_timeInterval = 0.1
 
 var restartArduinoComms_timeInterval = 1.0
@@ -29,73 +31,84 @@ class ArduinoFunctions: NSObject {
     // Locking Functions - with Challenge & Response verification
     // Lock State - Unlock
     func arduinoLock_unlock () {
-        if (!lockState_sequenceStarted_unlocked) {
-            lockState_sequenceStarted_unlocked = true
-            unlockTime_remaining = unlockTime_max
-            paymentFunctions.killUnlockTimer()
-            if (rscMgr.getModemStatus() != 0) {
-                sendLockMessage_unlock()
+        NSLog(  "arduinoLock_unlock:  lightningCableConnected =" + String(lightningCableConnected)
+                + ", lockState_unlock_transmitted = " + String(lockState_unlock_transmitted)
+                + ", lockState_verification_unlocked = " + String(lockState_verification_unlocked)
+        )
+        if (lightningCableConnected) {
+            if (!lockState_unlock_transmitted) {
+                lockState_unlock_transmitted = true
+                serverComms_lockCommunication(lockString: "Sent: Unlock")
             }
-            lockMessage_loop_unlock()
-        }
-        else {
-            lockState_repeatLockComms_unlocked_timer = nil
             if (!lockState_verification_unlocked) { // Unlock Sent & Unverified -> Send Unlock => Verify
-                if (rscMgr.getModemStatus() != 0) {
-                    sendLockMessage_unlock()
-                }
+                sendLockMessage_unlock()
+                verifyState_lock_unlocked()
                 lockMessage_loop_unlock()
             }
-            else { // Unlock Verified
-                lockState_sequenceStarted_unlocked = false
-                displayItems.setLockImage_unlocked()
-                unlockCountdown_timer = Timer.scheduledTimer(timeInterval: lockState_animation_timeInterval,
-                                                             target: paymentFunctions.self,
-                                                             selector: #selector(paymentFunctions.unlockTimer_timeRemaining),
-                                                             userInfo: nil, repeats: true)
-            }
+        }
+        else {
+            lockMessage_loop_unlock()
         }
     }
     // Lock State - Lock
     func arduinoLock_lock () {
-        if (!lockState_sequenceStarted_unlocked) {
-            lockState_repeatLockComms_unlocked_timer = nil
-            if (!lockState_verification_locked) { // Lock Sent & Unverified -> Send Unlock => Verify
-                if (rscMgr.getModemStatus() != 0) {
+        NSLog(  "arduinoLock_lock:  lightningCableConnected =" + String(lightningCableConnected)
+                + ", lockState_unlock_transmitted = " + String(lockState_unlock_transmitted)
+                + ", lockState_lock_transmitted = " + String(lockState_lock_transmitted)
+                + ", lockState_verification_locked = " + String(lockState_verification_locked)
+        )
+        if (!lockState_unlock_transmitted) {                          // Prevents interrupt of unlock sequence by a lock sequence
+            if (lightningCableConnected) {
+                if (!lockState_lock_transmitted) {
+                    lockState_lock_transmitted = true
                     sendLockMessage_lock()
+                    serverComms_lockCommunication(lockString: "Sent: Lock")
                 }
-                lockMessage_loop_lock()
+                verifyState_lock_locked()
+                if (!lockState_verification_locked) { // Lock Sent & Unverified -> Send Lock => Verify
+                    sendLockMessage_lock()
+                    verifyState_lock_locked()
+                    lockMessage_loop_lock()
+                }
             }
-            else { // Lock Verified
-                displayItems.setLockImage_locked()
+            else {
+                lockMessage_loop_lock()
             }
         }
     }
     
     // Lock State - Sender Functions
     func sendLockMessage_unlock () {
+        NSLog("sendLockMessage_unlock")
         rscMgr.write(unlockString)
-        serverComms_lockCommunication(lockString: "Sent: Unlock")
-        lockState_transmitted = false
     }
     func sendLockMessage_lock () {
+        NSLog("sendLockMessage_lock")
         if (paymentOr_masterUnlock == true) {
             paymentOr_masterUnlock = false
         }
         rscMgr.write(lockString)
-        lockState_transmitted = true
-        serverComms_lockCommunication(lockString: "Sent: Lock")
     }
     
     // Lock State - Repetition Mechanisms
     func lockMessage_loop_unlock () {
+        NSLog("lockMessage_loop_unlock")
+        if (lockState_verification_unlocked) {
+            return
+        }
         lockState_repeatLockComms_unlocked_timer = Timer.scheduledTimer(timeInterval: lockState_repeatLockComms_timeInterval,
                                                                         target: self,
                                                                         selector: #selector(arduinoLock_unlock),
                                                                         userInfo: nil, repeats: false)
     }
     func lockMessage_loop_lock () {
-        lockState_repeatLockComms_unlocked_timer = Timer.scheduledTimer(timeInterval: lockState_repeatLockComms_timeInterval,
+        NSLog("lockMessage_loop_lock")
+        if (lockState_verification_locked) {
+            return
+        }
+        lockState_repeatLockComms_locked_timer?.invalidate()
+        lockState_repeatLockComms_locked_timer = nil
+        lockState_repeatLockComms_locked_timer = Timer.scheduledTimer(timeInterval: lockState_repeatLockComms_timeInterval,
                                                                         target: self,
                                                                         selector: #selector(arduinoLock_lock),
                                                                         userInfo: nil, repeats: false)
@@ -103,22 +116,34 @@ class ArduinoFunctions: NSObject {
 
     // Lock State - Verification
     func verifyState_lock_locked () {
-        if (true && lockState_actual && lockState_transmitted) {
-            NSLog("<LOCK_VERIFICATION> = LOCKED : OK")
+        NSLog("verifyState_lock_locked")
+        NSLog("> lockState_actual - " + String(lockState_actual))
+        NSLog("> lockState_lock_transmitted - " + String(lockState_lock_transmitted))
+        if (lockState_actual && lockState_lock_transmitted) {                        // Lock State = LOCKED <- VERIFIED
             lockState_verification_locked = true
+            displayItems.setLockImage_locked()
+            lockState_repeatLockComms_locked_timer?.invalidate()
+            lockState_repeatLockComms_locked_timer = nil
+            lockState_lock_transmitted = false
         }
-        else {
-            NSLog("<LOCK_VERIFICATION> = LOCKED : NG")
+        else {                                                                          // Lock State = LOCKED <- Unverified
             lockState_verification_locked = false
         }
     }
     func verifyState_lock_unlocked () {
-        if !(false || lockState_actual || lockState_transmitted) {
-            NSLog("<LOCK_VERIFICATION> = UNLOCKED : OK")
+        NSLog("verifyState_lock_unlocked")
+        NSLog("> lockState_actual - " + String(lockState_actual))
+        NSLog("> lockState_unlock_transmitted - " + String(lockState_unlock_transmitted))
+        if (!lockState_actual && lockState_unlock_transmitted) {                      // Lock State = UNLOCKED <- VERIFIED
             lockState_verification_unlocked = true
+            displayItems.setLockImage_unlocked()
+            unlockTime_remaining = unlockTime_max
+            unlockCountdown_timer = Timer.scheduledTimer(timeInterval: lockState_animation_timeInterval,
+                                                         target: paymentFunctions.self,
+                                                         selector: #selector(paymentFunctions.unlockTimer_timeRemaining),
+                                                         userInfo: nil, repeats: true)
         }
-        else {
-            NSLog("<LOCK_VERIFICATION> = UNLOCKED : NG")
+        else {                                                                          // Lock State = UNLOCKED <- Unverified
             lockState_verification_unlocked = false
         }
     }
@@ -143,7 +168,7 @@ class ArduinoFunctions: NSObject {
         
         // Create NSURL Object
         let lockString_url = "?lockMessage=" + lockString
-        let locationName_url = "&locationName=" + defaults.string(forKey: "location")!
+        let locationName_url = "&companyName=" + defaults.string(forKey: "location")!
         var urlWithParams = lockAddress + lockString_url + locationName_url
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
         
@@ -216,7 +241,7 @@ class ArduinoFunctions: NSObject {
         freezerState = freezerState.components(separatedBy: ": ")[1]
         
         // Create NSURL Object
-        let locationName_url = "?locationName=" + defaults.string(forKey: "location")!
+        let locationName_url = "?companyName=" + defaults.string(forKey: "location")!
         let freezerTemp_url = "&freezerTemp=" + freezerTemp
         let freezerState_url = "&freezerState=" + freezerState
         var urlWithParams = freezerAddress + locationName_url + freezerTemp_url + freezerState_url
@@ -250,7 +275,7 @@ class ArduinoFunctions: NSObject {
     func serverComms_siteSpecificUnlockTimes() {
         
         // Create NSURL Object
-        let locationName_url = "?locationName=" + defaults.string(forKey: "location")!
+        let locationName_url = "?companyName=" + defaults.string(forKey: "location")!
         var urlWithParams = siteSpecificUnlockTimesAddress + locationName_url
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
         let myUrl = NSURL(string: urlWithParams);
@@ -295,7 +320,7 @@ class ArduinoFunctions: NSObject {
     func serverComms_freezerSettings () {
         
         // Create NSURL Object
-        let locationName_url = "?locationName=" + defaults.string(forKey: "location")!
+        let locationName_url = "?companyName=" + defaults.string(forKey: "location")!
         var urlWithParams = freezerSettingsAddress + locationName_url
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
         let myUrl = NSURL(string: urlWithParams);
@@ -332,13 +357,16 @@ class ArduinoFunctions: NSObject {
                         // Send "FreezerSettings:freezerInterval,lowTemp,highTemp\n"
                         let commString = "FreezerSettings:" + freezerInterval + "," + lowTemp + "," + highTemp + "\n"
                         NSLog("<ARDUINO_OUT> = " + commString)
-                        if (rscMgr.getModemStatus() != 0) {
+                        
+                        freezerSettings_timer?.invalidate()
+                        freezerSettings_timer = nil
+                        if (lightningCableConnected) {
                             rscMgr.write(commString)
                         }
                         else {
                             freezerSettings_timer = Timer.scheduledTimer(timeInterval: restartArduinoComms_timeInterval,
-                                                                         target: ArduinoFunctions.self,
-                                                                         selector: #selector(ArduinoFunctions.serverComms_freezerSettings),
+                                                                         target: arduinoFunctions,
+                                                                         selector: #selector(arduinoFunctions.serverComms_freezerSettings),
                                                                          userInfo: nil, repeats: true)
                         }
                     }
@@ -350,11 +378,10 @@ class ArduinoFunctions: NSObject {
     }
 
     // Price Settings - Server Communications
-    func serverComms_priceSettings ( ) -> Bool {
-        var returnVar = false
+    func serverComms_priceSettings ( ) {
         
         // Create NSURL Object
-        let locationName_url = "?locationName=" + defaults.string(forKey: "location")!
+        let locationName_url = "?companyName=" + defaults.string(forKey: "location")!
         var urlWithParams = priceSettingsAddresss + locationName_url
         urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
         let myUrl = NSURL(string: urlWithParams);
@@ -403,11 +430,16 @@ class ArduinoFunctions: NSObject {
                     subscription_smoothiePrice1 = Float(subscriptionArray[1])!
                     subscription_smoothiePrice2 = Float(subscriptionArray[3])!
                     subscription_smoothiePrice3 = Float(subscriptionArray[5])!
-                    returnVar = true
+                }
+                
+                if (subscription_priceSet) {
+                    paymentViewController.subscription_priceLabel()
+                }
+                else {
+                    paymentViewController.noSubscription_priceLabel()
                 }
             }
         }
         task.resume()
-        return returnVar
     }
 }

@@ -670,6 +670,15 @@
         }
     }
 
+    function create_customerToken ($phoneNumber, $token) {
+        // Create a Customer:
+        $customer = \Stripe\Customer::create(array(
+          "email" => $phoneNumber."@snackblend.com",
+          "metadata" => array("phoneNumber" => $phoneNumber),
+          "source" => $token
+        ));
+    }
+
     function cardExists_inDb ($cardToken, $conn) {
         $brand = $cardToken['card']['brand'];
         $country = $cardToken['card']['country'];

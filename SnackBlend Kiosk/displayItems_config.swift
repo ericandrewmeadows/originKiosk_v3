@@ -29,12 +29,39 @@ let processingText = "\u{2022}\u{2022}\u{2022}"
 let processingPayment_label = UILabel()
 var processingPayment_timer: Timer?
 let processingPayment_timeInterval = 0.25
+
 // Successful
-let successfulPayment_circle = CAShapeLayer()
-let successfulPayment_checkMark = UILabel()
+let successfulPaymentImage_view = UIImageView()
 let successfulPayment_label = UILabel()
+// Declined
+let declinedPaymentImage_view = UIImageView()
+let declinedPayment_label = UILabel()
+// Swipe Error
+let invalidPaymentImage_view = UIImageView()
+let invalidPayment_label = UILabel()
+
+// Success Fade
 var successfulPayment_elementFade_timer: Timer?
 var successfulPayment_elementFade_timeInterval = 2.0
+// Declined Fade
+var declinedPayment_elementFade_timer: Timer?
+var declinedPayment_elementFade_timeInterval = 3.0
+// Invalid Fade
+var invalidPayment_elementFade_timer: Timer?
+var invalidPayment_elementFade_timeInterval = 3.0
+
+// Receipt Yes No Fade
+var receiptYesNo_elementFade_timer: Timer?
+var receiptYesNo_elementFade_timeInterval = 0.1
+var receiptYesNo_elementFade_timeMax: CGFloat = 5.0
+var receiptYesNo_elementFade_timeRemaining: CGFloat = 0.0
+
+// Lightning Cable - Connection Status Indicator
+var lightningCableConnectionImage_view = UIImageView()
+var lightningCableConnection_elementFade_timer: Timer?
+var lightningCableConnection_elementFade_timeInterval = 0.1
+var lightningCableConnection_elementFade_timeMax: CGFloat = 5.0
+var lightningCableConnection_elementFade_timeRemaining: CGFloat = 0.0
 
 // Logo - Functions as a non-changing button
 let logoButton  = UIButton(type: .custom)
@@ -91,9 +118,9 @@ var instructionsLabel4 = UILabel()
 var instructionsImage_view = UIImageView()
 var instructionsLabel = UILabel()
 var instructionsImage_sequence_number = 0
-let instructionsImage_sequence_maxCount = 4
+let instructionsImage_sequence_maxCount = 5
 var instructionsImage_sequence_timer: Timer?
-let instructionsImage_sequence_timeInterval = 1.5
+var instructionsImage_sequence_timeInterval = 1.5 // Longer on the first graphic (Freezer Unlocked)
 let instructionsImage_sequence_timeInterval_final = 3.0
 
 // Screen - Receipt Sent via SMS
@@ -673,6 +700,14 @@ class DisplayItems: NSObject {
         formattedString.append(NSMutableAttributedString(string:"\(text)", attributes:attrs))
         instructionsText.attributedText = formattedString
         
+        // Lightning Cable - Connection Status
+        lightningCableConnectionImage_view.frame = CGRect(x: screenSize.width * 15 / 16,
+                                                          y: screenSize.height / 24,
+                                                          width: screenSize.width / 32,
+                                                          height: screenSize.width / 32)
+        lightningCable_disconnected()
+
+        
         // Payment Processing Status
         // - Circles -
         let circle_r = screenSize.width * 75 / 1024
@@ -686,27 +721,15 @@ class DisplayItems: NSObject {
             startAngle: CGFloat(0), endAngle:CGFloat(2 * π), clockwise: true)
         
         // Successful Payment
-        // Circle
-        successfulPayment_circle.path = circlePath.cgPath
+        // Image
+        successfulPaymentImage_view.frame = CGRect(x: screenSize.width * 29 / 128,
+                                                   y: screenSize.height * 309 / 768,
+                                                   width: screenSize.width * 75 / 512,
+                                                   height: screenSize.width * 75 / 512)
+        successfulPaymentImage_view.image = UIImage(named: "paymentSuccessful")
+        successfulPaymentImage_view.contentMode = .scaleAspectFit
         
-        successfulPayment_circle.fillColor = UIColor(red: 50/255.0, green: 205/255.0, blue: 50/255.0, alpha: 1.0).cgColor
-        successfulPayment_circle.strokeColor = successfulPayment_circle.fillColor
-        successfulPayment_circle.lineWidth = 3.0
-        
-        // - Check Mark -
-        successfulPayment_checkMark.frame = CGRect(x: circle_x - circle_r,
-                                                   y: circle_y - circle_r,
-                                                   width: circle_r * 2,
-                                                   height: circle_r * 2)
-        successfulPayment_checkMark.textAlignment = NSTextAlignment.center
-        successfulPayment_checkMark.baselineAdjustment = UIBaselineAdjustment.alignCenters
-        successfulPayment_checkMark.font = UIFont(name: "SegoeUISymbol", size: successfulPayment_checkMark.frame.height * 2 / 3) // SegoeUISymbol | SegoeUIEmoji
-        successfulPayment_checkMark.textColor = UIColor.white
-        successfulPayment_checkMark.numberOfLines = 0
-        successfulPayment_checkMark.lineBreakMode = NSLineBreakMode.byWordWrapping
-        successfulPayment_checkMark.text = "\u{2714}"//"✓"
-        
-        // - Label -
+        // Label
         successfulPayment_label.frame = CGRect(x: screenSize.width / 20,
                                                y: screenSize.height * 125 / 192,
                                                width: screenSize.width / 2,
@@ -719,6 +742,74 @@ class DisplayItems: NSObject {
         successfulPayment_label.text = "Successful Payment"
         successfulPayment_label.sizeThatFits(CGSize(width: successfulPayment_label.frame.width,
                                                     height: successfulPayment_label.frame.height))
+        
+        // Declined Payment
+        // Image
+        declinedPaymentImage_view.frame = CGRect(x: screenSize.width * 29 / 128,
+                                                 y: screenSize.height * 309 / 768,
+                                                 width: screenSize.width * 75 / 512,
+                                                 height: screenSize.width * 75 / 512)
+        declinedPaymentImage_view.image = UIImage(named: "paymentDeclined")
+        declinedPaymentImage_view.contentMode = .scaleAspectFit
+        
+        // Label
+        declinedPayment_label.frame = CGRect(x: screenSize.width / 20,
+                                             y: screenSize.height * 65 / 96,
+                                             width: screenSize.width / 2,
+                                             height: screenSize.height * 5 / 24)
+        declinedPayment_label.textAlignment = NSTextAlignment.center
+        declinedPayment_label.baselineAdjustment = UIBaselineAdjustment.alignCenters
+        declinedPayment_label.font = UIFont(name: "AvenirNext-Bold", size: screenSize.height / 16)
+        declinedPayment_label.numberOfLines = 0
+        declinedPayment_label.lineBreakMode = NSLineBreakMode.byWordWrapping
+        declinedPayment_label.text = "Cannot complete\nUse a Different Card"
+        declinedPayment_label.sizeThatFits(CGSize(width: declinedPayment_label.frame.width,
+                                                  height: declinedPayment_label.frame.height))
+        
+        // Invalid Payment
+        // Image
+        invalidPaymentImage_view.frame = CGRect(x: screenSize.width * 29 / 128,
+                                                y: screenSize.height * 309 / 768,
+                                                width: screenSize.width * 75 / 512,
+                                                height: screenSize.width * 75 / 512)
+        invalidPaymentImage_view.image = UIImage(named: "paymentInvalid")
+        invalidPaymentImage_view.contentMode = .scaleAspectFit
+        
+        // Label
+        invalidPayment_label.frame = CGRect(x: screenSize.width / 20,
+                                            y: screenSize.height * 65 / 96,
+                                            width: screenSize.width / 2,
+                                            height: screenSize.height * 5 / 24)
+        invalidPayment_label.textAlignment = NSTextAlignment.center
+        invalidPayment_label.baselineAdjustment = UIBaselineAdjustment.alignCenters
+        invalidPayment_label.font = UIFont(name: "AvenirNext-Bold", size: screenSize.height / 16)
+        invalidPayment_label.numberOfLines = 0
+        invalidPayment_label.lineBreakMode = NSLineBreakMode.byWordWrapping
+        invalidPayment_label.text = "Card not read\nUse a Different Card"
+        invalidPayment_label.sizeThatFits(CGSize(width: invalidPayment_label.frame.width,
+                                                 height: invalidPayment_label.frame.height))
+        
+//        // Circle
+//        successfulPayment_circle.path = circlePath.cgPath
+//        
+//        successfulPayment_circle.fillColor = UIColor(red: 50/255.0, green: 205/255.0, blue: 50/255.0, alpha: 1.0).cgColor
+//        successfulPayment_circle.strokeColor = successfulPayment_circle.fillColor
+//        successfulPayment_circle.lineWidth = 3.0
+//        
+//        // - Check Mark -
+//        successfulPayment_checkMark.frame = CGRect(x: circle_x - circle_r,
+//                                                   y: circle_y - circle_r,
+//                                                   width: circle_r * 2,
+//                                                   height: circle_r * 2)
+//        successfulPayment_checkMark.textAlignment = NSTextAlignment.center
+//        successfulPayment_checkMark.baselineAdjustment = UIBaselineAdjustment.alignCenters
+//        successfulPayment_checkMark.font = UIFont(name: "SegoeUISymbol", size: successfulPayment_checkMark.frame.height * 2 / 3) // SegoeUISymbol | SegoeUIEmoji
+//        successfulPayment_checkMark.textColor = UIColor.white
+//        successfulPayment_checkMark.numberOfLines = 0
+//        successfulPayment_checkMark.lineBreakMode = NSLineBreakMode.byWordWrapping
+//        successfulPayment_checkMark.text = "\u{2714}"//"✓"
+        
+        // - Label -
         
         // Processing
         // Circle
@@ -824,8 +915,32 @@ class DisplayItems: NSObject {
         hideScreen_smsReceipt()
         hideScreen_paymentSuccessful()
         hideScreen_paymentProcessing()
+        hideScreen_paymentInvalid()
+        hideScreen_paymentDeclined()
         hideScreen_instructionsSequence()
         hideScreen_receiptSent()
+    }
+    
+    func lightningCable_disconnected () {
+        lightningCableConnectionImage_view.isHidden = false
+        lightningCableConnectionImage_view.image = UIImage(named: "disconnected")
+    }
+    func lightningCable_connected () {
+        lightningCableConnectionImage_view.image = UIImage(named: "connected")
+        lightningCableConnection_elementFade_timeRemaining = lightningCableConnection_elementFade_timeMax
+        lightningCableConnection_elementFade_timer = Timer.scheduledTimer(timeInterval: lightningCableConnection_elementFade_timeInterval,
+                                                                          target: self,
+                                                                          selector: #selector(self.lightningCableConnection_elementFade),
+                                                                          userInfo: nil, repeats: true)
+    }
+    func lightningCableConnection_elementFade () {
+        lightningCableConnection_elementFade_timeRemaining -= CGFloat(lightningCableConnection_elementFade_timeInterval)
+        if (lightningCableConnection_elementFade_timeRemaining < 0.0) {
+            lightningCableConnection_elementFade_timeRemaining = 0.0
+            lightningCableConnectionImage_view.isHidden = true
+            lightningCableConnection_elementFade_timer?.invalidate()
+            lightningCableConnection_elementFade_timer = nil
+        }
     }
 
     // - Hide/Show Screen Functions -
@@ -837,6 +952,7 @@ class DisplayItems: NSObject {
         swipeImage_view.isHidden = true
     }
     func showScreen_paymentSwipe () {
+        paymentFunctions.resetPhoneNumber()
         instructionsText.isHidden = false
         priceLineLayer.isHidden = false
         priceLabel.isHidden = false
@@ -878,6 +994,7 @@ class DisplayItems: NSObject {
         enterYourPhoneNumber.isHidden = false
         phoneNumpad_visible()
         backArrow_button.isHidden = false
+        phonePeriphery_visible()
         if (phoneNumStringCount > 0) {
             phonePeriphery_visible()
         }
@@ -903,18 +1020,43 @@ class DisplayItems: NSObject {
     //   > Payments <
     //     : Successful :
     func hideScreen_paymentSuccessful () {
-        successfulPayment_circle.isHidden = true
-        successfulPayment_checkMark.isHidden = true
+        successfulPaymentImage_view.isHidden = true
         successfulPayment_label.isHidden = true
     }
     func showScreen_paymentSuccessful () {
-        successfulPayment_circle.isHidden = false
-        successfulPayment_checkMark.isHidden = false
+        unlockTime_remaining = unlockTime_max
+        successfulPaymentImage_view.isHidden = false
         successfulPayment_label.isHidden = false
         successfulPayment_elementFade_timer = Timer.scheduledTimer(timeInterval: successfulPayment_elementFade_timeInterval,
                                                                    target: self,
                                                                    selector: #selector(self.transition_paymentSuccessful_to_smsReceipt),
                                                                    userInfo: nil, repeats: false)
+    }
+    //     : Declined :
+    func hideScreen_paymentDeclined () {
+        declinedPaymentImage_view.isHidden = true
+        declinedPayment_label.isHidden = true
+    }
+    func showScreen_paymentDeclined () {
+        declinedPaymentImage_view.isHidden = false
+        declinedPayment_label.isHidden = false
+        declinedPayment_elementFade_timer = Timer.scheduledTimer(timeInterval: declinedPayment_elementFade_timeInterval,
+                                                                 target: self,
+                                                                 selector: #selector(self.transition_paymentDeclined_to_paymentSwipe),
+                                                                 userInfo: nil, repeats: false)
+    }
+    //     : Invalid :
+    func hideScreen_paymentInvalid () {
+        invalidPaymentImage_view.isHidden = true
+        invalidPayment_label.isHidden = true
+    }
+    func showScreen_paymentInvalid () {
+        invalidPaymentImage_view.isHidden = false
+        invalidPayment_label.isHidden = false
+        invalidPayment_elementFade_timer = Timer.scheduledTimer(timeInterval: invalidPayment_elementFade_timeInterval,
+                                                                target: self,
+                                                                selector: #selector(self.transition_paymentInvalid_to_paymentSwipe),
+                                                                userInfo: nil, repeats: false)
     }
     
     //     = Transitions =
@@ -931,29 +1073,44 @@ class DisplayItems: NSObject {
         hideScreen_paymentProcessing()
         showScreen_paymentSuccessful()
     }
-    //         * Failed *
-    func transition_paymentProcessing_to_paymentFailed () {
+    //         * Declined *
+    func transition_paymentProcessing_to_paymentDeclined () {
         processingPayment_displayUpdate_kill()
         hideScreen_paymentProcessing()
-        showScreen_paymentSuccessful()
+        showScreen_paymentDeclined()
     }
-    //         * Swipe Again *
+    //         * Invalid *
     func transition_paymentProcessing_to_paymentSwipeAgain () {
         processingPayment_displayUpdate_kill()
         hideScreen_paymentProcessing()
-        showScreen_paymentSuccessful()
+        showScreen_paymentInvalid()
     }
     
     //       ~ All Transitions After Successful Payment ~
     func transition_paymentSuccessful_to_smsReceipt () {
         hideScreen_paymentSuccessful()
         showScreen_smsReceipt()
+        receiptYesNo_elementFade_timeRemaining = receiptYesNo_elementFade_timeMax
+        receiptYesNo_elementFade_timer = Timer.scheduledTimer(timeInterval: receiptYesNo_elementFade_timeInterval,
+                                                              target: paymentFunctions.self,
+                                                              selector: #selector(paymentFunctions.receiptYesNo_elementFade),
+                                                              userInfo: nil, repeats: true)
     }
     func transition_smsReceipt_to_phonePinPad () {
         hideScreen_smsReceipt()
         showScreen_phonePinPad()
     }
-    // Porter
+    
+    //       ~ All Transitions After Unsuccessful Payment ~
+    func transition_paymentDeclined_to_paymentSwipe() {
+        hideScreen_paymentDeclined()
+        showScreen_paymentSwipe()
+    }
+    func transition_paymentInvalid_to_paymentSwipe() {
+        hideScreen_paymentInvalid()
+        showScreen_paymentSwipe()
+    }
+    // SMS Receipt Transitions
     func transition_phonePinPad_to_smsReceiptSent () {
         hideScreen_phonePinPad()
         showScreen_receiptSent()
@@ -964,18 +1121,12 @@ class DisplayItems: NSObject {
     }
     func transition_smsReceiptYes_to_unlocked () { // User selected "Yes" & completed
         hideScreen_receiptSent()
-        if (unitTesting) {
-            lockState_verification_unlocked = true
-        }
         arduinoFunctions.arduinoLock_unlock()
         showScreen_instructionsSequence()
         instructionsImage_displayUpdate()
     }
     func transition_smsReceiptNo_to_unlocked () { // User selected "No" & then we transition to Unlocking
         hideScreen_smsReceipt()
-        if (unitTesting) {
-            lockState_verification_unlocked = true
-        }
         arduinoFunctions.arduinoLock_unlock()
         showScreen_instructionsSequence()
         instructionsImage_displayUpdate()
@@ -986,9 +1137,6 @@ class DisplayItems: NSObject {
     }
     func transition_phonePinPad_to_unlocked () {
         hideScreen_phonePinPad()
-        if (unitTesting) {
-            lockState_verification_unlocked = true
-        }
         arduinoFunctions.arduinoLock_unlock()
     }
     
@@ -1013,6 +1161,21 @@ class DisplayItems: NSObject {
         let imageName = "appChecklist_steps_" + String(instructionsImage_sequence_number)
         instructionsImage_view.image = UIImage(named: imageName)
         
+        // Follow Instructions Label - Update
+        if (instructionsImage_sequence_number == 0) {
+            instructionsLabel.text = "Freezer Unlocked"
+            instructionsImage_sequence_timeInterval = 3.0
+        }
+        else if (instructionsImage_sequence_number == instructionsImage_sequence_maxCount) {
+            instructionsLabel.text = "Follow Instructions"
+            instructionsImage_sequence_timeInterval = 3.0
+        }
+        else {
+            instructionsLabel.text = "Follow Instructions"
+            instructionsImage_sequence_timeInterval = 1.5
+        }
+        
+        // Follow Instructions Graphic - Update
         if (instructionsImage_sequence_number < instructionsImage_sequence_maxCount) {
             instructionsImage_sequence_number += 1
             instructionsImage_sequence_timer = Timer.scheduledTimer(timeInterval: instructionsImage_sequence_timeInterval,

@@ -12,17 +12,26 @@ import UIKit
 var rscMgr:  RscMgr!     // RscMgr handles the serial communication
 let appDelegate = UIApplication.shared.delegate as! AppDelegate
 let unitTesting = appDelegate.unitTesting
+let arduinoTesting = appDelegate.arduinoTesting
 
 class LightningSerialCable: NSObject, RscMgrDelegate {
     
     var arduinoRx_message = String()
     func enableComms() {
         rscMgr = RscMgr()
+        
         rscMgr.setDelegate(self)
-        rscMgr.enableExternalLogging(true)
+        rscMgr.enableExternalLogging(false)
+        rscMgr.enableTxRxExternalLogging(false)
+        
     }
     
     func processIncomingMessage() -> String {
+        
+//        if (arduinoTesting) {
+//            NSLog(arduinoRx_message)
+//        }
+        
         var tempString = ""
         var start_startPos = 0
         var finish_startPos = 0
@@ -40,16 +49,42 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
             if (start_startPos < finish_startPos) {
                 arduinoRx_message = arduinoRx_message.components(separatedBy: "<CCINFO>")[1]
                 arduinoRx_message = arduinoRx_message.components(separatedBy: "</CCINFO>")[0]
-                
+//                tempString = arduinoRx_message
+                arduinoRx_message = String(arduinoRx_message)\
                 arduinoRx_message = arduinoRx_message.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)! // url-encoded string
+                NSLog("CCINFO........................")
+//                NSLog("UNCHANGED")
+//                NSLog(tempString)
+//                let urlwithPercentEscapes = arduinoRx_message.addingPercentEncoding( withAllowedCharacters: NSCharacterSet.urlQueryAllowed)
+//                NSLog("Test 1")
+//                NSLog(urlwithPercentEscapes!)
+//                NSLog(".urlPathAllowed")
+//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlPathAllowed)!)
+//                NSLog(".urlQueryAllowed")
+//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!)
+//                NSLog(".urlHostAllowed")
+//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlHostAllowed)!)
+//                NSLog(".urlUserAllowed")
+//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed)!)
+//                NSLog(".urlFragmentAllowed")
+//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlFragmentAllowed)!)
+//                NSLog(".urlPasswordAllowed")
+//                NSLog(arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlPasswordAllowed)!)
+                
+//                arduinoRx_message = arduinoRx_message.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlPathAllowed)!
                 methodToExecute = "ccInfo"
                 ccInfo_chargeUser = 1;
                 
-                tempString = arduinoRx_message
                 
-                if (!unitTesting) {
-                    paymentFunctions.processPayment(method: methodToExecute, arduinoRx_message: arduinoRx_message, ccInfo_chargeUser: 1, subscription: 0)
+                NSLog(arduinoRx_message)
+//                arduinoRx_message = arduinoRx_message.cString(using: String.Encoding.utf8)
+                NSLog(arduinoRx_message)
+                
+                if (!unitTesting || arduinoTesting) {
+                    NSLog("........processPayment........")
+//                    paymentFunctions.processPayment(method: methodToExecute, arduinoRx_message: arduinoRx_message, ccInfo_chargeUser: 1, subscription: 0)
                 }
+                NSLog("CCINFO........................")
                 
                 arduinoRx_message = ""
             }
@@ -71,18 +106,23 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
             if (start_startPos < finish_startPos) {
                 arduinoRx_message = arduinoRx_message.components(separatedBy: "<LOCK>")[1]
                 arduinoRx_message = arduinoRx_message.components(separatedBy: "</LOCK>")[0]
+                print(".." + arduinoRx_message + "..")
                 
-                if (arduinoRx_message == "State: Unlocked") {
+                if ((arduinoRx_message == "State: Unlocked")) {// && lockState_actual) {
                     lockState_actual = false
+                    if (!unitTesting || arduinoTesting) {
+                        arduinoFunctions.serverComms_lockCommunication(lockString: arduinoRx_message)
+                    }
                 }
-                else if (arduinoRx_message == "State: Locked") {
+                else if ((arduinoRx_message == "State: Locked")) {// && (!lockState_actual)) {
                     lockState_actual = true
+                    if (!unitTesting || arduinoTesting) {
+                        arduinoFunctions.serverComms_lockCommunication(lockString: arduinoRx_message)
+                    }
+
                 }
                 
                 tempString = arduinoRx_message
-                if (!unitTesting) {
-                    arduinoFunctions.serverComms_lockCommunication(lockString: arduinoRx_message)
-                }
                 
                 arduinoRx_message = ""
             }
@@ -106,7 +146,7 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
                 arduinoRx_message = arduinoRx_message.components(separatedBy: "</FREEZER>")[0]
                 
                 tempString = arduinoRx_message
-                if (!unitTesting) {
+                if (!unitTesting || arduinoTesting) {
                     arduinoFunctions.serverComms_freezerCommunication(freezerString: arduinoRx_message)
                 }
                 
@@ -132,7 +172,7 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
                 arduinoRx_message = arduinoRx_message.components(separatedBy: "</KEEPALIVE>")[0]
                 
                 tempString = arduinoRx_message
-                if (!unitTesting) {
+                if (!unitTesting || arduinoTesting) {
                     arduinoFunctions.serverComms_keepAliveCommunication()
                 }
                 arduinoRx_message = ""
@@ -152,11 +192,16 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
     func cableConnected(_ protocolString: String!) {
         rscMgr.open()
         rscMgr.setBaud(baudRate)
+        lightningCableConnected = true
+        displayItems.lightningCable_connected()
+        declinedPaymentImage_view.isHidden = true
     }
     
     // serial cable disconnection detected
     func cableDisconnected() {
         // Could display something that relays it's in error
+        lightningCableConnected = false
+        displayItems.lightningCable_disconnected()
     }
     
     // a change has been made to the port configuration; needed to conform to RscMgrDelegate protocol
@@ -190,7 +235,7 @@ class LightningSerialCable: NSObject, RscMgrDelegate {
         
         arduinoRx_message += message
         arduinoRx_message = (arduinoRx_message as NSString).replacingOccurrences(of: "?", with: "")
-        NSLog("<ARDUINO_IN> = " + arduinoRx_message)
+//        NSLog("<ARDUINO_IN> = " + arduinoRx_message)
         
         let _ = processIncomingMessage()
         

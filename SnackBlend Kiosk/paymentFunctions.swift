@@ -9,19 +9,15 @@
 import Foundation
 import UIKit
 
-let paymentAddress = "https://io.calmlee.com/userExists.php"
-let phoneExistsAddress = "https://io.calmlee.com/phoneExists.php"
-let pinExistsAddress = "https://io.calmlee.com/pinExists.php"
-let pinCheckAddress = "https://io.calmlee.com/hashCheck.php"
-let registerNewUserAddress = "https://io.calmlee.com/paymentPosting_GET.php"
+let paymentAddress = "https://io.calmlee.com/originKiosk_processPayment.php"
+let receiptAddress = "https://io.calmlee.com/originKiosk_generateReceipt.php"
+
 let lockAddress = "https://io.calmlee.com/lock_commands.php"
 let keepAliveAddress = "https://io.calmlee.com/keepAlive_commands.php"
 let freezerAddress = "https://io.calmlee.com/freezer_commands.php"
 let siteSpecificUnlockTimesAddress = "https://io.calmlee.com/siteSpecificUnlockTimes.php"
 let freezerSettingsAddress = "https://io.calmlee.com/freezerSettings.php"
 let priceSettingsAddresss = "https://io.calmlee.com/priceSettings.php"
-let pinMigrationAddress = "https://io.calmlee.com/pinMigration.php"
-//let paymentAddress = "https://io.calmlee.com/userExists_stripeTestMode.php"
 
 // Subscription Information
 var subscription_priceSet: Bool = false
@@ -42,7 +38,7 @@ var payment_price1:             Float = 9.99
 var payment_price2:             Float = 0
 
 // Arduino Lock
-let unlockTime_max: CGFloat = 30.0
+let unlockTime_max: CGFloat = 30.0 // Beckinsale
 var unlockTime_remaining: CGFloat = 0.0
 var unlockCountdown_timer: Timer?
 let successPayment_transition = 5.0
@@ -52,7 +48,8 @@ let lockState_visualization_timeInterval = 0.01
 var paymentOr_masterUnlock = false
 
 // Lock state
-var lockState_transmitted = true
+var lockState_unlock_transmitted = false
+var lockState_lock_transmitted = false
 var lockState_actual = false
 
 // siteSpecificUnlockTimes
@@ -76,6 +73,11 @@ var waitingForCC = false
 var methodToExecute = ""
 var ccInfo_chargeUser = 0
 
+// Receipt Information
+var customerNumber: Int = 0
+var chargeAmt:      Int = 0
+var chargeTime:     Int = 0
+
 // Phone Number Information
 var phoneNumString: [Character] = ["(", " ", " ", " ", ")", " ", " ", " ", " ", "-", " ", " ", " ", " "]
 var phoneNumString_exact: [Character] = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
@@ -89,16 +91,24 @@ class PaymentFunctions: NSObject {
     // Server Payment Processing
     func processPayment(method: String, arduinoRx_message: String, ccInfo_chargeUser: Int, subscription: Int) {
         
+        displayItems.hideScreen_paymentSwipe()
+        displayItems.showScreen_paymentProcessing()
+        processingPayment_timer = Timer.scheduledTimer(timeInterval: processingPayment_timeInterval,
+                                                       target: displayItems.self,
+                                                       selector: #selector(displayItems.processingPayment_displayUpdate),
+                                                       userInfo: nil, repeats: true)
+        
         var urlWithParams = ""
         let versionString = "&version=" + defaults.string(forKey: "version")!
         
         // V3 Payment Communications Structure
         if (method == "ccInfo") {
             let ccInfoString = "?ccInfo=" + arduinoRx_message
-            let chargeUser_now = "&chargeNow=" + String(ccInfo_chargeUser)
-            let companyString = "&locationName=" + defaults.string(forKey: "location")!
-            let subscribeString = "&subscribe=" + String(subscription)
-            urlWithParams = paymentAddress + ccInfoString + companyString + versionString + chargeUser_now + subscribeString
+            let locationString = "&locationName=" + defaults.string(forKey: "location")!
+            urlWithParams = paymentAddress + ccInfoString + locationString + versionString
+            if (unitTesting) {
+                urlWithParams += "&unitTesting=1"
+            }
         }
         
         // Create NSURL Object
@@ -126,14 +136,36 @@ class PaymentFunctions: NSObject {
                 var responseString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)! as String
                 responseString = responseString.replacingOccurrences(of: "\n", with: "")
                 NSLog("<URL_PAYMENT_REPLY> = " + responseString)
+                print("<URL_PAYMENT_REPLY> = " + responseString)
                 
-                let processStatus = responseString.components(separatedBy: ",")[0]
+                let processingInfo = responseString.components(separatedBy: ",")
+                let processStatus = processingInfo[0]
                 
+                displayItems.processingPayment_displayUpdate_kill()
                 if (processStatus == "Successful") {
                     paymentOr_masterUnlock = true
+                    
+                    customerNumber = Int(processingInfo[1])!
+                    chargeAmt = Int(processingInfo[2])!
+                    chargeTime = Int(processingInfo[3])!
+                    if (processingInfo[4] != "NA") {
+                        self.resetPhoneNumber()
+                        print(processingInfo[4])
+                        for character in processingInfo[4].characters {
+                            paymentFunctions.addTo_phoneNumber(inputVal: character)
+                        }
+                        print(">>>")
+                        print(String(phoneNumString))
+                        print(">>>")
+                    }
+                    
                     displayItems.transition_paymentProcessing_to_paymentSuccessful()
                 }
                 else if (processStatus == "Swipe Again") {
+                    paymentFunctions.swipeAgain()
+                }
+                else if (processStatus == "Invalid Card") {
+                    paymentFunctions.invalidCard()
                 }
                 else if (processStatus == "Failed") {
                     paymentOr_masterUnlock = false
@@ -145,37 +177,89 @@ class PaymentFunctions: NSObject {
         task.resume()
     }
     
+    func transmitReceipt () {
+        
+        var urlWithParams = ""
+        let versionString = "&version=" + defaults.string(forKey: "version")!
+        
+        // V3 Receipt Communications Structure
+        let locationString = "?locationName=" + defaults.string(forKey: "location")!
+        let customerNumberString = "&customerNumber=" + String(customerNumber)
+        let chargeAmtString = "&chargeAmt=" + String(chargeAmt)
+        let chargeTimeString = "&chargeTime=" + String(chargeTime)
+        let phoneNumberString = "&phoneNumber=" + String(phoneNumString_exact)
+        
+        urlWithParams = receiptAddress + locationString + customerNumberString + chargeAmtString + chargeTimeString + phoneNumberString + versionString
+        if (unitTesting) {
+            urlWithParams += "&unitTesting=1"
+            print("<<>>")
+            print(urlWithParams)
+            print("<<>>")
+        }
+        
+        // Create NSURL Object
+        urlWithParams = urlWithParams.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+        let myUrl = NSURL(string: urlWithParams);
+        
+        // Creaste URL Request
+        let request = NSMutableURLRequest(url:myUrl! as URL);
+        
+        // Set request HTTP method to GET. It could be POST as well
+        request.httpMethod = "GET"
+        
+        // Execute HTTP Request
+        let task = URLSession.shared.dataTask(with: request as URLRequest) {
+            data, response, error in
+            DispatchQueue.main.async {
+                // Check for error
+                if error != nil
+                {
+                    print("error=\(String(describing: error))")
+                    return
+                }
+                NSLog("<RECEIPT_TRANSMITTED>")
+            }
+        }
+        
+        task.resume()
+    }
+    
     func receiptYesNo (sender: UIButton) {
         displayItems.hideScreen_smsReceipt()
         if (sender.titleLabel!.text! == "Yes") {
-            // Beckinsale
-            // Need to transmit information to server to transmit text from Twilio
+            receiptYesNo_elementFade_timeRemaining = receiptYesNo_elementFade_timeMax
             displayItems.transition_smsReceipt_to_phonePinPad()
         }
         else {
+            receiptYesNo_elementFade_timer?.invalidate()
+            receiptYesNo_elementFade_timer = nil
             displayItems.transition_smsReceiptNo_to_unlocked()
         }
     }
+    
+    func addTo_phoneNumber (inputVal: Character) {
+        if phoneNumStringCount < 10 {
+            phoneNumString_exact[phoneNumStringCount] = inputVal
+            phoneNumStringCount += 1
+            if phoneNumStringCount <= 3 {
+                phoneNumString[phoneNumStringCount] = inputVal
+            }
+            else if phoneNumStringCount <= 6 {
+                phoneNumString[phoneNumStringCount+2] = inputVal
+            }
+            else if phoneNumStringCount <= 10 {
+                phoneNumString[phoneNumStringCount+3] = inputVal
+            }
+        }
+        phoneNumberDisplay.text = String(phoneNumString)
+    }
 
     func numpadPressed (sender: UIButton) {
+        receiptYesNo_elementFade_timeRemaining = receiptYesNo_elementFade_timeMax
         let inputVal = (sender.titleLabel?.text)!
         if (inputVal != "x") {
             displayItems.phonePeriphery_visible()
-            if phoneNumStringCount < 10 {
-                phoneNumString_exact[phoneNumStringCount] = Character((sender.titleLabel?.text)!)
-                phoneNumStringCount += 1
-                if phoneNumStringCount <= 3 {
-                    phoneNumString[phoneNumStringCount] = Character((sender.titleLabel?.text)!)
-                }
-                else if phoneNumStringCount <= 6 {
-                    phoneNumString[phoneNumStringCount+2] = Character((sender.titleLabel?.text)!)
-                }
-                else if phoneNumStringCount <= 10 {
-                    phoneNumString[phoneNumStringCount+3] = Character((sender.titleLabel?.text)!)
-                }
-            }
-            phoneNumberDisplay.text = String(phoneNumString)
-            
+            addTo_phoneNumber(inputVal: Character(inputVal))
             if (phoneNumStringCount == 10) {
                 displayItems.showAndEnable_pinpad_lowerRight()
             }
@@ -209,14 +293,20 @@ class PaymentFunctions: NSObject {
     func phoneNumber_submit (sender: UIButton) {
         let inputVal = (sender.titleLabel?.text)!
         if (inputVal == "Submit") {
-            // Porter
-            // Also call the function to send a receipt to a phone number, asynchronously
-//            displayItems.transition_phonePinPad_to_unlocked()
+            // Beckinsale
+            transmitReceipt()
             displayItems.transition_phonePinPad_to_smsReceiptSent()
         }
     }
+    
+    func resetPhoneNumber() {
+        phoneNumString = ["(", " ", " ", " ", ")", " ", " ", " ", " ", "-", " ", " ", " ", " "]
+        phoneNumString_exact = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+        phoneNumStringCount = 0
+    }
 
     func clearPhoneNumber () {
+        receiptYesNo_elementFade_timeRemaining = receiptYesNo_elementFade_timeMax
         phoneNumString = ["(", " ", " ", " ", ")", " ", " ", " ", " ", "-", " ", " ", " ", " "]
         phoneNumString_exact = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
         phoneNumberDisplay.text = " "
@@ -225,16 +315,28 @@ class PaymentFunctions: NSObject {
     }
     
     func smsReceipt_goToMain() {
+        receiptYesNo_elementFade_timeRemaining = receiptYesNo_elementFade_timeMax
         displayItems.hideScreen_phonePinPad()
         displayItems.showScreen_smsReceipt()
     }
 
     func successfulPayment () {
         // Sequencing begin...
-    //    arduinoFunctions.arduinoLock_unlock()
+//        arduinoFunctions.arduinoLock_unlock()
+        displayItems.transition_paymentSuccessful_to_smsReceipt()
     }
     func unsuccessfulPayment () {
         // Placeholder
+        print("---------->>>>> unsuccessfulPayment")
+        displayItems.transition_paymentProcessing_to_paymentDeclined()
+    }
+    func invalidCard () {
+        print("---------->>>>> invalidCard")
+        displayItems.transition_paymentProcessing_to_paymentSwipeAgain()
+    }
+    func swipeAgain () {
+        print("---------->>>>> swipeAgain")
+        displayItems.transition_paymentProcessing_to_paymentSwipeAgain()
     }
 
     func unlockTimer_timeRemaining () {
@@ -243,14 +345,38 @@ class PaymentFunctions: NSObject {
             unlockTime_remaining = 0.0
             killUnlockTimer()
             displayItems.setLockImage_locked()
+            lockState_repeatLockComms_unlocked_timer?.invalidate()
+            lockState_repeatLockComms_unlocked_timer = nil
+            lockState_repeatLockComms_locked_timer?.invalidate()
+            lockState_repeatLockComms_locked_timer = nil
+            lockState_unlock_transmitted = false
+            lockState_lock_transmitted = false
+            lockState_verification_unlocked = false
+            lockState_verification_locked = false
             arduinoFunctions.arduinoLock_lock()
             // Execute relock function here
             // This allows for multiple payments to go through and leave the freezer unlocked during these transactions
         }
         circularMeter.reloadData()
     }
+    
+    func receiptYesNo_elementFade () {
+        receiptYesNo_elementFade_timeRemaining -= CGFloat(receiptYesNo_elementFade_timeInterval)
+        if (receiptYesNo_elementFade_timeRemaining < 0.0) {
+            receiptYesNo_elementFade_timeRemaining = 0.0
+            receiptYesNo_elementFade_timer?.invalidate()
+            receiptYesNo_elementFade_timer = nil
+            displayItems.hideScreen_smsReceipt()
+            displayItems.hideScreen_phonePinPad()
+            arduinoFunctions.arduinoLock_unlock()
+            displayItems.showScreen_instructionsSequence()
+            displayItems.instructionsImage_displayUpdate()
+        }
+    }
 
     func killUnlockTimer () {
+//        lockState_sequenceStarted_unlocked = false
+//        lockState_sequenceStarted_locked = false
         unlockCountdown_timer?.invalidate()
         unlockCountdown_timer = nil
     }

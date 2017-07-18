@@ -12,8 +12,11 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // Unit Testing
-    var unitTesting = true
-
+//    var unitTesting = true
+//    var arduinoTesting = true
+    var unitTesting = false
+    var arduinoTesting = false
+    
     var window: UIWindow?
     let defaults = UserDefaults.standard
     var paymentViewController = PaymentViewController()
@@ -45,6 +48,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        createLogs()
+        uploadLogs()
+        
         lightningSerialCable.enableComms()
         
         NSSetUncaughtExceptionHandler { (exception) in
@@ -71,9 +78,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         signal(SIGPIPE) { (_) in
             NSLog("<EXCEPTION> = SIGPIPE")
         }
-        
-        createLogs()
-        uploadLogs()
         
         return true
     }
